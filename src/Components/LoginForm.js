@@ -1,19 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Form } from 'semantic-ui-react'
 
 
 const LoginForm = () => {
+  /*
+    Defining Hooks for input fields
+  */
+  const [ email, setEmail ] = useState('');
+  const [ password, setPassword ] = useState('');
+
   const styles = LoginFormStyles;
+
+  const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
+
+  const authenticateUser = () => {
+      // Send to email and password values to the backend to authenticate
+      console.log(email, password);
+  }
 
   return (
     <Form style={styles.FormBox}>
       <Form.Field style={styles.inputField}>
-        <input placeholder='Email ID' style={styles.input} />
+        <input type="text" placeholder='Email ID' style={styles.input}
+               onChange={e => handleInputChange(setEmail, e.target.value)} />
       </Form.Field>
       <Form.Field style={styles.inputField}>
-        <input placeholder='Password' style={styles.input} />
+        <input type="password" placeholder='Password' style={styles.input} 
+               onChange={e => handleInputChange(setPassword, e.target.value)} />
       </Form.Field>
-      <Button type='submit' style={styles.button}>Next</Button>
+      <Button type='submit' style={styles.button} onClick={authenticateUser}>Next</Button>
       <Form.Field>
         <label style={styles.label}><a href="/register" style={styles.label.a}>Create account</a></label>
       </Form.Field>
