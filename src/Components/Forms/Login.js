@@ -50,7 +50,7 @@ const LoginForm = () => {
     <Form style={styles.FormBox}>
       <Form.Field style={styles.inputField}>
         <input id="email" type="text" placeholder='Email ID' 
-               style={ errorState.email != null ? {...styles.input, ...styles.error } : styles.input }
+               style={ errorState.email !== null ? {...styles.input, ...styles.error } : styles.input }
                onChange={e => handleInputChange(setEmail, e.target.value)} />
         
         {
@@ -63,7 +63,7 @@ const LoginForm = () => {
       </Form.Field>
       <Form.Field style={styles.inputField}>
         <input id="passowrd" type="password" placeholder='Password'
-               style={ errorState.email != null ? {...styles.input, ...styles.error } : styles.input } 
+               style={ errorState.password !== null ? {...styles.input, ...styles.error } : styles.input } 
                onChange={e => handleInputChange(setPassword, e.target.value)} />
         {
           errorState.password === 'empty' && <InputError message={`Enter a password`} />
@@ -118,7 +118,7 @@ const LoginFormStyles = {
         }
     },
     error: {
-      borderColor: '1px solid #d93025'
+      border: '1px solid #d93025'
     }
 }
 
