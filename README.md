@@ -15,4 +15,4 @@ This will build and display the front-end at `http://localhost:3000`, but in ord
 
 ### Note:
 
-- The project uses React Hooks which is in the newer versions on React, make sure you learn how hooks work in here, can refer the link [here](https://reactjs.org/docs/hooks-intro.html).
+- The project uses React Hooks which is in the newer versions on React, make sure you learn how hooks work, can refer to the link [here](https://reactjs.org/docs/hooks-intro.html).
