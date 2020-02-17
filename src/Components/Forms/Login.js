@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Button, Form } from 'semantic-ui-react'
 import InputError from '../Error/FormField';
+import  { Redirect } from 'react-router-dom'
 
-const LoginForm = () => {
+const LoginForm = (props) => {
   /*
     Defining Hooks for input fields
   */
@@ -20,7 +21,7 @@ const LoginForm = () => {
       setErrorState({ 'email': null, 'password': null });
       setLoading(true);
 
-      // Send to email and password values to the backend to authenticate
+      // Send email and password values to the backend to authenticate
       setTimeout(() => {
 
         // Empty field validation
@@ -35,9 +36,12 @@ const LoginForm = () => {
           if(email !== 'gaganganapathyas@gmail.com') {
             setErrorState({ ...errorState, 'email': 'wrong' });
           }
-
           else if(password !== 'abcd') {
             setErrorState({ ...errorState, 'password': 'wrong' });
+          }
+          else {
+            // correct email and password redirect to dashboard
+            setErrorState({ 'email': 'correct', 'password': 'correct' });
           }
         }
         
@@ -47,37 +51,48 @@ const LoginForm = () => {
   }
 
   return (
-    <Form style={styles.FormBox}>
-      <Form.Field style={styles.inputField}>
-        <input id="email" type="text" placeholder='Email ID' 
-               style={ errorState.email !== null ? {...styles.input, ...styles.error } : styles.input }
-               onChange={e => handleInputChange(setEmail, e.target.value)} />
-        
-        {
-          errorState.email === 'empty' && <InputError message={`Enter an email ID`} />
-        }
+    <React.Fragment>
+      {
+        errorState.email === 'correct' && errorState.password === 'correct' 
+        && <Redirect 
+              to={{ 
+                    pathname: '/dashboard', 
+                    state: { token: 'lolol', userID: email } 
+                }} 
+            />
+      }
+      <Form style={styles.FormBox}>
+        <Form.Field style={styles.inputField}>
+          <input id="email" type="text" placeholder='Email ID' 
+                style={ errorState.email !== null ? {...styles.input, ...styles.error } : styles.input }
+                onChange={e => handleInputChange(setEmail, e.target.value)} />
+          
+          {
+            errorState.email === 'empty' && <InputError message={`Enter an email ID`} />
+          }
 
-        {
-          errorState.email === 'wrong' && <InputError message={`Couldn't find your account`} />
-        }
-      </Form.Field>
-      <Form.Field style={styles.inputField}>
-        <input id="passowrd" type="password" placeholder='Password'
-               style={ errorState.password !== null ? {...styles.input, ...styles.error } : styles.input } 
-               onChange={e => handleInputChange(setPassword, e.target.value)} />
-        {
-          errorState.password === 'empty' && <InputError message={`Enter a password`} />
-        }
+          {
+            errorState.email === 'wrong' && <InputError message={`Couldn't find your account`} />
+          }
+        </Form.Field>
+        <Form.Field style={styles.inputField}>
+          <input id="passowrd" type="password" placeholder='Password'
+                style={ errorState.password !== null ? {...styles.input, ...styles.error } : styles.input } 
+                onChange={e => handleInputChange(setPassword, e.target.value)} />
+          {
+            errorState.password === 'empty' && <InputError message={`Enter a password`} />
+          }
 
-        {
-          errorState.password === 'wrong' && <InputError message={`Wrong password. Try again`} />
-        }
-      </Form.Field>
-      <Button type='submit' style={styles.button} loading={loading} onClick={authenticateUser}>Next</Button>
-      <Form.Field>
-        <label style={styles.label}><a href="/register" style={styles.label.a}>Create account</a></label>
-      </Form.Field>
-    </Form>
+          {
+            errorState.password === 'wrong' && <InputError message={`Wrong password. Try again`} />
+          }
+        </Form.Field>
+        <Button type='submit' style={styles.button} loading={loading} onClick={authenticateUser}>Next</Button>
+        <Form.Field>
+          <label style={styles.label}><a href="/register" style={styles.label.a}>Create account</a></label>
+        </Form.Field>
+      </Form>
+    </React.Fragment>
   )
 }
 
