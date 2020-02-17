@@ -1,7 +1,7 @@
 import React from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Grid } from 'semantic-ui-react'
-import LoginForm from './Components/LoginForm';
+import LoginForm from './Components/Forms/Login';
 
 const App = () => {
   const styles = AppStyles;
