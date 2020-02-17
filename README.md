@@ -2,10 +2,12 @@
 
 ### Prerequisites :
 
-Make sure you have the following installed :
+Make sure you have the following installed:
 
 - node
 - yarn
+
+Project built using version `node v13.6.0`.
 
 ### Install
 
