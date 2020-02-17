@@ -16,8 +16,6 @@ const LoginForm = (props) => {
 
   const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
-  let authToken = 'lolol';
-
   const authenticateUser = () => {
       // Init authentication
       setErrorState({ 'email': null, 'password': null });
@@ -43,16 +41,15 @@ const LoginForm = (props) => {
           }
           else {
             // correct email and password redirect to dashboard
+            localStorage.setItem('token', 'lolol');
             setErrorState({ 'email': 'correct', 'password': 'correct' });
           }
         }
-        
+
         setLoading(false);
-      }, 1000); 
+      }, 500); 
   }
-
-  const destroyTokenOnLogOut = () => authToken = null;
-
+  
   return (
     <React.Fragment>
       {
@@ -60,8 +57,7 @@ const LoginForm = (props) => {
         && <Redirect 
               to={{ 
                     pathname: '/dashboard', 
-                    state: { token: authToken, email },
-                    callback: destroyTokenOnLogOut
+                    state: { email }
                 }} 
             />
       }

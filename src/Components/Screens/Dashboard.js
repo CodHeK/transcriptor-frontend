@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import  { Redirect, useHistory } from 'react-router-dom';
-import { Menu, Segment } from 'semantic-ui-react';
+import { Menu, Segment, Container } from 'semantic-ui-react';
+import ListTranscriptions from './ListTranscriptions';
 import logo from '../../images/ntu-logo.png';
 
 const Dashboard = (props) => {
     const [ page, setPage ] = useState('Home');
     let history = useHistory();
 
-    if(props.location.state !== undefined && props.location.callback !== undefined) {
-        const { token } = props.location.state;
-
-        const destroyToken = props.location.callback;
-
+    if(props.location.state !== undefined) {
+        
         const handleTabClick = (_, { name }) => {
             if(name === 'logout') {
-                destroyToken();
+                localStorage.removeItem('token');
                 history.push("/login");
             }   
             else {
@@ -22,11 +20,23 @@ const Dashboard = (props) => {
             }
         }
 
+        let subPage = null;
+
+        switch(page) {
+            case 'Home':
+                // subPage = <Home />
+                break;
+            case 'My Transcriptions':
+                subPage = <ListTranscriptions />
+                break;
+            default:
+                // subPage = <ReSpeak />
+        }
+
         return (
             <React.Fragment>
                 {
-                    console.log(token) && 
-                    token !== 'lolol' 
+                    localStorage.getItem('token') === null
                     && <Redirect 
                             to={{ 
                                 pathname: '/login', 
@@ -34,6 +44,7 @@ const Dashboard = (props) => {
                             }} 
                         />
                 }
+
                 <Segment style={{ boxShadow: 'none', border: '0' }}>
                     <Menu stackable secondary>
                         <Menu.Item>
@@ -75,6 +86,11 @@ const Dashboard = (props) => {
                         </Menu.Menu>
                     </Menu>
                 </Segment>
+
+                <Container>
+                    {subPage}
+                </Container>
+                
             </React.Fragment>
         )
     }
