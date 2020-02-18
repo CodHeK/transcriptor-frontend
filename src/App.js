@@ -35,7 +35,7 @@ const App = () => {
           <Grid.Column 
             style={{ ...styles.FormContainer.general, ...styles.FormContainer[page]}}
           >
-              {Form}
+            {Form}
           </Grid.Column>
         <Grid.Column></Grid.Column>
       </Grid>
@@ -43,6 +43,9 @@ const App = () => {
   );
 }
 
+/*
+  Define Styles for the App Component
+*/
 const AppStyles = {
   FormContainer: {
     register: {

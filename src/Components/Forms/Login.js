@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Button, Form } from 'semantic-ui-react';
 import InputError from '../Error/FormField';
 import  { Redirect } from 'react-router-dom';
-import '../mediaQueries.css';
+import PropTypes from 'prop-types';
+import '../styles.css';
 
 const LoginForm = (props) => {
   /*
@@ -97,6 +98,16 @@ const LoginForm = (props) => {
   )
 }
 
+/* 
+  Define LoginForm PropTypes
+*/
+LoginForm.propTypes = {
+  location: PropTypes.object
+}
+
+/*
+  Define Styles for the LoginForm Component
+*/
 const LoginFormStyles = {
     FormBox: {
         marginTop: '3em',

@@ -12,6 +12,9 @@ const InputError = (props) => {
     )
 }
 
+/*
+  Define Styles for the InputError Component
+*/
 const styles = {
     error: {
         color: '#d93025',

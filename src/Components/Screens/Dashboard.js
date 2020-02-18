@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import  { Redirect, useHistory } from 'react-router-dom';
 import { Menu, Segment, Container } from 'semantic-ui-react';
 import ListTranscriptions from './ListTranscriptions';
+import Home from './Home';
 import logo from '../../images/ntu-logo.png';
+import PropTypes from 'prop-types';
 
 const Dashboard = (props) => {
     const [ page, setPage ] = useState('Home');
@@ -24,7 +26,7 @@ const Dashboard = (props) => {
 
         switch(page) {
             case 'Home':
-                // subPage = <Home />
+                subPage = <Home />
                 break;
             case 'My Transcriptions':
                 subPage = <ListTranscriptions />
@@ -104,6 +106,13 @@ const Dashboard = (props) => {
             />
         )
     }
+}
+
+/* 
+  Define Dashboard PropTypes
+*/
+Dashboard.propTypes = {
+    location: PropTypes.object
 }
 
 export default Dashboard;

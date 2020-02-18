@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form } from 'semantic-ui-react';
 import InputError from '../Error/FormField';
 import  { Redirect } from 'react-router-dom';
-import '../mediaQueries.css';
+import '../styles.css';
 
 const RegisterForm = () => {
   /*
@@ -112,6 +112,9 @@ const RegisterForm = () => {
   )
 }
 
+/*
+  Define Styles for the Register Component
+*/
 const LoginFormStyles = {
     FormBox: {
         marginTop: '3em',

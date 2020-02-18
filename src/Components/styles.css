@@ -1,0 +1,65 @@
+/*
+    Media queries related to every screen or any pseudo class attachments
+    written here make sure to comment the file it belongs to.
+*/
+
+/* 
+    Forms/(Login.js & Register.js)
+*/
+@media only screen and (min-width: 1450px) {
+    .next-btn {
+        right: 1% !important;
+    }
+    #email, #password {
+        margin: 1px 13px 0px !important;
+    }
+    #register {
+        margin: 30px 28px !important;
+    }
+}
+
+/* 
+    DropZone styles
+*/
+
+.dzu-dropzone {
+    border: 2px dashed #999 !important;
+    margin-left: 3.5% !important;
+    height: auto !important;
+    background-color: rgba(220, 220, 220, 0.2);
+    /* box-shadow:0 1px 3px rgba(0,0,0,0.1), inset 0 0 30px rgba(0,0,0,0.1) !important; */
+}
+
+.dzu-inputLabel {
+    color: rgba(0, 0, 0, 0.5) !important;
+    font-family: 'Open Sans' !important;
+    font-weight: 400 !important;
+}
+
+.dzu-previewFileName {
+    letter-spacing: 1px;
+    font-family: 'Open Sans' !important;
+    font-weight: 400 !important;
+}
+
+.dzu-inputLabelWithFiles {
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    font-weight: 550 !important;
+    color: #000 !important;
+    background-color: #fff;
+}
+
+.dzu-submitButton {
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    font-weight: 550 !important;
+    color: #000 !important;
+    margin-top: 3.5em;
+    background-color: #E6E6E6 !important;
+}
+
+body ::-webkit-scrollbar-track {
+    background-color: none;
+    background: none;
+}
