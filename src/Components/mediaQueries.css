@@ -1,0 +1,11 @@
+@media only screen and (min-width: 1450px) {
+    .next-btn {
+        right: 1% !important;
+    }
+    #email, #password {
+        margin: 1px 13px 0px !important;
+    }
+    #register {
+        margin: 30px 28px !important;
+    }
+}

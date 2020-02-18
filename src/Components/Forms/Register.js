@@ -4,10 +4,12 @@ import InputError from '../Error/FormField';
 import  { Redirect } from 'react-router-dom';
 import '../mediaQueries.css';
 
-const LoginForm = (props) => {
+const RegisterForm = () => {
   /*
     Defining Hooks for input fields
   */
+  const [ firstName, setFirstName] = useState('');
+  const [ lastName, setLastName ] = useState('');
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
   const [ loading, setLoading ] = useState(false);
@@ -42,8 +44,10 @@ const LoginForm = (props) => {
           }
           else {
             // correct email and password redirect to dashboard
-            localStorage.setItem('token', 'lolol');
-            setErrorState({ 'email': 'correct', 'password': 'correct' });
+            if(firstName !== '' && lastName !== '') {
+                console.log(firstName, lastName, email, password);
+                setErrorState({ 'email': 'correct', 'password': 'correct' });
+            }
           }
         }
 
@@ -57,12 +61,23 @@ const LoginForm = (props) => {
         errorState.email === 'correct' && errorState.password === 'correct' 
         && <Redirect 
               to={{ 
-                    pathname: '/dashboard', 
-                    state: { email }
+                    pathname: '/login'
                 }} 
             />
       }
       <Form style={styles.FormBox}>
+        <Form.Field style={styles.inputField}>
+          <input id="firstName" type="text" placeholder='First Name' 
+                style={styles.input}
+                onChange={e => handleInputChange(setFirstName, e.target.value)} />
+          
+        </Form.Field>
+        <Form.Field style={styles.inputField}>
+          <input id="lastName" type="text" placeholder='Last Name' 
+                style={styles.input}
+                onChange={e => handleInputChange(setLastName, e.target.value)} />
+          
+        </Form.Field>
         <Form.Field style={styles.inputField}>
           <input id="email" type="text" placeholder='Email ID' 
                 style={ errorState.email !== null ? { ...styles.input, ...styles.error } : styles.input }
@@ -90,7 +105,7 @@ const LoginForm = (props) => {
         </Form.Field>
         <Button type='submit' className="next-btn" style={styles.button} loading={loading} onClick={authenticateUser}>Next</Button>
         <Form.Field>
-          <label id="register" style={styles.label}><a href="/register" style={styles.label.a}>Create account</a></label>
+          <label id="login" style={styles.label}><a href="/login" style={styles.label.a}>Login</a></label>
         </Form.Field>
       </Form>
     </React.Fragment>
@@ -139,4 +154,4 @@ const LoginFormStyles = {
     }
 }
 
-export default LoginForm;
+export default RegisterForm;

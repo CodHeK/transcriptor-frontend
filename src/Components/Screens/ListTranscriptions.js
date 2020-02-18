@@ -8,7 +8,7 @@ const ListTranscriptions = () => {
 
     return (
         <React.Fragment>
-            <Menu tabular style={{ marginLeft: '3.2em' }}>
+            <Menu tabular style={{ marginLeft: '4%' }}>
                 <Menu.Item
                     name='Created'
                     active={subPage === 'Created'}
