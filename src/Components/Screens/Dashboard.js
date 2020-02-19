@@ -82,7 +82,7 @@ const Dashboard = (props) => {
 
                         <Menu.Menu position='right'>
                             <Dropdown text={firstname} 
-                                      pointing className="active link item"
+                                      className="active link item"
                                       style={{ marginRight: '2.5vw' }}>
                                 <Dropdown.Menu>
                                     <Dropdown.Item

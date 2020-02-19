@@ -25,7 +25,7 @@ const ListTranscriptions = () => {
             setTranscriptionList(list);
         });
     },[]); /* 
-               [] -> to make sure infinte loop doesn't occur 
+               useEffect(() => {...},[]) -> to make sure infinte loop doesn't occur 
                https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
            */
 
