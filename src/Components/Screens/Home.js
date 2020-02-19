@@ -2,6 +2,10 @@ import React from 'react';
 import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader'
 
+/*
+  Refer: https://react-dropzone-uploader.js.org/docs/api#getuploadparams
+*/
+
 const Home = () => {
     const getUploadParams = async ({ file, meta }) => {
       const formData = new FormData();
