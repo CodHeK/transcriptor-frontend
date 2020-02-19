@@ -12,44 +12,68 @@ const LoginForm = (props) => {
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
   const [ loading, setLoading ] = useState(false);
+  const [ firstname, setFirstName ] = useState('');
   const [ errorState, setErrorState ] = useState({ 'email': null, 'password': null }); // { 'elementID': state } 
 
   const styles = LoginFormStyles;
 
   const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
+  const logIn = async (formData) => {
+    const URL = `${process.env.REACT_APP_API_HOST}/api/auth/login`;
+
+    const res = await fetch(URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    });
+
+    const statusCode = res.status;
+
+    if(statusCode === 200) {
+      const data = await res.json();
+      return { data, statusCode };
+    }
+    else {
+      return { statusCode };
+    }
+  }
+
   const authenticateUser = () => {
       // Init authentication
       setErrorState({ 'email': null, 'password': null });
       setLoading(true);
 
-      // Send email and password values to the backend to authenticate
-      setTimeout(() => {
+      // Validate form Data
+      if(email === '') {
+        setErrorState({ ...errorState, 'email': 'empty' });
+      }
+      else if(email !== '' && password === '') {
+        setErrorState({ ...errorState, 'password': 'empty' });
+      }
+      else if(email !== '' && password !== '') {
+        const formData = { email, password };
 
-        // Empty field validation
-        if(email === '') {
-          setErrorState({ ...errorState, 'email': 'empty' });
-        }
-        else if(email !== '' && password === '') {
-          setErrorState({ ...errorState, 'password': 'empty' });
-        }
-        else if(email !== '' && password !== '') {
-          // Now no field is empty check correctness of value
-          if(email !== 'gaganganapathyas@gmail.com') {
-            setErrorState({ ...errorState, 'email': 'wrong' });
-          }
-          else if(password !== 'abcd') {
-            setErrorState({ ...errorState, 'password': 'wrong' });
-          }
-          else {
-            // correct email and password redirect to dashboard
-            localStorage.setItem('token', 'lolol');
-            setErrorState({ 'email': 'correct', 'password': 'correct' });
-          }
-        }
+        // Send email and password values to the backend to authenticate
+        logIn(formData)
+          .then(res => {
+              if(res.statusCode === 200) {
+                const token = res.data.user.token;
+                localStorage.setItem('token', token);
 
-        setLoading(false);
-      }, 500); 
+                setFirstName(res.data.firstname);
+                setErrorState({ 'email': 'correct', 'password': 'correct' });
+              }
+              else {
+                setErrorState({ ...errorState, 'email': 'wrong' });
+              }
+          });
+      }
+
+      setLoading(false);
   }
   
   return (
@@ -59,7 +83,7 @@ const LoginForm = (props) => {
         && <Redirect 
               to={{ 
                     pathname: '/dashboard', 
-                    state: { email }
+                    state: { email, firstname }
                 }} 
             />
       }

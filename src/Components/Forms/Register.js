@@ -69,6 +69,7 @@ const RegisterForm = () => {
               }
             });
         }
+        
         setLoading(false);
     }
 
