@@ -21,7 +21,14 @@ const ListTranscriptions = () => {
         })
         .then(res => res.json())
         .then(data => {
-            const list = data.speeches;
+            const list = data.speeches.sort((a, b) => {
+                const d1 = Date.parse(a.createdAt); // returns milliseconds from 1st Jan 1970
+                const d2 = Date.parse(b.createdAt);
+
+                if(d1 < d2) return 1;
+                else if(d1 > d2) return -1;
+                return 0;
+            })
             setTranscriptionList(list);
         });
     },[]); /* 
