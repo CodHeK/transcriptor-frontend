@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import  { Redirect, useHistory } from 'react-router-dom';
-import { Menu, Segment, Container } from 'semantic-ui-react';
+import { Dropdown, Menu, Segment, Container } from 'semantic-ui-react';
 import ListTranscriptions from './ListTranscriptions';
 import Home from './Home';
 import logo from '../../images/ntu-logo.png';
@@ -11,6 +11,9 @@ const Dashboard = (props) => {
     let history = useHistory();
 
     if(props.location.state !== undefined) {
+        let { email, firstname } = props.location.state;
+
+        firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1);
         
         const handleTabClick = (_, { name }) => {
             if(name === 'logout') {
@@ -78,13 +81,18 @@ const Dashboard = (props) => {
                         </Menu.Item>
 
                         <Menu.Menu position='right'>
-                            <Menu.Item
-                                name='logout'
-                                active={page === 'signup'}
-                                onClick={handleTabClick}
-                            >
-                                Log out
-                            </Menu.Item>
+                            <Dropdown text={firstname} 
+                                      pointing className="active link item"
+                                      style={{ marginRight: '2.5vw' }}>
+                                <Dropdown.Menu>
+                                    <Dropdown.Item
+                                        name='logout'
+                                        onClick={handleTabClick}
+                                    >
+                                        LOG OUT
+                                    </Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
                         </Menu.Menu>
                     </Menu>
                 </Segment>

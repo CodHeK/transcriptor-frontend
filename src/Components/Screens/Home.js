@@ -3,9 +3,19 @@ import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader'
 
 const Home = () => {
-    const getUploadParams = ({ meta }) => {
-      const url = 'https://httpbin.org/post'
-      return { url, meta: { fileUrl: `${url}/${encodeURIComponent(meta.name)}` } }
+    const getUploadParams = async ({ file, meta }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('language', 'english');
+      const token = localStorage.getItem('token');
+      return { 
+          url: `${process.env.REACT_APP_API_HOST}/api/speech/upload`, 
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+      }
     }
   
     const handleChangeStatus = ({ meta }, status) => {
@@ -23,10 +33,10 @@ const Home = () => {
         onChangeStatus={handleChangeStatus}
         onSubmit={handleSubmit}
         accept="image/*,audio/*,video/*"
-        inputContent={(files, extra) => (extra.reject ? 'Image, audio and video files only' : 'Select an audio file to continue')}
+        inputContent={(_, extra) => (extra.reject ? 'Image, audio and video files only' : 'Upload audio file(s) to continue')}
         styles={{
           dropzoneReject: { borderColor: 'red', backgroundColor: '#DAA' },
-          inputLabel: (files, extra) => (extra.reject ? { color: 'red' } : {}),
+          inputLabel: (_, extra) => (extra.reject ? { color: 'red' } : {}),
         }}
       />
     )

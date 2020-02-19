@@ -64,7 +64,7 @@ const LoginForm = (props) => {
                 const token = res.data.user.token;
                 localStorage.setItem('token', token);
 
-                setFirstName(res.data.firstname);
+                setFirstName(res.data.user.firstname);
                 setErrorState({ 'email': 'correct', 'password': 'correct' });
               }
               else {
