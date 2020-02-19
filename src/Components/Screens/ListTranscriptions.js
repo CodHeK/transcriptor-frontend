@@ -24,7 +24,10 @@ const ListTranscriptions = () => {
             const list = data.speeches;
             setTranscriptionList(list);
         });
-    });
+    },[]); /* 
+               [] -> to make sure infinte loop doesn't occur 
+               https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
+           */
 
     const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>You haven't uploaded any files for transcriptions!</h3>
 

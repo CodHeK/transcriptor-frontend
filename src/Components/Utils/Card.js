@@ -8,7 +8,7 @@ const CustomCard = (props) => {
     const styles = CustomCardStyles;
     const time = moment(props.data.meta).format('LT');
     const date = moment(props.data.meta).format('LL');
-    console.log(date);
+
     return (
         <Card style={styles.Card}>
             <Card.Content>
