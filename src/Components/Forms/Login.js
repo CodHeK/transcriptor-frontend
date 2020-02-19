@@ -63,6 +63,7 @@ const LoginForm = (props) => {
                 }} 
             />
       }
+      <h3 style={styles.title}>Sign in</h3>
       <Form style={styles.FormBox}>
         <Form.Field style={styles.inputField}>
           <input id="email" type="text" placeholder='Email ID' 
@@ -147,6 +148,12 @@ const LoginFormStyles = {
     },
     error: {
       border: '1.5px solid #d93025'
+    },
+    title: {
+      fontSize: '24px',
+      textAlign: 'center',
+      fontFamily: 'Open Sans',
+      fontWeight: '400'
     }
 }
 

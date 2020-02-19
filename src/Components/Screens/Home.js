@@ -3,8 +3,6 @@ import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader'
 
 const Home = () => {
-    const styles = HomeStyles;
-
     const getUploadParams = ({ meta }) => {
       const url = 'https://httpbin.org/post'
       return { url, meta: { fileUrl: `${url}/${encodeURIComponent(meta.name)}` } }
@@ -32,10 +30,6 @@ const Home = () => {
         }}
       />
     )
-}
-
-const HomeStyles = {
-    
 }
 
 export default Home;

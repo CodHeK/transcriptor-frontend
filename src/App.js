@@ -12,20 +12,10 @@ const App = () => {
   let Form = null;
 
   if(page === 'register') {
-    Form = (
-      <React.Fragment>
-        <h3 style={styles.title}>Register</h3>
-        <RegisterForm />
-      </React.Fragment>
-    );
+    Form = <RegisterForm />;
   }
   else if(page === 'login') {
-    Form = (
-      <React.Fragment>
-        <h3 style={styles.title}>Sign in</h3>
-        <LoginForm />
-      </React.Fragment>
-    );
+    Form = <LoginForm />;
   }
 
   return (
@@ -33,7 +23,7 @@ const App = () => {
       <Grid columns={3}>
         <Grid.Column></Grid.Column>
           <Grid.Column 
-            style={{ ...styles.FormContainer.general, ...styles.FormContainer[page]}}
+            style={styles.FormContainer}
           >
             {Form}
           </Grid.Column>
@@ -48,25 +38,13 @@ const App = () => {
 */
 const AppStyles = {
   FormContainer: {
-    register: {
-      height: '510px'
-    },
-    login: {
-      height: '400px'
-    },
-    general: {
-      marginTop: '10%',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      padding: '48px 40px 36px',
-      borderRadius: '10px',
-      maxWidth: '482px',
-    }
-  },
-  title: {
-    fontSize: '24px',
-    textAlign: 'center',
-    fontFamily: 'Open Sans',
-    fontWeight: '400'
+    marginTop: '10%',
+    border: '1px solid rgba(0, 0, 0, 0.2)',
+    padding: '48px 40px 36px',
+    borderRadius: '10px',
+    maxWidth: '482px',
+    paddingBottom: '100px',
+    height: 'auto'
   }
 }
 
