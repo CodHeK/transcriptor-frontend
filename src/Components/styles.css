@@ -64,6 +64,10 @@ body ::-webkit-scrollbar-track {
     background: none;
 }
 
+/* 
+    Register.js styles
+*/
+
 .tick {
     margin: 10% 33.33%;
     width: 250px;
@@ -76,4 +80,30 @@ body ::-webkit-scrollbar-track {
     border: 1px solid black;
     padding: 10px;
     border-radius: 5px;
+}
+
+/* 
+    Card.js styles
+*/
+
+.card-header {
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    font-weight: 400 !important;
+    font-size: 15px !important;
+}
+
+.card-meta {
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    font-weight: 400 !important;
+    font-size: 12px !important;
+}
+
+.fas.fa-times-circle {
+    width: 20px !important; 
+    height: 15px !important;
+    color: rgba(0, 0, 0, 0.8) !important;
+    position: absolute !important;
+    right: 8px !important;
 }

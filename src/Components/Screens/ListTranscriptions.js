@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Menu } from 'semantic-ui-react';
+import { Menu, Card } from 'semantic-ui-react';
+import CustomCard from '../Utils/Card';
 
 const ListTranscriptions = () => {
     const [ subPage, setSubPage ] = useState('Created');
@@ -8,7 +9,7 @@ const ListTranscriptions = () => {
     const handleSubTabClick = (e, { name }) => setSubPage(name);
 
     useEffect(() => {
-        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/upload`;
+        const URL = `${process.env.REACT_APP_API_HOST}/api/speech`;
         const token = localStorage.getItem('token');
 
         fetch(URL, {
@@ -23,6 +24,14 @@ const ListTranscriptions = () => {
             const list = data.speeches;
             setTranscriptionList(list);
         });
+    });
+
+    const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>You haven't uploaded any files for transcriptions!</h3>
+
+    const TranscriptionList = () => transcriptionList.map((each, key) => {
+        const data = { header: each.uploadedFile.originalname, meta: each.createdAt };
+
+        return <CustomCard key={key} data={data} />;
     });
 
     return (
@@ -41,7 +50,13 @@ const ListTranscriptions = () => {
             </Menu>
 
             {
-                subPage === 'Created' && console.log(transcriptionList)
+                subPage === 'Created' && transcriptionList.length === 0 && <Empty />
+            }
+            {
+                subPage === 'Created' && transcriptionList.length > 0 
+                && <Card.Group style={{ marginLeft: '4%' }}>
+                        <TranscriptionList />
+                   </Card.Group>
             }
             
         </React.Fragment>
