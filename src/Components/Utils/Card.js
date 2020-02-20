@@ -68,7 +68,7 @@ const CustomCardStyles = {
         paddingBottom: '50px'
     },
     dropdown: {
-        right: '8px',
+        right: '12px',
         bottom: '10px', 
         position: 'absolute',
         borderRadius: '10px',
@@ -79,7 +79,8 @@ const CustomCardStyles = {
         fontSize: '13px',
         color: 'black',
         textAlign: 'center',
-        paddingLeft: '3px'
+        paddingLeft: '3px',
+        paddingRight: '3px'
     }
 }
 
