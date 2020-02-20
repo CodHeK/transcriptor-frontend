@@ -71,7 +71,7 @@ const CustomCardStyles = {
         right: '12px',
         bottom: '10px', 
         position: 'absolute',
-        borderRadius: '10px',
+        borderRadius: '0.3rem',
         minWidth: '80px',
         width: 'auto',
         border: '1px solid black',

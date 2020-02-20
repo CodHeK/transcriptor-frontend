@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Card } from 'semantic-ui-react';
+import { Menu, Card, Input, SearchResult } from 'semantic-ui-react';
+import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import CustomCard from '../Utils/Card';
 
 const ListTranscriptions = () => {
     const [ subPage, setSubPage ] = useState('Created');
     const [ transcriptionList, setTranscriptionList ] = useState([]);
     const [ cardsLoaded, setCardLoaded ] = useState(false);
+    const [ filteredList, setFilteredList ] = useState([]);
 
     const handleSubTabClick = (e, { name }) => setSubPage(name);
 
@@ -36,9 +38,11 @@ const ListTranscriptions = () => {
                https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
            */
 
-    const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>You haven't uploaded any files for transcriptions!</h3>
+    const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
+                            You haven't uploaded any files for transcriptions!
+                        </h3>
 
-    const TranscriptionList = () => transcriptionList.map((each, key) => {
+    const TranscriptionList = (props) => props.list.map((each, key) => {
         const data = { 
                        header: each.uploadedFile.originalname, 
                        meta: each.createdAt,
@@ -58,6 +62,23 @@ const ListTranscriptions = () => {
         return elems;
     }
 
+    const searchBarHandler = (e) => {
+        let searchVal = e.target.value.toLowerCase();
+        let searchResults = [];
+
+        if(searchVal !== '') {
+            for(let file of transcriptionList) {
+                // Search by filename
+                let filename = file.uploadedFile.originalname.toLowerCase();
+
+                if(String(filename).match(String(searchVal))) {
+                    searchResults.push(file);
+                }
+            }
+        }
+        setFilteredList(searchResults);
+    }
+
     return (
         <React.Fragment>
             <Menu tabular style={{ marginLeft: '4%' }}>
@@ -71,8 +92,35 @@ const ListTranscriptions = () => {
                     active={subPage === 'Assigned'}
                     onClick={handleSubTabClick}
                 />
+                <Menu.Menu position='right' style={{ width: '500px' }}>
+                    <Menu.Item style={{ width: '40%' }}>
+                        {
+                            cardsLoaded && <span className="search-results">
+                                            {
+                                            filteredList.length > 0 
+                                            ? (
+                                                filteredList.length > 1 
+                                                ? `(${filteredList.length} records found)` 
+                                                : `(${filteredList.length} record found)`
+                                              ) 
+                                            : ``
+                                            }
+                                           </span>
+                        }
+                    </Menu.Item>
+                    <Menu.Item style={{ width: '60%' }}>
+                        {
+                            cardsLoaded ? <Input
+                                            transparent
+                                            icon={{ name: 'search', link: true }}
+                                            placeholder='Search records...'
+                                            onChange={searchBarHandler}
+                                          />
+                                        : <Skeleton width={250} height={30} />
+                        }
+                    </Menu.Item>
+                </Menu.Menu>
             </Menu>
-
             {
                 !cardsLoaded
                 && <Card.Group style={{ marginLeft: '4%' }}>
@@ -83,9 +131,11 @@ const ListTranscriptions = () => {
                 cardsLoaded && subPage === 'Created' && transcriptionList.length === 0 && <Empty />
             }
             {
-                cardsLoaded && subPage === 'Created' && transcriptionList.length > 0 
+                cardsLoaded && subPage === 'Created'
                 && <Card.Group style={{ marginLeft: '4%' }}>
-                        <TranscriptionList />
+                        <TranscriptionList 
+                            list={filteredList.length > 0 ? filteredList : transcriptionList} 
+                        />
                    </Card.Group>
             }
             

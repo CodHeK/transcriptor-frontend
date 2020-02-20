@@ -135,3 +135,13 @@ body ::-webkit-scrollbar-track {
     font-weight: 500;
     background-color: #f5f5f5;
 }
+
+.search-results {
+    font-size: 12px;
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    text-align: center !important;
+    padding: 6px 18px !important;
+    width: 200px;
+    height: 20px;
+}
