@@ -23,18 +23,12 @@ const ListTranscriptions = () => {
             })
             .then(res => res.json())
             .then(data => {
-                const list = data.speeches.sort((a, b) => {
-                    const d1 = Date.parse(a.createdAt); // returns milliseconds from 1st Jan 1970
-                    const d2 = Date.parse(b.createdAt);
-    
-                    if(d1 < d2) return 1;
-                    else if(d1 > d2) return -1;
-                    return 0;
-                });
+                const list = data.speeches;
+
                 setTranscriptionList(list);
                 setCardLoaded(true);
             });
-        }, 3000);
+        }, 1000);
 
         
     },[]); /* 
@@ -45,7 +39,12 @@ const ListTranscriptions = () => {
     const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>You haven't uploaded any files for transcriptions!</h3>
 
     const TranscriptionList = () => transcriptionList.map((each, key) => {
-        const data = { header: each.uploadedFile.originalname, meta: each.createdAt };
+        const data = { 
+                       header: each.uploadedFile.originalname, 
+                       meta: each.createdAt,
+                       language: each.language,
+                       mimeType: each.uploadedFile.mimetype
+                     };
 
         return <CustomCard key={key} {...data} />;
     });
@@ -53,8 +52,8 @@ const ListTranscriptions = () => {
     const GhostLoader = () => {
         let elems = [];
         for(let i=0;i<4;i++) {
-            const data = { header: null, meta: null };
-            elems.push(<CustomCard key={i} {...data} />);
+            const data = null;
+            elems.push(<CustomCard key={i} data={data} />);
         }
         return elems;
     }

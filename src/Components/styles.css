@@ -109,3 +109,29 @@ body ::-webkit-scrollbar-track {
     position: absolute !important;
     right: 8px !important;
 }
+
+.tags-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+    bottom: 10px;
+    position: absolute;
+}
+
+.tag {
+    font-family: 'Open Sans' !important;
+    min-width: 60px;
+    width: auto;
+    letter-spacing: 0.7px;
+    padding-left: 5px;
+    padding-right: 5px;
+    height: 20px;
+    font-size: 9px;
+    text-align: center;
+    text-transform: uppercase;
+    color: black;
+    border-radius: 10px;
+    font-weight: 500;
+    background-color: #f5f5f5;
+}

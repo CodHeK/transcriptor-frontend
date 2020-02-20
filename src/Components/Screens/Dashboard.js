@@ -29,10 +29,13 @@ const Dashboard = (props) => {
 
         switch(page) {
             case 'Home':
-                subPage = <Home />
+                subPage = <Home />;
                 break;
             case 'My Transcriptions':
-                subPage = <ListTranscriptions />
+                subPage = <ListTranscriptions />;
+                break;
+            case 'Editor':
+                // subPage = <Editor />;
                 break;
             default:
                 // subPage = <ReSpeak />
@@ -78,6 +81,14 @@ const Dashboard = (props) => {
                             onClick={handleTabClick}
                         >
                             Re-speak
+                        </Menu.Item>
+
+                        <Menu.Item
+                            name='Editor'
+                            active={page === 'Editor'}
+                            onClick={handleTabClick}
+                        >
+                            Editor
                         </Menu.Item>
 
                         <Menu.Menu position='right'>
