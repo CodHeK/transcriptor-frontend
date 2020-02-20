@@ -5,6 +5,7 @@ import CustomCard from '../Utils/Card';
 const ListTranscriptions = () => {
     const [ subPage, setSubPage ] = useState('Created');
     const [ transcriptionList, setTranscriptionList ] = useState([]);
+    const [ cardsLoaded, setCardLoaded ] = useState(false);
 
     const handleSubTabClick = (e, { name }) => setSubPage(name);
 
@@ -12,25 +13,30 @@ const ListTranscriptions = () => {
         const URL = `${process.env.REACT_APP_API_HOST}/api/speech`;
         const token = localStorage.getItem('token');
 
-        fetch(URL, {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            const list = data.speeches.sort((a, b) => {
-                const d1 = Date.parse(a.createdAt); // returns milliseconds from 1st Jan 1970
-                const d2 = Date.parse(b.createdAt);
-
-                if(d1 < d2) return 1;
-                else if(d1 > d2) return -1;
-                return 0;
+        setTimeout(() => {
+            fetch(URL, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             })
-            setTranscriptionList(list);
-        });
+            .then(res => res.json())
+            .then(data => {
+                const list = data.speeches.sort((a, b) => {
+                    const d1 = Date.parse(a.createdAt); // returns milliseconds from 1st Jan 1970
+                    const d2 = Date.parse(b.createdAt);
+    
+                    if(d1 < d2) return 1;
+                    else if(d1 > d2) return -1;
+                    return 0;
+                });
+                setTranscriptionList(list);
+                setCardLoaded(true);
+            });
+        }, 3000);
+
+        
     },[]); /* 
                useEffect(() => {...},[]) -> to make sure infinte loop doesn't occur 
                https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
@@ -41,8 +47,17 @@ const ListTranscriptions = () => {
     const TranscriptionList = () => transcriptionList.map((each, key) => {
         const data = { header: each.uploadedFile.originalname, meta: each.createdAt };
 
-        return <CustomCard key={key} data={data} />;
+        return <CustomCard key={key} {...data} />;
     });
+
+    const GhostLoader = () => {
+        let elems = [];
+        for(let i=0;i<4;i++) {
+            const data = { header: null, meta: null };
+            elems.push(<CustomCard key={i} {...data} />);
+        }
+        return elems;
+    }
 
     return (
         <React.Fragment>
@@ -60,10 +75,16 @@ const ListTranscriptions = () => {
             </Menu>
 
             {
-                subPage === 'Created' && transcriptionList.length === 0 && <Empty />
+                !cardsLoaded
+                && <Card.Group style={{ marginLeft: '4%' }}>
+                       <GhostLoader />
+                   </Card.Group>
             }
             {
-                subPage === 'Created' && transcriptionList.length > 0 
+                cardsLoaded && subPage === 'Created' && transcriptionList.length === 0 && <Empty />
+            }
+            {
+                cardsLoaded && subPage === 'Created' && transcriptionList.length > 0 
                 && <Card.Group style={{ marginLeft: '4%' }}>
                         <TranscriptionList />
                    </Card.Group>
