@@ -5,11 +5,17 @@ import Dashboard from './Components/Screens/Dashboard';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
+/* Redux imports */
+import { Provider } from 'react-redux';
+import store from './store';
+
 ReactDOM.render(<Router>
                     <Switch>
                         <Route path="/login" exact={true} component={App} />
                         <Route path="/register" exact={true} component={App} />
-                        <Route path="/dashboard" exact={true} component={Dashboard} />
+                        <Provider store={store}>
+                            <Route path="/dashboard" exact={true} component={Dashboard} />
+                        </Provider>
                     </Switch>
                 </Router>, document.getElementById('root'));
 

@@ -26,6 +26,7 @@
     border: 2px dashed #999 !important;
     margin-left: 3.5% !important;
     height: auto !important;
+    padding-bottom: 30px !important;
     background-color: rgba(220, 220, 220, 0.2);
     /* box-shadow:0 1px 3px rgba(0,0,0,0.1), inset 0 0 30px rgba(0,0,0,0.1) !important; */
 }
@@ -48,6 +49,10 @@
     font-weight: 550 !important;
     color: #000 !important;
     background-color: #fff;
+}
+
+.dzu-submitButtonContainer {
+    display: none !important;
 }
 
 .dzu-submitButton {

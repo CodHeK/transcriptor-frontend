@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import  { Redirect, useHistory } from 'react-router-dom';
 import { Dropdown, Menu, Segment, Container } from 'semantic-ui-react';
 import ListTranscriptions from './ListTranscriptions';
-import Home from './Home';
+import Upload from './Upload';
+import Editor from './Editor';
 import logo from '../../images/ntu-logo.png';
 import PropTypes from 'prop-types';
 
+/* Redux imports */
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+
+/* import actions */
+import { enableEditMode, disableEditMode } from '../../actions/TranscriptionActions';
+
+
 const Dashboard = (props) => {
-    const [ page, setPage ] = useState('Home');
+    const [ page, setPage ] = useState('Upload');
+    const { editId, assignId, editMode } = useSelector((state) => ({ ...state }));
     let history = useHistory();
+    let dispatch = useDispatch();
 
     if(props.location.state !== undefined) {
-        let { email, firstname } = props.location.state;
+        let { firstname } = props.location.state;
 
         firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1);
-        
+
         const handleTabClick = (_, { name }) => {
             if(name === 'logout') {
                 localStorage.removeItem('token');
@@ -25,22 +36,27 @@ const Dashboard = (props) => {
             }
         }
 
+        if(editId !== null && !editMode) {
+            dispatch(enableEditMode());
+            setPage('Editor');
+        }
+
         let subPage = null;
 
         switch(page) {
-            case 'Home':
-                subPage = <Home />;
+            case 'Upload':
+                subPage = <Upload />;
                 break;
             case 'My Transcriptions':
                 subPage = <ListTranscriptions />;
                 break;
             case 'Editor':
-                // subPage = <Editor />;
+                subPage = <Editor _id={editId} />;
                 break;
             default:
                 // subPage = <ReSpeak />
         }
-
+    
         return (
             <React.Fragment>
                 {
@@ -59,12 +75,12 @@ const Dashboard = (props) => {
                             <img src={logo} alt="ntu-logo" style={{ width: '123px' }} />
                         </Menu.Item>
                         <Menu.Item
-                            name='Home'
-                            active={page === 'Home'}
+                            name='Upload'
+                            active={page === 'Upload'}
                             onClick={handleTabClick}
                             style={{ marginLeft: '2em' }}
                         >
-                            Home
+                            Upload
                         </Menu.Item>
 
                         <Menu.Item
@@ -93,8 +109,8 @@ const Dashboard = (props) => {
 
                         <Menu.Menu position='right'>
                             <Dropdown text={firstname} 
-                                      className="active link item"
-                                      style={{ marginRight: '2.5vw' }}>
+                                    className="active link item"
+                                    style={{ marginRight: '2.5vw' }}>
                                 <Dropdown.Menu>
                                     <Dropdown.Item
                                         name='logout'

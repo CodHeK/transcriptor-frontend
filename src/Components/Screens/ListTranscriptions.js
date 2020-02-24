@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Card, Input, SearchResult } from 'semantic-ui-react';
+import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import CustomCard from '../Utils/Card';
 
-const ListTranscriptions = () => {
+const ListTranscriptions = (props) => {
     const [ subPage, setSubPage ] = useState('Created');
     const [ transcriptionList, setTranscriptionList ] = useState([]);
     const [ cardsLoaded, setCardLoaded ] = useState(false);
@@ -44,6 +44,7 @@ const ListTranscriptions = () => {
 
     const TranscriptionList = (props) => props.list.map((each, key) => {
         const data = { 
+                       _id: each._id, 
                        header: each.uploadedFile.originalname, 
                        meta: each.createdAt,
                        language: each.language,
@@ -55,7 +56,7 @@ const ListTranscriptions = () => {
 
     const GhostLoader = () => {
         let elems = [];
-        for(let i=0;i<4;i++) {
+        for(let i=0;i<6;i++) {
             const data = null;
             elems.push(<CustomCard key={i} data={data} />);
         }
@@ -76,6 +77,7 @@ const ListTranscriptions = () => {
                 }
             }
         }
+
         setFilteredList(searchResults);
     }
 
@@ -97,13 +99,13 @@ const ListTranscriptions = () => {
                         {
                             cardsLoaded && <span className="search-results">
                                             {
-                                            filteredList.length > 0 
-                                            ? (
-                                                filteredList.length > 1 
-                                                ? `(${filteredList.length} records found)` 
-                                                : `(${filteredList.length} record found)`
-                                              ) 
-                                            : ``
+                                                filteredList.length > 0 
+                                                ? (
+                                                    filteredList.length > 1 
+                                                    ? `(${filteredList.length} records found)` 
+                                                    : `(${filteredList.length} record found)`
+                                                ) 
+                                                : `(${transcriptionList.length} records found)`
                                             }
                                            </span>
                         }
@@ -121,6 +123,7 @@ const ListTranscriptions = () => {
                     </Menu.Item>
                 </Menu.Menu>
             </Menu>
+            
             {
                 !cardsLoaded
                 && <Card.Group style={{ marginLeft: '4%' }}>

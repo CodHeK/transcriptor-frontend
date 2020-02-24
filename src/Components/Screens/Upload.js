@@ -1,12 +1,13 @@
 import React from 'react';
 import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader'
+import '../styles.css';
 
 /*
   Refer: https://react-dropzone-uploader.js.org/docs/api#getuploadparams
 */
 
-const Home = () => {
+const Upload = () => {
     const getUploadParams = async ({ file, meta }) => {
       const formData = new FormData();
       formData.append('file', file);
@@ -26,16 +27,10 @@ const Home = () => {
       console.log(status, meta)
     }
   
-    const handleSubmit = (files, allFiles) => {
-      console.log(files.map(f => f.meta))
-      allFiles.forEach(f => f.remove())
-    }
-  
     return (
       <Dropzone
         getUploadParams={getUploadParams}
         onChangeStatus={handleChangeStatus}
-        onSubmit={handleSubmit}
         accept="image/*,audio/*,video/*"
         inputContent={(_, extra) => (extra.reject ? 'Image, audio and video files only' : 'Upload audio file(s) to continue')}
         styles={{
@@ -46,4 +41,4 @@ const Home = () => {
     )
 }
 
-export default Home;
+export default Upload;
