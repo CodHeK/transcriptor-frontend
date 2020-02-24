@@ -45,6 +45,7 @@ const ListTranscriptions = (props) => {
     const TranscriptionList = (props) => props.list.map((each, key) => {
         const data = { 
                        _id: each._id, 
+                       uploadedFileId: each.uploadedFile._id,
                        header: each.uploadedFile.originalname, 
                        meta: each.createdAt,
                        language: each.language,
