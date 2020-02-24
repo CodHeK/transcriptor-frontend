@@ -1,6 +1,6 @@
 import React from 'react';
 import 'react-dropzone-uploader/dist/styles.css';
-import Dropzone from 'react-dropzone-uploader'
+import Dropzone from 'react-dropzone-uploader';
 import '../styles.css';
 
 /*
@@ -9,36 +9,41 @@ import '../styles.css';
 
 const Upload = () => {
     const getUploadParams = async ({ file, meta }) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('language', 'english');
-      const token = localStorage.getItem('token');
-      return { 
-          url: `${process.env.REACT_APP_API_HOST}/api/speech/upload`, 
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-      }
-    }
-  
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('language', 'english');
+        const token = localStorage.getItem('token');
+        return {
+            url: `${process.env.REACT_APP_API_HOST}/api/speech/upload`,
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        };
+    };
+
     const handleChangeStatus = ({ meta }, status) => {
-      console.log(status, meta)
-    }
-  
+        console.log(status, meta);
+    };
+
     return (
-      <Dropzone
-        getUploadParams={getUploadParams}
-        onChangeStatus={handleChangeStatus}
-        accept="image/*,audio/*,video/*"
-        inputContent={(_, extra) => (extra.reject ? 'Image, audio and video files only' : 'Upload audio file(s) to continue')}
-        styles={{
-          dropzoneReject: { borderColor: 'red', backgroundColor: '#DAA' },
-          inputLabel: (_, extra) => (extra.reject ? { color: 'red' } : {}),
-        }}
-      />
-    )
-}
+        <Dropzone
+            getUploadParams={getUploadParams}
+            onChangeStatus={handleChangeStatus}
+            accept="image/*,audio/*,video/*"
+            inputContent={(_, extra) =>
+                extra.reject
+                    ? 'Image, audio and video files only'
+                    : 'Upload audio file(s) to continue'
+            }
+            styles={{
+                dropzoneReject: { borderColor: 'red', backgroundColor: '#DAA' },
+                inputLabel: (_, extra) =>
+                    extra.reject ? { color: 'red' } : {},
+            }}
+        />
+    );
+};
 
 export default Upload;

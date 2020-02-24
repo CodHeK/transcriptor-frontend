@@ -10,7 +10,8 @@
     .next-btn {
         right: 1% !important;
     }
-    #email, #password {
+    #email,
+    #password {
         margin: 1px 13px 0px !important;
     }
     #register {
@@ -61,7 +62,7 @@
     font-weight: 550 !important;
     color: #000 !important;
     margin-top: 3.5em;
-    background-color: #E6E6E6 !important;
+    background-color: #e6e6e6 !important;
 }
 
 body ::-webkit-scrollbar-track {
@@ -108,7 +109,7 @@ body ::-webkit-scrollbar-track {
 }
 
 .fas.fa-times-circle {
-    width: 20px !important; 
+    width: 20px !important;
     height: 15px !important;
     color: rgba(0, 0, 0, 0.8) !important;
     position: absolute !important;

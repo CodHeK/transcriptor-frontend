@@ -1,134 +1,165 @@
 import React, { useState } from 'react';
 import { Button, Form } from 'semantic-ui-react';
 import InputError from '../Error/FormField';
-import  { Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import '../styles.css';
 
-const LoginForm = (props) => {
-  /*
+const LoginForm = props => {
+    /*
     Defining Hooks for input fields
   */
-  const [ email, setEmail ] = useState('');
-  const [ password, setPassword ] = useState('');
-  const [ loading, setLoading ] = useState(false);
-  const [ firstname, setFirstName ] = useState('');
-  const [ errorState, setErrorState ] = useState({ 'email': null, 'password': null }); // { 'elementID': state } 
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [firstname, setFirstName] = useState('');
+    const [errorState, setErrorState] = useState({
+        email: null,
+        password: null,
+    }); // { 'elementID': state }
 
-  const styles = LoginFormStyles;
+    const styles = LoginFormStyles;
 
-  const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
+    const handleInputChange = (setFunction, fieldValue) =>
+        setFunction(fieldValue);
 
-  const logIn = async (formData) => {
-    const URL = `${process.env.REACT_APP_API_HOST}/api/auth/login`;
+    const logIn = async formData => {
+        const URL = `${process.env.REACT_APP_API_HOST}/api/auth/login`;
 
-    const res = await fetch(URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    });
+        const res = await fetch(URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
 
-    const statusCode = res.status;
+        const statusCode = res.status;
 
-    if(statusCode === 200) {
-      const data = await res.json();
-      return { data, statusCode };
-    }
-    else {
-      return { statusCode };
-    }
-  }
+        if (statusCode === 200) {
+            const data = await res.json();
+            return { data, statusCode };
+        } else {
+            return { statusCode };
+        }
+    };
 
-  const authenticateUser = () => {
-      // Init authentication
-      setErrorState({ 'email': null, 'password': null });
-      setLoading(true);
+    const authenticateUser = () => {
+        // Init authentication
+        setErrorState({ email: null, password: null });
+        setLoading(true);
 
-      // Validate form Data
-      if(email === '') {
-        setErrorState({ ...errorState, 'email': 'empty' });
-      }
-      else if(email !== '' && password === '') {
-        setErrorState({ ...errorState, 'password': 'empty' });
-      }
-      else if(email !== '' && password !== '') {
-        const formData = { email, password };
+        // Validate form Data
+        if (email === '') {
+            setErrorState({ ...errorState, email: 'empty' });
+        } else if (email !== '' && password === '') {
+            setErrorState({ ...errorState, password: 'empty' });
+        } else if (email !== '' && password !== '') {
+            const formData = { email, password };
 
-        // Send email and password values to the backend to authenticate
-        logIn(formData)
-          .then(res => {
-              if(res.statusCode === 200) {
-                const token = res.data.user.token;
-                localStorage.setItem('token', token);
+            // Send email and password values to the backend to authenticate
+            logIn(formData).then(res => {
+                if (res.statusCode === 200) {
+                    const token = res.data.user.token;
+                    localStorage.setItem('token', token);
 
-                setFirstName(res.data.user.firstname);
-                setErrorState({ 'email': 'correct', 'password': 'correct' });
-              }
-              else {
-                setErrorState({ ...errorState, 'email': 'wrong' });
-              }
-          });
-      }
+                    setFirstName(res.data.user.firstname);
+                    setErrorState({ email: 'correct', password: 'correct' });
+                } else {
+                    setErrorState({ ...errorState, email: 'wrong' });
+                }
+            });
+        }
 
-      setLoading(false);
-  }
-  
-  return (
-    <React.Fragment>
-      {
-        errorState.email === 'correct' && errorState.password === 'correct' 
-        && <Redirect 
-              to={{ 
-                    pathname: '/dashboard', 
-                    state: { email, firstname }
-                }} 
-            />
-      }
-      <h3 style={styles.title}>Sign in</h3>
-      <Form style={styles.FormBox}>
-        <Form.Field style={styles.inputField}>
-          <input id="email" type="text" placeholder='Email ID' 
-                style={ errorState.email !== null ? { ...styles.input, ...styles.error } : styles.input }
-                onChange={e => handleInputChange(setEmail, e.target.value)} />
-          
-          {
-            errorState.email === 'empty' && <InputError message={`Enter an email ID`} />
-          }
+        setLoading(false);
+    };
 
-          {
-            errorState.email === 'wrong' && <InputError message={`Couldn't find your account`} />
-          }
-        </Form.Field>
-        <Form.Field style={styles.inputField}>
-          <input id="password" type="password" placeholder='Password'
-                style={ errorState.password !== null ? { ...styles.input, ...styles.error } : styles.input } 
-                onChange={e => handleInputChange(setPassword, e.target.value)} />
-          {
-            errorState.password === 'empty' && <InputError message={`Enter a password`} />
-          }
+    return (
+        <React.Fragment>
+            {errorState.email === 'correct' &&
+                errorState.password === 'correct' && (
+                    <Redirect
+                        to={{
+                            pathname: '/dashboard',
+                            state: { email, firstname },
+                        }}
+                    />
+                )}
+            <h3 style={styles.title}>Sign in</h3>
+            <Form style={styles.FormBox}>
+                <Form.Field style={styles.inputField}>
+                    <input
+                        id="email"
+                        type="text"
+                        placeholder="Email ID"
+                        style={
+                            errorState.email !== null
+                                ? { ...styles.input, ...styles.error }
+                                : styles.input
+                        }
+                        onChange={e =>
+                            handleInputChange(setEmail, e.target.value)
+                        }
+                    />
 
-          {
-            errorState.password === 'wrong' && <InputError message={`Wrong password. Try again`} />
-          }
-        </Form.Field>
-        <Button type='submit' className="next-btn" style={styles.button} loading={loading} onClick={authenticateUser}>Next</Button>
-        <Form.Field>
-          <label id="register" style={styles.label}><a href="/register" style={styles.label.a}>Create account</a></label>
-        </Form.Field>
-      </Form>
-    </React.Fragment>
-  )
-}
+                    {errorState.email === 'empty' && (
+                        <InputError message={`Enter an email ID`} />
+                    )}
+
+                    {errorState.email === 'wrong' && (
+                        <InputError message={`Couldn't find your account`} />
+                    )}
+                </Form.Field>
+                <Form.Field style={styles.inputField}>
+                    <input
+                        id="password"
+                        type="password"
+                        placeholder="Password"
+                        style={
+                            errorState.password !== null
+                                ? { ...styles.input, ...styles.error }
+                                : styles.input
+                        }
+                        onChange={e =>
+                            handleInputChange(setPassword, e.target.value)
+                        }
+                    />
+                    {errorState.password === 'empty' && (
+                        <InputError message={`Enter a password`} />
+                    )}
+
+                    {errorState.password === 'wrong' && (
+                        <InputError message={`Wrong password. Try again`} />
+                    )}
+                </Form.Field>
+                <Button
+                    type="submit"
+                    className="next-btn"
+                    style={styles.button}
+                    loading={loading}
+                    onClick={authenticateUser}
+                >
+                    Next
+                </Button>
+                <Form.Field>
+                    <label id="register" style={styles.label}>
+                        <a href="/register" style={styles.label.a}>
+                            Create account
+                        </a>
+                    </label>
+                </Form.Field>
+            </Form>
+        </React.Fragment>
+    );
+};
 
 /* 
   Define LoginForm PropTypes
 */
 LoginForm.propTypes = {
-  location: PropTypes.object
-}
+    location: PropTypes.object,
+};
 
 /*
   Define Styles for the LoginForm Component
@@ -137,19 +168,19 @@ const LoginFormStyles = {
     FormBox: {
         marginTop: '3em',
         fontFamily: 'Open Sans',
-        fontWeight: '400'
+        fontWeight: '400',
     },
     inputField: {
         margin: '1em ',
         fontSize: '16px',
-        width: '92%'
+        width: '92%',
     },
     input: {
         margin: '1px 1px 0px',
         padding: '13px 15px',
         width: '97.514%',
         height: '54px',
-        border: '1px solid rgba(0,0,0,0.2)'
+        border: '1px solid rgba(0,0,0,0.2)',
     },
     button: {
         margin: '24px',
@@ -158,7 +189,7 @@ const LoginFormStyles = {
         width: '88px',
         height: '36px',
         backgroundColor: 'rgba(0,0,0,0.8)',
-        color: '#fff'
+        color: '#fff',
     },
     label: {
         margin: '30px 16px',
@@ -166,19 +197,19 @@ const LoginFormStyles = {
         fontWeight: 'bold',
         position: 'absolute',
         a: {
-          textDecoration: 'none',
-          color: 'rgba(0,0,0,0.8)'
-        }
+            textDecoration: 'none',
+            color: 'rgba(0,0,0,0.8)',
+        },
     },
     error: {
-      border: '1.5px solid #d93025'
+        border: '1.5px solid #d93025',
     },
     title: {
-      fontSize: '24px',
-      textAlign: 'center',
-      fontFamily: 'Open Sans',
-      fontWeight: '400'
-    }
-}
+        fontSize: '24px',
+        textAlign: 'center',
+        fontFamily: 'Open Sans',
+        fontWeight: '400',
+    },
+};
 
 export default LoginForm;
