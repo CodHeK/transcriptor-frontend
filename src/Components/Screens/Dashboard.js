@@ -12,12 +12,13 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
 /* import actions */
-import { enableEditMode, disableEditMode } from '../../actions/TranscriptionActions';
+import { enableEditMode } from '../../actions/TranscriptionActions';
 
 
 const Dashboard = (props) => {
     const [ page, setPage ] = useState('Upload');
-    const { editId, assignId, editMode } = useSelector((state) => ({ ...state }));
+    const { editId, editMode } = useSelector((state) => ({ ...state }));
+
     let history = useHistory();
     let dispatch = useDispatch();
 

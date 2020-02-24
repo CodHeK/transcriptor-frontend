@@ -16,7 +16,7 @@ const moment = require('moment');
 
 const CustomCard = (props) => {
     const [ mode, setMode ] = useState('choose');
-    const { editId, editMode } = useSelector((state) => ({ ...state }));
+    const { editMode } = useSelector((state) => ({ ...state }));
     const loading = (props.data === null);
     const dispatch = useDispatch();
 
@@ -26,7 +26,7 @@ const CustomCard = (props) => {
     const date = moment(props.meta).format('LL');
 
     const options = [
-        { key: 1, text: 'edit', value: 1, disabled: (editId !== props._id && editMode) },
+        { key: 1, text: 'edit', value: 1, disabled: editMode },
         { key: 2, text: 'assign', value: 2 },
     ];  
 
