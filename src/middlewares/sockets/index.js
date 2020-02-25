@@ -1,8 +1,8 @@
 import io from 'socket.io-client';
-import { socketDataUpdated } from '../../actions/SocketActions';
+import { socketDataUpdated, socketConnectionAuthenticated } from '../../actions/SocketActions';
 
 const socketMiddleware = () => {
-    return storeAPI => {
+    return store => {
         const socket = io(`${process.env.REACT_APP_API_HOST}`, {
             reconnection: true,
             reconnectionDelay: 1000,
@@ -26,18 +26,19 @@ const socketMiddleware = () => {
 
         socket.on('data updated', data => {
             console.log(data);
-            storeAPI.dispatch(socketDataUpdated(data));
+            store.dispatch(socketDataUpdated(data));
         });
 
         const authenticateSocket = () => {
             socket.emit('authenticate', {
                 token: localStorage.getItem('token'),
             });
+            store.dispatch(socketConnectionAuthenticated());
         };
 
         return next => action => {
             switch (action.type) {
-                case 'WS_CONNECT':
+                case 'REQUEST_SOCKET_AUTHENTICATION':
                     authenticateSocket();
                     break;
                 default:

@@ -1,6 +1,15 @@
-export const authenticateSocketConnection = () => {
+export const socketConnectionAuthenticated = () => {
     return {
-        type: 'WS_CONNECT',
+        type: 'SOCKET_CONNECTED',
+    };
+};
+
+/* 
+    used only in the socket middleware
+*/
+export const requestSocketAuthentication = () => {
+    return {
+        type: 'REQUEST_SOCKET_AUTHENTICATION',
     };
 };
 

@@ -1,6 +1,7 @@
 const socketReducers = (state = { connected: false, statusData: null }, { type, payload }) => {
+    console.log('reddd');
     switch (type) {
-        case 'WS_CONNECT':
+        case 'SOCKET_CONNECTED':
             state = { ...state, connected: true };
             break;
         case 'WS_DATA_UPDATED':

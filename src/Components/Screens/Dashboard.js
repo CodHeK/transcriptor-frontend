@@ -14,7 +14,7 @@ import { useDispatch } from 'react-redux';
 /* import actions */
 
 import { enableEditMode } from '../../actions/TranscriptionActions';
-import { authenticateSocketConnection } from '../../actions/SocketActions';
+import { requestSocketAuthentication } from '../../actions/SocketActions';
 
 const Dashboard = props => {
     const [page, setPage] = useState('Upload');
@@ -29,7 +29,7 @@ const Dashboard = props => {
             Authenticate socket connection with token
             using the socket middleware
         */
-        dispatch(authenticateSocketConnection());
+        dispatch(requestSocketAuthentication());
     }, [dispatch]);
 
     if (props.location.state !== undefined) {
