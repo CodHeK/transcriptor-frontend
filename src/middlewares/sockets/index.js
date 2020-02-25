@@ -21,10 +21,11 @@ const socketMiddleware = () => {
         socket.on('authenticated', data => {
             console.log('Socket authenticated successfully!');
 
+            console.log('??????????');
             socket.emit('join room');
         });
 
-        socket.on('data updated', data => {
+        socket.on('status updated', data => {
             console.log(data);
             store.dispatch(socketDataUpdated(data));
         });

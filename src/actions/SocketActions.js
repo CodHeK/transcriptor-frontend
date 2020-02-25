@@ -15,7 +15,7 @@ export const requestSocketAuthentication = () => {
 
 export const socketDataUpdated = data => {
     return {
-        type: 'WS_DATA_UPDATED',
+        type: 'SOCKET_STATUS_UPDATED',
         payload: data,
     };
 };
