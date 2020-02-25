@@ -10,15 +10,15 @@ import { Provider } from 'react-redux';
 import store from './store';
 
 ReactDOM.render(
-    <Router>
-        <Switch>
-            <Route path="/login" exact={true} component={App} />
-            <Route path="/register" exact={true} component={App} />
-            <Provider store={store}>
+    <Provider store={store}>
+        <Router>
+            <Switch>
+                <Route path="/login" exact={true} component={App} />
+                <Route path="/register" exact={true} component={App} />
                 <Route path="/dashboard" exact={true} component={Dashboard} />
-            </Provider>
-        </Switch>
-    </Router>,
+            </Switch>
+        </Router>
+    </Provider>,
     document.getElementById('root')
 );
 

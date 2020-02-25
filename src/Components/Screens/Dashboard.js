@@ -12,14 +12,25 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
 /* import actions */
+
 import { enableEditMode } from '../../actions/TranscriptionActions';
+import { authenticateSocketConnection } from '../../actions/SocketActions';
 
 const Dashboard = props => {
     const [page, setPage] = useState('Upload');
-    const { editId, editMode } = useSelector(state => ({ ...state }));
+
+    const { editId, editMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let history = useHistory();
     let dispatch = useDispatch();
+
+    useEffect(() => {
+        /* 
+            Authenticate socket connection with token
+            using the socket middleware
+        */
+        dispatch(authenticateSocketConnection());
+    }, [dispatch]);
 
     if (props.location.state !== undefined) {
         let { firstname } = props.location.state;
@@ -70,11 +81,7 @@ const Dashboard = props => {
                 <Segment style={{ boxShadow: 'none', border: '0' }}>
                     <Menu stackable secondary>
                         <Menu.Item>
-                            <img
-                                src={logo}
-                                alt="ntu-logo"
-                                style={{ width: '123px' }}
-                            />
+                            <img src={logo} alt="ntu-logo" style={{ width: '123px' }} />
                         </Menu.Item>
                         <Menu.Item
                             name="Upload"
@@ -93,33 +100,18 @@ const Dashboard = props => {
                             My Transcriptions
                         </Menu.Item>
 
-                        <Menu.Item
-                            name="Re-speak"
-                            active={page === 'Re-speak'}
-                            onClick={handleTabClick}
-                        >
+                        <Menu.Item name="Re-speak" active={page === 'Re-speak'} onClick={handleTabClick}>
                             Re-speak
                         </Menu.Item>
 
-                        <Menu.Item
-                            name="Editor"
-                            active={page === 'Editor'}
-                            onClick={handleTabClick}
-                        >
+                        <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
                             Editor
                         </Menu.Item>
 
                         <Menu.Menu position="right">
-                            <Dropdown
-                                text={firstname}
-                                className="active link item"
-                                style={{ marginRight: '2.5vw' }}
-                            >
+                            <Dropdown text={firstname} className="active link item" style={{ marginRight: '2.5vw' }}>
                                 <Dropdown.Menu>
-                                    <Dropdown.Item
-                                        name="logout"
-                                        onClick={handleTabClick}
-                                    >
+                                    <Dropdown.Item name="logout" onClick={handleTabClick}>
                                         LOG OUT
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
@@ -128,7 +120,7 @@ const Dashboard = props => {
                     </Menu>
                 </Segment>
 
-                <Container>{subPage}</Container>
+                <Container id="main-container">{subPage}</Container>
             </React.Fragment>
         );
     } else {

@@ -1,7 +1,4 @@
-const reducer = (
-    state = { editId: null, assignId: null, editMode: false },
-    { type, payload }
-) => {
+const transcriptionReducers = (state = { editId: null, assignId: null, editMode: false }, { type, payload }) => {
     switch (type) {
         case 'ENABLE_EDIT_MODE':
             state = { ...state, editMode: true };
@@ -21,4 +18,4 @@ const reducer = (
     return state;
 };
 
-export default reducer;
+export default transcriptionReducers;

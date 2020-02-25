@@ -1,9 +1,14 @@
-import { applyMiddleware, createStore } from 'redux';
+import { applyMiddleware, createStore, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { createPromise } from 'redux-promise-middleware';
-import reducer from './reducers/TranscriptionReducer';
+import transcriptionReducers from './reducers/TranscriptionReducer';
+import socketMiddleWare from './middlewares/sockets';
 
-const middleware = applyMiddleware(createPromise(), thunk, createLogger());
+const rootReducer = combineReducers({
+    TRANSCRIPTION: transcriptionReducers,
+});
 
-export default createStore(reducer, middleware);
+const middlewares = [createPromise(), createLogger(), thunk, socketMiddleWare()];
+
+export default createStore(rootReducer, applyMiddleware(...middlewares));

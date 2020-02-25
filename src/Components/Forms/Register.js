@@ -24,8 +24,7 @@ const RegisterForm = () => {
             password: null,
         });
 
-        const handleInputChange = (setFunction, fieldValue) =>
-            setFunction(fieldValue);
+        const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
         const register = async formData => {
             const URL = `${process.env.REACT_APP_API_HOST}/api/auth/register`;
@@ -86,81 +85,41 @@ const RegisterForm = () => {
                             id="firstname"
                             type="text"
                             placeholder="First Name"
-                            style={
-                                errorState.firstname !== null
-                                    ? { ...styles.input, ...styles.error }
-                                    : styles.input
-                            }
-                            onChange={e =>
-                                handleInputChange(setfirstname, e.target.value)
-                            }
+                            style={errorState.firstname !== null ? { ...styles.input, ...styles.error } : styles.input}
+                            onChange={e => handleInputChange(setfirstname, e.target.value)}
                         />
-                        {errorState.firstname === 'error' && (
-                            <InputError
-                                message={`Please check your First Name`}
-                            />
-                        )}
+                        {errorState.firstname === 'error' && <InputError message={`Please check your First Name`} />}
                     </Form.Field>
                     <Form.Field style={styles.inputField}>
                         <input
                             id="lastname"
                             type="text"
                             placeholder="Last Name"
-                            style={
-                                errorState.lastname !== null
-                                    ? { ...styles.input, ...styles.error }
-                                    : styles.input
-                            }
-                            onChange={e =>
-                                handleInputChange(setlastname, e.target.value)
-                            }
+                            style={errorState.lastname !== null ? { ...styles.input, ...styles.error } : styles.input}
+                            onChange={e => handleInputChange(setlastname, e.target.value)}
                         />
-                        {errorState.lastname === 'error' && (
-                            <InputError
-                                message={`Please check your Last Name`}
-                            />
-                        )}
+                        {errorState.lastname === 'error' && <InputError message={`Please check your Last Name`} />}
                     </Form.Field>
                     <Form.Field style={styles.inputField}>
                         <input
                             id="email"
                             type="text"
                             placeholder="Email ID"
-                            style={
-                                errorState.email !== null
-                                    ? { ...styles.input, ...styles.error }
-                                    : styles.input
-                            }
-                            onChange={e =>
-                                handleInputChange(setEmail, e.target.value)
-                            }
+                            style={errorState.email !== null ? { ...styles.input, ...styles.error } : styles.input}
+                            onChange={e => handleInputChange(setEmail, e.target.value)}
                         />
 
-                        {errorState.email === 'error' && (
-                            <InputError
-                                message={`Please check your Email ID`}
-                            />
-                        )}
+                        {errorState.email === 'error' && <InputError message={`Please check your Email ID`} />}
                     </Form.Field>
                     <Form.Field style={styles.inputField}>
                         <input
                             id="password"
                             type="password"
                             placeholder="Password (atleast 6 chars long)"
-                            style={
-                                errorState.password !== null
-                                    ? { ...styles.input, ...styles.error }
-                                    : styles.input
-                            }
-                            onChange={e =>
-                                handleInputChange(setPassword, e.target.value)
-                            }
+                            style={errorState.password !== null ? { ...styles.input, ...styles.error } : styles.input}
+                            onChange={e => handleInputChange(setPassword, e.target.value)}
                         />
-                        {errorState.password === 'error' && (
-                            <InputError
-                                message={`Please check your password`}
-                            />
-                        )}
+                        {errorState.password === 'error' && <InputError message={`Please check your password`} />}
                     </Form.Field>
                     <Button
                         type="submit"
@@ -187,12 +146,7 @@ const RegisterForm = () => {
         return (
             <React.Fragment style={{ width: '100%' }}>
                 <h3 style={styles.title}>User Registered</h3>
-                <img
-                    src={tick}
-                    alt="tick"
-                    className="tick"
-                    style={{ width: '128px', height: '128px' }}
-                />
+                <img src={tick} alt="tick" className="tick" style={{ width: '128px', height: '128px' }} />
                 <br />
                 <label className="verf-login">
                     <a href="/login" style={styles.label.a}>

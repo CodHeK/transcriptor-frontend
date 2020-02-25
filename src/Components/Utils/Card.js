@@ -19,7 +19,7 @@ const moment = require('moment');
 
 const CustomCard = props => {
     const [mode, setMode] = useState('choose');
-    const { editMode } = useSelector(state => ({ ...state }));
+    const { editId, editMode } = useSelector(state => ({ ...state }));
     const loading = props.data === null;
     const dispatch = useDispatch();
 
@@ -34,16 +34,13 @@ const CustomCard = props => {
     ];
 
     const ActionDispatchers = {
-        EditMode: enable =>
-            enable ? dispatch(enableEditMode()) : dispatch(disableEditMode()),
+        EditMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
         transcriptionIdForEdit: _id => dispatch(setTranscriptionIdForEdit(_id)),
-        transcriptionIdForAssign: _id =>
-            dispatch(setTranscriptionIdForAssign(_id)),
+        transcriptionIdForAssign: _id => dispatch(setTranscriptionIdForAssign(_id)),
     };
 
     const modeHandler = (e, { options, value }) => {
-        let optionText = options.filter(option => option.value === value)[0]
-            .text;
+        let optionText = options.filter(option => option.value === value)[0].text;
         setMode(optionText);
 
         if (value === 1) {
@@ -58,21 +55,18 @@ const CustomCard = props => {
         <Card style={styles.Card}>
             <Card.Content>
                 <Card.Header className="card-header">
-                    {!loading ? (
-                        props.header
-                    ) : (
-                        <Skeleton width={250} height={18} />
-                    )}
+                    {!loading ? props.header : <Skeleton width={250} height={18} />}
                     <span>
-                        {!loading && <i className="fas fa-times-circle"></i>}
+                        {!loading &&
+                            (editMode && editId === props._id ? (
+                                <span className="edit-flag">(in edit)</span>
+                            ) : (
+                                <i className="fas fa-times-circle"></i>
+                            ))}
                     </span>
                 </Card.Header>
                 <Card.Meta className="card-meta">
-                    {!loading ? (
-                        date + ', ' + time
-                    ) : (
-                        <Skeleton width={180} height={15} />
-                    )}
+                    {!loading ? date + ', ' + time : <Skeleton width={180} height={15} />}
                     {!loading ? (
                         <span style={{ display: 'none' }}>dummy skeleton</span>
                     ) : (
@@ -84,12 +78,7 @@ const CustomCard = props => {
                     </div>
 
                     {!loading && (
-                        <Dropdown
-                            text={mode}
-                            options={options}
-                            style={styles.dropdown}
-                            onChange={modeHandler}
-                        />
+                        <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />
                     )}
                 </Card.Meta>
             </Card.Content>

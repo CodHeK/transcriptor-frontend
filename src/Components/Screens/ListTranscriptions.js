@@ -3,7 +3,7 @@ import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import CustomCard from '../Utils/Card';
 
-const ListTranscriptions = props => {
+const ListTranscriptions = () => {
     const [subPage, setSubPage] = useState('Created');
     const [transcriptionList, setTranscriptionList] = useState([]);
     const [cardsLoaded, setCardLoaded] = useState(false);
@@ -86,16 +86,8 @@ const ListTranscriptions = props => {
     return (
         <React.Fragment>
             <Menu tabular style={{ marginLeft: '4%' }}>
-                <Menu.Item
-                    name="Created"
-                    active={subPage === 'Created'}
-                    onClick={handleSubTabClick}
-                />
-                <Menu.Item
-                    name="Assigned"
-                    active={subPage === 'Assigned'}
-                    onClick={handleSubTabClick}
-                />
+                <Menu.Item name="Created" active={subPage === 'Created'} onClick={handleSubTabClick} />
+                <Menu.Item name="Assigned" active={subPage === 'Assigned'} onClick={handleSubTabClick} />
                 <Menu.Menu position="right" style={{ width: '500px' }}>
                     <Menu.Item style={{ width: '40%' }}>
                         {cardsLoaded && (
@@ -128,18 +120,10 @@ const ListTranscriptions = props => {
                     <GhostLoader />
                 </Card.Group>
             )}
-            {cardsLoaded &&
-                subPage === 'Created' &&
-                transcriptionList.length === 0 && <Empty />}
+            {cardsLoaded && subPage === 'Created' && transcriptionList.length === 0 && <Empty />}
             {cardsLoaded && subPage === 'Created' && (
                 <Card.Group style={{ marginLeft: '4%' }}>
-                    <TranscriptionList
-                        list={
-                            filteredList.length > 0
-                                ? filteredList
-                                : transcriptionList
-                        }
-                    />
+                    <TranscriptionList list={filteredList.length > 0 ? filteredList : transcriptionList} />
                 </Card.Group>
             )}
         </React.Fragment>

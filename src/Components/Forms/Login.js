@@ -20,8 +20,7 @@ const LoginForm = props => {
 
     const styles = LoginFormStyles;
 
-    const handleInputChange = (setFunction, fieldValue) =>
-        setFunction(fieldValue);
+    const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
     const logIn = async formData => {
         const URL = `${process.env.REACT_APP_API_HOST}/api/auth/login`;
@@ -77,15 +76,14 @@ const LoginForm = props => {
 
     return (
         <React.Fragment>
-            {errorState.email === 'correct' &&
-                errorState.password === 'correct' && (
-                    <Redirect
-                        to={{
-                            pathname: '/dashboard',
-                            state: { email, firstname },
-                        }}
-                    />
-                )}
+            {errorState.email === 'correct' && errorState.password === 'correct' && (
+                <Redirect
+                    to={{
+                        pathname: '/dashboard',
+                        state: { email, firstname },
+                    }}
+                />
+            )}
             <h3 style={styles.title}>Sign in</h3>
             <Form style={styles.FormBox}>
                 <Form.Field style={styles.inputField}>
@@ -93,45 +91,25 @@ const LoginForm = props => {
                         id="email"
                         type="text"
                         placeholder="Email ID"
-                        style={
-                            errorState.email !== null
-                                ? { ...styles.input, ...styles.error }
-                                : styles.input
-                        }
-                        onChange={e =>
-                            handleInputChange(setEmail, e.target.value)
-                        }
+                        style={errorState.email !== null ? { ...styles.input, ...styles.error } : styles.input}
+                        onChange={e => handleInputChange(setEmail, e.target.value)}
                     />
 
-                    {errorState.email === 'empty' && (
-                        <InputError message={`Enter an email ID`} />
-                    )}
+                    {errorState.email === 'empty' && <InputError message={`Enter an email ID`} />}
 
-                    {errorState.email === 'wrong' && (
-                        <InputError message={`Couldn't find your account`} />
-                    )}
+                    {errorState.email === 'wrong' && <InputError message={`Couldn't find your account`} />}
                 </Form.Field>
                 <Form.Field style={styles.inputField}>
                     <input
                         id="password"
                         type="password"
                         placeholder="Password"
-                        style={
-                            errorState.password !== null
-                                ? { ...styles.input, ...styles.error }
-                                : styles.input
-                        }
-                        onChange={e =>
-                            handleInputChange(setPassword, e.target.value)
-                        }
+                        style={errorState.password !== null ? { ...styles.input, ...styles.error } : styles.input}
+                        onChange={e => handleInputChange(setPassword, e.target.value)}
                     />
-                    {errorState.password === 'empty' && (
-                        <InputError message={`Enter a password`} />
-                    )}
+                    {errorState.password === 'empty' && <InputError message={`Enter a password`} />}
 
-                    {errorState.password === 'wrong' && (
-                        <InputError message={`Wrong password. Try again`} />
-                    )}
+                    {errorState.password === 'wrong' && <InputError message={`Wrong password. Try again`} />}
                 </Form.Field>
                 <Button
                     type="submit"
