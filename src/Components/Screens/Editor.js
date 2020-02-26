@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
 import EventEmitter from 'event-emitter';
 import '../styles.css';
 import audioFile from '../../media/sonnet.mp3';
@@ -55,7 +56,22 @@ const WaveForm = props => {
 };
 
 const Editor = props => {
-    const transcriptionId = props._id;
+    const [transcriptionId, setTranscriptionId] = useState(null);
+
+    useEffect(() => {
+        let _id = null;
+
+        if (localStorage.getItem('editorConfig') !== null) {
+            const config = JSON.parse(localStorage.getItem('editorConfig'));
+
+            _id = config._id;
+        } else {
+            _id = props._id;
+        }
+
+        setTranscriptionId(_id);
+    }, []);
+
     return (
         <React.Fragment>
             {transcriptionId === null ? (

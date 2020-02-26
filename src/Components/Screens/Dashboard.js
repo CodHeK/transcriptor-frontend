@@ -18,7 +18,9 @@ import { enableEditMode } from '../../actions/TranscriptionActions';
 import { requestSocketAuthentication } from '../../actions/SocketActions';
 
 const Dashboard = props => {
-    const [page, setPage] = useState('Upload');
+    const [page, setPage] = useState(
+        localStorage.getItem('subpage') === null ? 'Upload' : localStorage.getItem('subpage')
+    );
 
     const { editId, editMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
@@ -41,14 +43,22 @@ const Dashboard = props => {
         const handleTabClick = (_, { name }) => {
             if (name === 'logout') {
                 localStorage.removeItem('token');
+                localStorage.removeItem('subpage');
+                localStorage.removeItem('editorConfig');
+
                 history.push('/login');
             } else {
+                localStorage.setItem('subpage', name);
                 setPage(name);
             }
         };
 
         if (editId !== null && !editMode) {
             dispatch(enableEditMode());
+
+            localStorage.setItem('subpage', 'Editor');
+            localStorage.setItem('editorConfig', JSON.stringify({ _id: editId, active: true }));
+
             setPage('Editor');
         }
 
@@ -107,7 +117,7 @@ const Dashboard = props => {
 
                         <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
                             Editor{' '}
-                            {editMode && (
+                            {JSON.parse(localStorage.getItem('editorConfig')).active && (
                                 <sup>
                                     <span className="dot"></span>
                                 </sup>

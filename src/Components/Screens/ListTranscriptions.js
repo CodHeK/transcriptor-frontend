@@ -40,7 +40,7 @@ const ListTranscriptions = () => {
                     setTranscriptionList(list);
                     setCardLoaded(true);
                 });
-        }, 1000);
+        }, 500);
     }, []); /* 
                useEffect(() => {...},[]) -> to make sure infinte loop doesn't occur 
                https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
