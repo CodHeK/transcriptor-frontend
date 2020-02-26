@@ -8,7 +8,7 @@ import socketReducers from './reducers/SocketReducer';
 /* 
     Custom middleware for handling sockets
 */
-import socketMiddleWare from './middlewares/sockets';
+import socketMiddleWare from './middleware/sockets';
 
 const rootReducer = combineReducers({
     TRANSCRIPTION: transcriptionReducers,

@@ -21,13 +21,15 @@ const socketMiddleware = () => {
         socket.on('authenticated', data => {
             console.log('Socket authenticated successfully!');
 
-            console.log('??????????');
             socket.emit('join room');
         });
 
         socket.on('status updated', data => {
-            console.log(data);
-            store.dispatch(socketDataUpdated(data));
+            /* 
+                Only send the important info from data
+            */
+            const { _id, content } = { ...data.speech, ...data.status };
+            store.dispatch(socketDataUpdated({ _id, content }));
         });
 
         const authenticateSocket = () => {

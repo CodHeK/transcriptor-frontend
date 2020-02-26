@@ -19,35 +19,48 @@ const moment = require('moment');
 
 const CustomCard = props => {
     const [mode, setMode] = useState('choose');
-    const { editId, editMode } = useSelector(state => ({ ...state }));
-    const loading = props.data === null;
+    const { editId, editMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+
     const dispatch = useDispatch();
+
+    const loading = props.data === null;
 
     const styles = CustomCardStyles;
 
     const time = moment(props.meta).format('LT');
     const date = moment(props.meta).format('LL');
 
-    const options = [
-        { key: 1, text: 'edit', value: 1, disabled: editMode },
-        { key: 2, text: 'assign', value: 2 },
-    ];
+    const Status = props => {
+        const { status } = { ...props };
+        const styles = CustomCardStyles;
 
-    const ActionDispatchers = {
-        EditMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
-        transcriptionIdForEdit: _id => dispatch(setTranscriptionIdForEdit(_id)),
-        transcriptionIdForAssign: _id => dispatch(setTranscriptionIdForAssign(_id)),
-    };
+        const options = [
+            { key: 1, text: 'edit', value: 1, disabled: editMode },
+            { key: 2, text: 'assign', value: 2 },
+        ];
 
-    const modeHandler = (e, { options, value }) => {
-        let optionText = options.filter(option => option.value === value)[0].text;
-        setMode(optionText);
+        const ActionDispatchers = {
+            EditMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
+            transcriptionIdForEdit: _id => dispatch(setTranscriptionIdForEdit(_id)),
+            transcriptionIdForAssign: _id => dispatch(setTranscriptionIdForAssign(_id)),
+        };
 
-        if (value === 1) {
-            ActionDispatchers.transcriptionIdForEdit(props._id);
+        const modeHandler = (e, { options, value }) => {
+            let optionText = options.filter(option => option.value === value)[0].text;
+            setMode(optionText);
+
+            if (value === 1) {
+                ActionDispatchers.transcriptionIdForEdit(props._id);
+            } else {
+                ActionDispatchers.EditMode(false);
+                ActionDispatchers.transcriptionIdForAssign(props._id);
+            }
+        };
+
+        if (status !== 'done') {
+            return <span style={styles.dropdown}>{status}</span>;
         } else {
-            ActionDispatchers.EditMode(false);
-            ActionDispatchers.transcriptionIdForAssign(props._id);
+            return <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />;
         }
     };
 
@@ -77,9 +90,7 @@ const CustomCard = props => {
                         <div className="tag">{props.mimeType}</div>
                     </div>
 
-                    {!loading && (
-                        <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />
-                    )}
+                    {!loading && <Status status={props.status} />}
                 </Card.Meta>
             </Card.Content>
         </Card>

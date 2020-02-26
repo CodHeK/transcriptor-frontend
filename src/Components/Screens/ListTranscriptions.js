@@ -3,11 +3,20 @@ import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import CustomCard from '../Utils/Card';
 
+/* import react-redux hook for getting state */
+import { useSelector } from 'react-redux';
+
 const ListTranscriptions = () => {
     const [subPage, setSubPage] = useState('Created');
     const [transcriptionList, setTranscriptionList] = useState([]);
     const [cardsLoaded, setCardLoaded] = useState(false);
     const [filteredList, setFilteredList] = useState([]);
+
+    /* 
+        Transcription status related operations
+    */
+    const { _id, content: status } = useSelector(state => ({ ...state.SOCKET.statusData }));
+    const [statusCache, setStatusCache] = useState(null);
 
     const handleSubTabClick = (e, { name }) => setSubPage(name);
 
@@ -36,6 +45,27 @@ const ListTranscriptions = () => {
                https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
            */
 
+    useEffect(() => {
+        let cache = [];
+        for (let each of transcriptionList) {
+            if (each.status === '') {
+                if (each._id === _id) {
+                    cache[each._id] = status;
+                } else {
+                    if (each._id in statusCache) {
+                        cache[each._id] = statusCache[each._id];
+                    } else {
+                        cache[each._id] = 'processing..';
+                    }
+                }
+            } else {
+                cache[each._id] = each.status;
+            }
+        }
+
+        setStatusCache(cache);
+    }, [_id, status, statusCache, transcriptionList]);
+
     const Empty = () => (
         <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
             You haven't uploaded any files for transcriptions!
@@ -44,6 +74,7 @@ const ListTranscriptions = () => {
 
     const TranscriptionList = props =>
         props.list.map((each, key) => {
+            console.log(statusCache[each._id]);
             const data = {
                 _id: each._id,
                 uploadedFileId: each.uploadedFile._id,
@@ -51,6 +82,7 @@ const ListTranscriptions = () => {
                 meta: each.createdAt,
                 language: each.language,
                 mimeType: each.uploadedFile.mimetype,
+                status: statusCache[each._id],
             };
 
             return <CustomCard key={key} {...data} />;
