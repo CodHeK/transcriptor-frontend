@@ -30,35 +30,35 @@ const CustomCard = props => {
     const time = moment(props.meta).format('LT');
     const date = moment(props.meta).format('LL');
 
+    const options = [
+        { key: 1, text: 'edit', value: 1, disabled: editMode },
+        { key: 2, text: 'assign', value: 2 },
+    ];
+
+    const ActionDispatchers = {
+        EditMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
+        transcriptionIdForEdit: _id => dispatch(setTranscriptionIdForEdit(_id)),
+        transcriptionIdForAssign: _id => dispatch(setTranscriptionIdForAssign(_id)),
+    };
+
+    const modeHandler = (e, { options, value }) => {
+        let optionText = options.filter(option => option.value === value)[0].text;
+        setMode(optionText);
+
+        if (value === 1) {
+            ActionDispatchers.transcriptionIdForEdit(props._id);
+        } else {
+            ActionDispatchers.EditMode(false);
+            ActionDispatchers.transcriptionIdForAssign(props._id);
+        }
+    };
+
     const Status = props => {
         const { status } = { ...props };
         const styles = CustomCardStyles;
 
-        const options = [
-            { key: 1, text: 'edit', value: 1, disabled: editMode },
-            { key: 2, text: 'assign', value: 2 },
-        ];
-
-        const ActionDispatchers = {
-            EditMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
-            transcriptionIdForEdit: _id => dispatch(setTranscriptionIdForEdit(_id)),
-            transcriptionIdForAssign: _id => dispatch(setTranscriptionIdForAssign(_id)),
-        };
-
-        const modeHandler = (e, { options, value }) => {
-            let optionText = options.filter(option => option.value === value)[0].text;
-            setMode(optionText);
-
-            if (value === 1) {
-                ActionDispatchers.transcriptionIdForEdit(props._id);
-            } else {
-                ActionDispatchers.EditMode(false);
-                ActionDispatchers.transcriptionIdForAssign(props._id);
-            }
-        };
-
         if (status !== 'done') {
-            return <span style={styles.status}>{status}</span>;
+            return <span className="status-flag">{status}</span>;
         } else {
             return <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />;
         }
@@ -72,7 +72,7 @@ const CustomCard = props => {
                     <span>
                         {!loading &&
                             (editMode && editId === props._id ? (
-                                <span className="edit-flag">(in edit)</span>
+                                <span className="edit-flag">EDIT</span>
                             ) : (
                                 <i className="fas fa-times-circle"></i>
                             ))}

@@ -6,6 +6,7 @@ import Upload from './Upload';
 import Editor from './Editor';
 import logo from '../../images/ntu-logo.png';
 import PropTypes from 'prop-types';
+import '../styles.css';
 
 /* Redux imports */
 import { useSelector } from 'react-redux';
@@ -105,7 +106,12 @@ const Dashboard = props => {
                         </Menu.Item>
 
                         <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
-                            Editor
+                            Editor{' '}
+                            {editMode && (
+                                <sup>
+                                    <span className="dot"></span>
+                                </sup>
+                            )}
                         </Menu.Item>
 
                         <Menu.Menu position="right">

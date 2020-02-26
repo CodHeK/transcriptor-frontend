@@ -123,9 +123,40 @@ body ::-webkit-scrollbar-track {
 .edit-flag {
     color: red;
     letter-spacing: 0.7px;
-    font-size: 12px;
     position: absolute !important;
-    right: 8px !important;
+    right: 12px !important;
+    border-radius: 0.3rem;
+    width: auto;
+    background-color: rgba(255, 0, 0, 0.1);
+    font-size: 13px;
+    text-align: center;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.status-flag {
+    color: red;
+    letter-spacing: 0.7px;
+    position: absolute !important;
+    right: 12px !important;
+    border-radius: 0.3rem;
+    width: auto;
+    background-color: rgba(255, 0, 0, 0.1);
+    font-size: 13px;
+    text-align: center;
+    padding-left: 5px;
+    padding-right: 5px;
+    bottom: 10px !important;
+}
+
+.dot {
+    background-color: rgba(255, 0, 0, 0.6);
+    width: 5px !important;
+    height: 5px !important;
+    position: absolute;
+    border-radius: 50%;
+    margin-left: 2px !important;
+    margin-top: -3px !important;
 }
 
 .tags-container {
