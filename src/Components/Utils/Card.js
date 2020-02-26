@@ -58,7 +58,7 @@ const CustomCard = props => {
         };
 
         if (status !== 'done') {
-            return <span style={styles.dropdown}>{status}</span>;
+            return <span style={styles.status}>{status}</span>;
         } else {
             return <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />;
         }
@@ -124,6 +124,21 @@ const CustomCardStyles = {
         width: 'auto',
         border: '1px solid black',
         backgroundColor: '#f5f5f5',
+        fontSize: '13px',
+        color: 'black',
+        textAlign: 'center',
+        paddingLeft: '3px',
+        paddingRight: '3px',
+    },
+    status: {
+        right: '12px',
+        bottom: '10px',
+        position: 'absolute',
+        borderRadius: '0.3rem',
+        minWidth: '80px',
+        width: 'auto',
+        border: '1px solid black',
+        backgroundColor: 'rgba(255, 0, 0, 0.2)',
         fontSize: '13px',
         color: 'black',
         textAlign: 'center',

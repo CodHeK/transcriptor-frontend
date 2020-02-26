@@ -56,7 +56,14 @@ const ListTranscriptions = () => {
                     if (each._id in statusCache) {
                         cache[each._id] = statusCache[each._id];
                     } else {
-                        cache[each._id] = 'processing..';
+                        // check last element in logs array
+                        let lenLogs = each.logs.length;
+                        if (lenLogs === 0) {
+                            cache[each._id] = 'processing..';
+                        } else {
+                            let lastLog = each.logs[lenLogs - 1];
+                            cache[each._id] = lastLog.content;
+                        }
                     }
                 }
             } else {
@@ -75,7 +82,6 @@ const ListTranscriptions = () => {
 
     const TranscriptionList = props =>
         props.list.map((each, key) => {
-            console.log(statusCache[each._id]);
             const data = {
                 _id: each._id,
                 uploadedFileId: each.uploadedFile._id,
