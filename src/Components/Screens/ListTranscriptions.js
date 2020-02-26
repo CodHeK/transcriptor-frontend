@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
@@ -64,7 +65,7 @@ const ListTranscriptions = () => {
         }
 
         setStatusCache(cache);
-    }, [_id, status, statusCache, transcriptionList]);
+    }, [_id, status, transcriptionList]);
 
     const Empty = () => (
         <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
