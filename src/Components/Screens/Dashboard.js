@@ -116,12 +116,13 @@ const Dashboard = props => {
                         </Menu.Item>
 
                         <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
-                            Editor{' '}
-                            {JSON.parse(localStorage.getItem('editorConfig')).active && (
-                                <sup>
-                                    <span className="dot"></span>
-                                </sup>
-                            )}
+                            Editor
+                            {localStorage.getItem('editorConfig') !== null &&
+                                JSON.parse(localStorage.getItem('editorConfig')).active && (
+                                    <sup>
+                                        <span className="dot"></span>
+                                    </sup>
+                                )}
                         </Menu.Item>
 
                         <Menu.Menu position="right">
