@@ -1,60 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import EventEmitter from 'event-emitter';
+import Playlist from './Playlist';
+import $ from 'jquery';
 import '../styles.css';
-
-const WaveformPlaylist = require('waveform-playlist');
 
 const Empty = () => (
     <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
         No file selected into Editor, go to 'My Transcriptions' to select a file!
     </h3>
 );
-
-const WaveForm = props => {
-    useEffect(() => {
-        let playlist = null;
-
-        setTimeout(() => {
-            playlist = WaveformPlaylist.init(
-                {
-                    container: document.getElementById('waveform-playlist-container'),
-                    timescale: true,
-                    state: 'select',
-                    samplesPerPixel: 1024,
-                    colors: {
-                        waveOutlineColor: '#E0EFF1',
-                        timeColor: 'grey',
-                        fadeColor: 'black',
-                    },
-                    annotationList: {
-                        annotations: props.notes,
-                        controls: [],
-                        editable: true,
-                        isContinuousPlay: false,
-                        linkEndpoints: true,
-                    },
-                },
-                EventEmitter()
-            );
-        }, 500);
-
-        setTimeout(() => {
-            playlist
-                .load([
-                    {
-                        src: `${process.env.REACT_APP_API_HOST}/${props.path}`,
-                    },
-                ])
-                .then(function() {
-                    //can do stuff with the playlist.
-                    console.log('done!');
-                });
-        }, 500);
-    }, [props.notes]);
-
-    return <></>;
-};
 
 const Editor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
@@ -76,7 +30,16 @@ const Editor = props => {
     }, [props._id]);
 
     useEffect(() => {
+        $('.playlist-toolbar').hide();
+        $('#waveform-playlist-container').hide();
+
         const processSentances = sentences => {
+            sentences.sort((s1, s2) => {
+                if (s1.startTime < s2.startTime) return -1;
+                if (s1.startTime > s2.startTime) return 1;
+                return 0;
+            });
+
             let notes = [],
                 counter = 1;
             for (let s of sentences) {
@@ -123,6 +86,15 @@ const Editor = props => {
         }
     }, [transcriptionId]);
 
+    /*
+        Props:
+    */
+    const playlistProps = {
+        _id: transcriptionId,
+        notes: transcript,
+        path: filePath,
+    };
+
     return (
         <React.Fragment>
             {transcriptionId === null ? (
@@ -165,7 +137,7 @@ const Editor = props => {
                             </div>
                         </div>
                         <div id="waveform-playlist-container"></div>
-                        {transcript && <WaveForm _id={transcriptionId} notes={transcript} path={filePath} />}
+                        {transcript && <Playlist {...playlistProps} />}
                     </div>
                 </React.Fragment>
             )}

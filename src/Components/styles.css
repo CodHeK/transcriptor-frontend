@@ -207,6 +207,24 @@ body ::-webkit-scrollbar-track {
 }
 
 /* 
+    Ghost loader container css (Playlist.js)
+*/
+.waveform-ghost {
+    margin-top: 2em;
+}
+
+.sentence-ghost-container {
+    width: 100%;
+}
+
+.sentence-ghost {
+    list-style: none;
+    margin-top: 1em;
+    left: 0;
+    margin-left: -2.8em;
+}
+
+/* 
     Playlist css 
 
     From: https://github.com/naomiaro/waveform-playlist/blob/master/dist/waveform-playlist/css/main.css
