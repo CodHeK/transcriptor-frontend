@@ -8,6 +8,7 @@ const WaveformPlaylist = require('waveform-playlist');
 
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
+    const [ee, setEventEmitterObj] = useState(null);
 
     useEffect(() => {
         let playlist = WaveformPlaylist.init(
@@ -36,7 +37,7 @@ const Playlist = props => {
             playlist
                 .load([
                     {
-                        src: `${process.env.REACT_APP_API_HOST}/${props.path}`,
+                        src: `${process.env.REACT_APP_API_HOST}/${props.fileInfo.path}`,
                     },
                 ])
                 .then(function() {
@@ -48,6 +49,8 @@ const Playlist = props => {
                     //can do stuff with the playlist.
                     console.log('done!');
                 });
+
+            setEventEmitterObj(playlist.getEventEmitter());
         }, 500);
     }, [props]);
 
@@ -56,7 +59,7 @@ const Playlist = props => {
             let ghostSentences = [];
             for (let i = 0; i < props.count; i++) {
                 ghostSentences.push(
-                    <li className="sentence-ghost">
+                    <li className="sentence-ghost" key={i}>
                         <Skeleton width={1000} height={50} />
                     </li>
                 );

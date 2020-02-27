@@ -225,10 +225,39 @@ body ::-webkit-scrollbar-track {
 }
 
 /* 
+    Dashboard styles (Dasboard.js)
+*/
+#main-container {
+    position: relative;
+}
+
+/* 
     Playlist css 
 
     From: https://github.com/naomiaro/waveform-playlist/blob/master/dist/waveform-playlist/css/main.css
 */
+
+.editor-title {
+    font-size: 25px;
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+}
+
+.close-editor {
+    position: absolute;
+    font-size: 25px;
+    font-weight: 300;
+    right: 20px;
+    top: 8px;
+}
+
+.close-editor:hover {
+    cursor: pointer;
+}
+
+#top-bar {
+    margin-top: 2em;
+}
 
 .playlist {
     margin: 2em 0;

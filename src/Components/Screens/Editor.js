@@ -1,8 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import Playlist from './Playlist';
+import Skeleton from 'react-loading-skeleton';
 import $ from 'jquery';
 import '../styles.css';
+
+import { useDispatch } from 'react-redux';
+import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
 
 const Empty = () => (
     <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
@@ -13,7 +17,9 @@ const Empty = () => (
 const Editor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
     const [transcript, setTranscript] = useState(null);
-    const [filePath, setFilePath] = useState(null);
+    const [fileInfo, setFileInfo] = useState(null);
+
+    let dispatch = useDispatch();
 
     useEffect(() => {
         let _id = null;
@@ -80,19 +86,32 @@ const Editor = props => {
 
                     const notes = processSentances(sentences);
 
-                    setFilePath(uploadedFile.path);
+                    setFileInfo(uploadedFile);
                     setTranscript(notes);
                 });
         }
     }, [transcriptionId]);
 
+    const closeEditor = e => {
+        /* 
+            Close all editor related modes
+            and remove items from localStorage
+        */
+        localStorage.removeItem('editorConfig');
+        dispatch(disableEditMode());
+        dispatch(setTranscriptionIdForEdit());
+
+        /* Transition back to 'My Transcriptions' page */
+        props.subPageCallback('My Transcriptions');
+    };
+
     /*
-        Props:
+        Props passed to Playlist component:
     */
     const playlistProps = {
+        fileInfo,
         _id: transcriptionId,
         notes: transcript,
-        path: filePath,
     };
 
     return (
@@ -101,7 +120,14 @@ const Editor = props => {
                 <Empty />
             ) : (
                 <React.Fragment>
-                    <h3>{transcriptionId}</h3>
+                    {fileInfo !== null ? (
+                        <h3 className="editor-title">{fileInfo.originalname}</h3>
+                    ) : (
+                        <Skeleton width={300} height={35} />
+                    )}
+                    <span className="close-editor" onClick={closeEditor}>
+                        <i className="fas fa-times"></i>
+                    </span>
                     <div id="top-bar" className="playlist-top-bar">
                         <div className="playlist-toolbar">
                             <div className="btn-group">

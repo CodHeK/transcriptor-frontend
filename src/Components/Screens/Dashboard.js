@@ -72,7 +72,7 @@ const Dashboard = props => {
                 subPage = <ListTranscriptions />;
                 break;
             case 'Editor':
-                subPage = <Editor _id={editId} />;
+                subPage = <Editor _id={editId} subPageCallback={page => setPage(page)} />;
                 break;
             default:
             // subPage = <ReSpeak />
