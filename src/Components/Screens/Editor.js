@@ -103,6 +103,7 @@ const Editor = props => {
 
         /* Transition back to 'My Transcriptions' page */
         props.subPageCallback('My Transcriptions');
+        localStorage.setItem('subpage', 'My Transcriptions');
     };
 
     /*
