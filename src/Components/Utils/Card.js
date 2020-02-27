@@ -30,8 +30,12 @@ const CustomCard = props => {
     const time = moment(props.meta).format('LT');
     const date = moment(props.meta).format('LL');
 
+    const editorNotSaved =
+        localStorage.getItem('editorConfig') !== null &&
+        JSON.parse(localStorage.getItem('editorConfig'))._id === props._id;
+
     const options = [
-        { key: 1, text: 'edit', value: 1, disabled: editMode },
+        { key: 1, text: 'edit', value: 1, disabled: editMode || editorNotSaved },
         { key: 2, text: 'assign', value: 2 },
     ];
 
@@ -72,6 +76,8 @@ const CustomCard = props => {
                     <span>
                         {!loading &&
                             (editMode && editId === props._id ? (
+                                <span className="edit-flag">EDIT</span>
+                            ) : editorNotSaved ? (
                                 <span className="edit-flag">EDIT</span>
                             ) : (
                                 <i className="fas fa-times-circle"></i>
