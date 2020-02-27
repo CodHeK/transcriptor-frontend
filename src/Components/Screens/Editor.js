@@ -99,7 +99,7 @@ const Editor = props => {
         */
         localStorage.removeItem('editorConfig');
         dispatch(disableEditMode());
-        dispatch(setTranscriptionIdForEdit());
+        dispatch(setTranscriptionIdForEdit(null));
 
         /* Transition back to 'My Transcriptions' page */
         props.subPageCallback('My Transcriptions');
