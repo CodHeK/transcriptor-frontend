@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import EventEmitter from 'event-emitter';
 import '../styles.css';
-import audioFile from '../../media/sonnet.mp3';
 
 const WaveformPlaylist = require('waveform-playlist');
 
@@ -13,46 +12,46 @@ const Empty = () => (
 );
 
 const WaveForm = props => {
-    let playlist = null;
+    useEffect(() => {
+        let playlist = null;
 
-    setTimeout(() => {
-        console.log('init');
-        playlist = WaveformPlaylist.init(
-            {
-                container: document.getElementById('waveform-playlist-container'),
-                timescale: true,
-                state: 'select',
-                samplesPerPixel: 1024,
-                colors: {
-                    waveOutlineColor: '#E0EFF1',
-                    timeColor: 'grey',
-                    fadeColor: 'black',
-                },
-                annotationList: {
-                    annotations: props.notes,
-                    controls: [],
-                    editable: true,
-                    isContinuousPlay: false,
-                    linkEndpoints: true,
-                },
-            },
-            EventEmitter()
-        );
-    }, 500);
-
-    setTimeout(() => {
-        console.log('load');
-        playlist
-            .load([
+        setTimeout(() => {
+            playlist = WaveformPlaylist.init(
                 {
-                    src: `${audioFile}`,
+                    container: document.getElementById('waveform-playlist-container'),
+                    timescale: true,
+                    state: 'select',
+                    samplesPerPixel: 1024,
+                    colors: {
+                        waveOutlineColor: '#E0EFF1',
+                        timeColor: 'grey',
+                        fadeColor: 'black',
+                    },
+                    annotationList: {
+                        annotations: props.notes,
+                        controls: [],
+                        editable: true,
+                        isContinuousPlay: false,
+                        linkEndpoints: true,
+                    },
                 },
-            ])
-            .then(function() {
-                //can do stuff with the playlist.
-                console.log('done!');
-            });
-    }, 500);
+                EventEmitter()
+            );
+        }, 500);
+
+        setTimeout(() => {
+            playlist
+                .load([
+                    {
+                        src: `${process.env.REACT_APP_API_HOST}/${props.path}`,
+                    },
+                ])
+                .then(function() {
+                    //can do stuff with the playlist.
+                    console.log('done!');
+                });
+        }, 500);
+    }, [props.notes]);
 
     return <></>;
 };
@@ -166,7 +165,7 @@ const Editor = props => {
                             </div>
                         </div>
                         <div id="waveform-playlist-container"></div>
-                        {transcript && <WaveForm _id={transcriptionId} notes={transcript} />}
+                        {transcript && <WaveForm _id={transcriptionId} notes={transcript} path={filePath} />}
                     </div>
                 </React.Fragment>
             )}
