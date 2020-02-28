@@ -40,6 +40,9 @@ const Editor = props => {
         $('#waveform-playlist-container').hide();
 
         const processSentances = sentences => {
+            /* 
+                Remove the sort function after git pull
+            */
             sentences.sort((s1, s2) => {
                 if (s1.startTime < s2.startTime) return -1;
                 if (s1.startTime > s2.startTime) return 1;

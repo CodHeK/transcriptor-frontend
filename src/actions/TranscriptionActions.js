@@ -12,6 +12,13 @@ export const setTranscriptionIdForAssign = id => {
     };
 };
 
+export const saveEventEmitter = ee => {
+    return {
+        type: 'SAVE_EVENT_EMITTER',
+        payload: ee,
+    };
+};
+
 export const enableEditMode = () => {
     return {
         type: 'ENABLE_EDIT_MODE',

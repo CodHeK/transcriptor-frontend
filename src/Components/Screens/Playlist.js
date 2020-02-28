@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
+import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
 import $ from 'jquery';
 import '../styles.css';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { saveEventEmitter } from '../../actions/TranscriptionActions';
 
 const WaveformPlaylist = require('waveform-playlist');
 
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
-    const [ee, setEventEmitterObj] = useState(null);
+
+    let dispatch = useDispatch();
 
     useEffect(() => {
         let playlist = WaveformPlaylist.init(
@@ -18,7 +22,7 @@ const Playlist = props => {
                 state: 'select',
                 samplesPerPixel: 1024,
                 colors: {
-                    waveOutlineColor: '#E0EFF1',
+                    waveOutlineColor: 'white',
                     timeColor: 'grey',
                     fadeColor: 'black',
                 },
@@ -28,6 +32,10 @@ const Playlist = props => {
                     editable: true,
                     isContinuousPlay: false,
                     linkEndpoints: true,
+                },
+                seekStyle: 'line',
+                options: {
+                    isAutomaticScroll: true,
                 },
             },
             EventEmitter()
@@ -46,13 +54,33 @@ const Playlist = props => {
 
                     setPlaylistLoaded(true);
 
-                    //can do stuff with the playlist.
-                    console.log('done!');
-                });
+                    let ee = playlist.getEventEmitter();
+                    dispatch(saveEventEmitter(ee));
 
-            setEventEmitterObj(playlist.getEventEmitter());
+                    /* 
+                        Elements
+                    */
+                    const $playButton = $('.fa-play');
+                    const $pauseButton = $('.fa-pause');
+                    const $stopButton = $('.fa-stop');
+
+                    /* 
+                        Actions
+                    */
+                    $playButton.on('click', () => {
+                        ee.emit('play');
+                    });
+
+                    $pauseButton.on('click', () => {
+                        ee.emit('pause');
+                    });
+
+                    $stopButton.on('click', () => {
+                        ee.emit('stop');
+                    });
+                });
         }, 500);
-    }, [props]);
+    }, []);
 
     const PLaylistGhostLoader = () => {
         const ListGhostLoader = props => {

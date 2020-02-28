@@ -56,6 +56,10 @@ const Dashboard = props => {
         if (editId !== null && !editMode) {
             dispatch(enableEditMode());
 
+            /* 
+                LocalStorage use here is not redundant and serves to
+                save the state of the application when refreshed
+            */
             localStorage.setItem('subpage', 'Editor');
             localStorage.setItem('editorConfig', JSON.stringify({ _id: editId, active: true }));
 
