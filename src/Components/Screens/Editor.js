@@ -144,12 +144,12 @@ const Editor = props => {
                                 <span className="btn-stop btn btn-danger">
                                     <i className="fa fa-stop"></i>
                                 </span>
-                                <span className="btn-rewind btn btn-success">
+                                {/* <span className="btn-rewind btn btn-success">
                                     <i className="fa fa-fast-backward"></i>
                                 </span>
                                 <span className="btn-fast-forward btn btn-success">
                                     <i className="fa fa-fast-forward"></i>
-                                </span>
+                                </span> */}
                             </div>
                             <div className="btn-group">
                                 <span title="zoom in" className="btn-zoom-in btn btn-default">

@@ -60,9 +60,9 @@ const Playlist = props => {
                     /* 
                         Elements
                     */
-                    const $playButton = $('.fa-play');
-                    const $pauseButton = $('.fa-pause');
-                    const $stopButton = $('.fa-stop');
+                    const $playButton = $('.btn-play');
+                    const $pauseButton = $('.btn-pause');
+                    const $stopButton = $('.btn-stop');
 
                     /* 
                         Actions
@@ -77,6 +77,33 @@ const Playlist = props => {
 
                     $stopButton.on('click', () => {
                         ee.emit('stop');
+                    });
+
+                    const timeStringToFloat = time => {
+                        let [hours, minutes, seconds] = time.split(':');
+
+                        hours = parseFloat(hours);
+                        minutes = parseFloat(minutes);
+                        seconds = parseFloat(seconds);
+
+                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+                        return totalSeconds;
+                    };
+
+                    let $annotationsBox = document.getElementsByClassName('annotations-text')[0];
+
+                    $annotationsBox.addEventListener('click', e => {
+                        let $parent = e.path[1];
+                        let sentenceId = $parent.getElementsByClassName('annotation-id')[0].innerHTML;
+
+                        let startTime = $parent.getElementsByClassName('annotation-start')[0].innerHTML;
+                        let endTime = $parent.getElementsByClassName('annotation-end')[0].innerHTML;
+
+                        startTime = timeStringToFloat(startTime);
+                        endTime = timeStringToFloat(endTime);
+
+                        ee.emit('play', startTime, endTime);
                     });
                 });
         }, 500);

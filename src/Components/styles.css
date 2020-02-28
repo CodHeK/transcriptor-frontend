@@ -458,6 +458,7 @@ body ::-webkit-scrollbar-track {
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: stretch;
+    padding-bottom: 1em;
 }
 
 .playlist .annotations .annotations-text .annotation span {
@@ -474,17 +475,21 @@ body ::-webkit-scrollbar-track {
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-start {
-    font-size: 16px;
+    font-size: 13px;
     line-height: 27px;
+    color: gray;
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-end {
-    font-size: 16px;
+    font-size: 13px;
     line-height: 27px;
+    color: gray;
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-lines {
     flex-grow: 10;
+    margin-top: 7px;
+    font-size: 17px;
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-actions {
