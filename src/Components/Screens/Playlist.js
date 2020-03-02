@@ -101,7 +101,7 @@ const Playlist = props => {
                         return null;
                     };
 
-                    const getNextForHighlight = () => {
+                    const getNextForHighlight = scrollPoints => {
                         let len = $annotations.length;
                         for (let idx in $annotations) {
                             let id = parseInt(idx);
@@ -109,6 +109,18 @@ const Playlist = props => {
                                 if ($annotations[id].classList.length > 1) {
                                     let curr = id,
                                         next = (id + 1) % len;
+                                    /* 
+                                        Auto scroll container
+                                    */
+                                    if (next === 0) {
+                                        $annotationsTextBox.scrollTo(0, 0);
+                                    } else {
+                                        if (scrollPoints.has(next)) {
+                                            let scrollByVal = scrollPoints.get(next);
+
+                                            $annotationsTextBox.scrollTo(0, scrollByVal);
+                                        }
+                                    }
                                     unsetHighlight($annotations[curr]);
                                     setHighlight($annotations[next]);
                                     return true;
@@ -189,8 +201,24 @@ const Playlist = props => {
                     */
                     let keyboardBoardMode = false;
 
-                    hotkeys('shift+enter', (e, handler) => {
-                        keyboardBoardMode = getNextForHighlight();
+                    hotkeys('shift+down', (e, handler) => {
+                        let annotationsContainerHeight = $annotationsTextBox.clientHeight;
+                        let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
+
+                        let scrollPoints = new Map();
+                        let page = 1;
+
+                        for (let i = 1; i < annotationBoxHeights.length; i++) {
+                            annotationBoxHeights[i] += annotationBoxHeights[i - 1];
+                            if (annotationBoxHeights[i] >= annotationsContainerHeight * page) {
+                                scrollPoints.set(i, annotationBoxHeights[i - 1]);
+                                page++;
+                            }
+                        }
+
+                        console.log(scrollPoints);
+
+                        keyboardBoardMode = getNextForHighlight(scrollPoints);
 
                         /* 
                             Call function to save edit here
@@ -203,9 +231,7 @@ const Playlist = props => {
                         if (keyboardBoardMode) {
                             let $currentHighlighted = getCurrentHighlightedElement();
 
-                            let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
-                                'annotation-lines'
-                            )[0];
+                            let $currentAnnotationText = $currentHighlighted.getElementsByClassName('annotation-lines')[0];
 
                             /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
                             setTimeout(() => $currentAnnotationText.focus(), 0);
