@@ -418,8 +418,11 @@ body ::-webkit-scrollbar-track {
 .playlist .annotations {
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;
-    height: 450px !important;
+    height: 520px;
+    padding-bottom: 200px !important;
 }
+
+/* Add media queries for above style here */
 
 .playlist .annotations .annotations-boxes {
     text-align: center;

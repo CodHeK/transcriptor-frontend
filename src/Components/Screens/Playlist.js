@@ -55,7 +55,7 @@ const Playlist = props => {
                     setPlaylistLoaded(true);
 
                     let ee = playlist.getEventEmitter();
-                    dispatch(saveEventEmitter(ee));
+                    // dispatch(saveEventEmitter(ee));
 
                     /* 
                         Elements
@@ -63,10 +63,11 @@ const Playlist = props => {
                     const $playButton = $('.btn-play');
                     const $pauseButton = $('.btn-pause');
                     const $stopButton = $('.btn-stop');
-
+                    const $waveform = $('.playlist-tracks')[0];
                     /* 
                         Actions
                     */
+
                     $playButton.on('click', () => {
                         ee.emit('play');
                     });
@@ -80,20 +81,18 @@ const Playlist = props => {
                     });
 
                     const timeStringToFloat = time => {
-                        let [hours, minutes, seconds] = time.split(':');
-
-                        hours = parseFloat(hours);
-                        minutes = parseFloat(minutes);
-                        seconds = parseFloat(seconds);
+                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
 
                         let totalSeconds = hours * 3600 + minutes * 60 + seconds;
 
                         return totalSeconds;
                     };
 
-                    let $annotationsBox = document.getElementsByClassName('annotations-text')[0];
+                    let $annotationsTextBox = document.getElementsByClassName('annotations-text')[0];
+                    let $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
+                    let prevScroll = 0;
 
-                    $annotationsBox.addEventListener('click', e => {
+                    $annotationsTextBox.addEventListener('click', e => {
                         let $parent = e.path[1];
                         let sentenceId = $parent.getElementsByClassName('annotation-id')[0].innerHTML;
 
@@ -102,6 +101,12 @@ const Playlist = props => {
 
                         startTime = timeStringToFloat(startTime);
                         endTime = timeStringToFloat(endTime);
+
+                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
+
+                        $waveform.scrollTo(prevScroll + scrollVal, 0);
+
+                        prevScroll += scrollVal;
 
                         ee.emit('play', startTime, endTime);
                     });
