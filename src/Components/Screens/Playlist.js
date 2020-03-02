@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
+import hotkeys from 'hotkeys-js';
 import $ from 'jquery';
 import '../styles.css';
 
@@ -60,6 +61,7 @@ const Playlist = props => {
                     /* 
                         Elements
                     */
+                    const $window = $(window);
                     const $playButton = $('.btn-play');
                     const $pauseButton = $('.btn-pause');
                     const $stopButton = $('.btn-stop');
@@ -68,12 +70,62 @@ const Playlist = props => {
                     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
                     const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
                     const $cursor = document.getElementsByClassName('cursor')[0];
+                    const $annotations = document.getElementsByClassName('annotation');
+
+                    /* 
+                        Utility functions
+                    */
+
+                    const unsetHighlight = element => {
+                        element.classList.remove('current');
+                    };
+
+                    const setHighlight = element => {
+                        element.classList.add('current');
+                    };
+
+                    const removeAllHighlights = () => {
+                        for (let $annotation of $annotations) {
+                            if ($annotation.classList.length > 1) {
+                                $annotation.classList.remove('current');
+                            }
+                        }
+                    };
+
+                    const getCurrentHighlightedElement = () => {
+                        for (let $annotation of $annotations) {
+                            if ($annotation.classList.length > 1) {
+                                return $annotation;
+                            }
+                        }
+                        return null;
+                    };
+
+                    const getNextForHighlight = () => {
+                        let len = $annotations.length;
+                        for (let idx in $annotations) {
+                            let id = parseInt(idx);
+                            if (!isNaN(id)) {
+                                if ($annotations[id].classList.length > 1) {
+                                    let curr = id,
+                                        next = (id + 1) % len;
+                                    unsetHighlight($annotations[curr]);
+                                    setHighlight($annotations[next]);
+                                    return true;
+                                }
+                            }
+                        }
+                        setHighlight($annotations[0]);
+                        return true;
+                    };
 
                     /* 
                         Actions on above Elements
                     */
 
                     $playButton.on('click', () => {
+                        removeAllHighlights();
+
                         ee.emit('play');
 
                         let cursorLimit = $annotationsBoxesDiv.offsetWidth;
@@ -90,6 +142,8 @@ const Playlist = props => {
                     });
 
                     $stopButton.on('click', () => {
+                        removeAllHighlights();
+
                         $waveform.scrollTo(0, 0);
 
                         ee.emit('stop');
@@ -110,6 +164,8 @@ const Playlist = props => {
                     });
 
                     $annotationsTextBox.addEventListener('click', e => {
+                        removeAllHighlights();
+
                         let $parent = e.path[1];
                         let sentenceId = $parent.getElementsByClassName('annotation-id')[0].innerHTML;
 
@@ -126,6 +182,36 @@ const Playlist = props => {
                         prevScroll += scrollVal;
 
                         ee.emit('play', startTime, endTime);
+                    });
+
+                    /* 
+                        Define keyboard shortcuts
+                    */
+                    let keyboardBoardMode = false;
+
+                    hotkeys('shift+enter', (e, handler) => {
+                        keyboardBoardMode = getNextForHighlight();
+
+                        /* 
+                            Call function to save edit here
+                        */
+
+                        e.preventDefault();
+                    });
+
+                    hotkeys('enter', (e, handler) => {
+                        if (keyboardBoardMode) {
+                            let $currentHighlighted = getCurrentHighlightedElement();
+
+                            let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
+                                'annotation-lines'
+                            )[0];
+
+                            /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
+                            setTimeout(() => $currentAnnotationText.focus(), 0);
+
+                            console.log($currentAnnotationText);
+                        }
                     });
                 });
         }, 500);
