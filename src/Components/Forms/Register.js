@@ -121,13 +121,7 @@ const RegisterForm = () => {
                         />
                         {errorState.password === 'error' && <InputError message={`Please check your password`} />}
                     </Form.Field>
-                    <Button
-                        type="submit"
-                        className="next-btn"
-                        style={styles.button}
-                        loading={loading}
-                        onClick={authenticateUser}
-                    >
+                    <Button type="submit" className="next-btn" style={styles.button} loading={loading} onClick={authenticateUser}>
                         Next
                     </Button>
                     <Form.Field>

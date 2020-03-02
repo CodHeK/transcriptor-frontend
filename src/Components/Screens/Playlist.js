@@ -110,7 +110,7 @@ const Playlist = props => {
                                     let curr = id,
                                         next = (id + 1) % len;
                                     /* 
-                                        Auto scroll container
+                                        Auto scroll annotations container
                                     */
                                     if (next === 0) {
                                         $annotationsTextBox.scrollTo(0, 0);
@@ -202,7 +202,7 @@ const Playlist = props => {
                     let keyboardBoardMode = false;
 
                     hotkeys('shift+down', (e, handler) => {
-                        let annotationsContainerHeight = $annotationsTextBox.clientHeight;
+                        let annotationsContainerHeight = 300;
                         let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
 
                         let scrollPoints = new Map();

@@ -18,9 +18,7 @@ import { enableEditMode } from '../../actions/TranscriptionActions';
 import { requestSocketAuthentication } from '../../actions/SocketActions';
 
 const Dashboard = props => {
-    const [page, setPage] = useState(
-        localStorage.getItem('subpage') === null ? 'Upload' : localStorage.getItem('subpage')
-    );
+    const [page, setPage] = useState(localStorage.getItem('subpage') === null ? 'Upload' : localStorage.getItem('subpage'));
 
     const { editId, editMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
@@ -98,20 +96,11 @@ const Dashboard = props => {
                         <Menu.Item>
                             <img src={logo} alt="ntu-logo" style={{ width: '123px' }} />
                         </Menu.Item>
-                        <Menu.Item
-                            name="Upload"
-                            active={page === 'Upload'}
-                            onClick={handleTabClick}
-                            style={{ marginLeft: '2em' }}
-                        >
+                        <Menu.Item name="Upload" active={page === 'Upload'} onClick={handleTabClick} style={{ marginLeft: '2em' }}>
                             Upload
                         </Menu.Item>
 
-                        <Menu.Item
-                            name="My Transcriptions"
-                            active={page === 'My Transcriptions'}
-                            onClick={handleTabClick}
-                        >
+                        <Menu.Item name="My Transcriptions" active={page === 'My Transcriptions'} onClick={handleTabClick}>
                             My Transcriptions
                         </Menu.Item>
 
@@ -121,12 +110,11 @@ const Dashboard = props => {
 
                         <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
                             Editor
-                            {localStorage.getItem('editorConfig') !== null &&
-                                JSON.parse(localStorage.getItem('editorConfig')).active && (
-                                    <sup>
-                                        <span className="dot"></span>
-                                    </sup>
-                                )}
+                            {localStorage.getItem('editorConfig') !== null && JSON.parse(localStorage.getItem('editorConfig')).active && (
+                                <sup>
+                                    <span className="dot"></span>
+                                </sup>
+                            )}
                         </Menu.Item>
 
                         <Menu.Menu position="right">

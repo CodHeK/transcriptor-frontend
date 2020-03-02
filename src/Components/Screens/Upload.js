@@ -32,9 +32,7 @@ const Upload = () => {
             getUploadParams={getUploadParams}
             onChangeStatus={handleChangeStatus}
             accept="image/*,audio/*,video/*"
-            inputContent={(_, extra) =>
-                extra.reject ? 'Image, audio and video files only' : 'Upload audio file(s) to continue'
-            }
+            inputContent={(_, extra) => (extra.reject ? 'Image, audio and video files only' : 'Upload audio file(s) to continue')}
             styles={{
                 dropzoneReject: { borderColor: 'red', backgroundColor: '#DAA' },
                 inputLabel: (_, extra) => (extra.reject ? { color: 'red' } : {}),

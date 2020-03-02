@@ -111,13 +111,7 @@ const LoginForm = props => {
 
                     {errorState.password === 'wrong' && <InputError message={`Wrong password. Try again`} />}
                 </Form.Field>
-                <Button
-                    type="submit"
-                    className="next-btn"
-                    style={styles.button}
-                    loading={loading}
-                    onClick={authenticateUser}
-                >
+                <Button type="submit" className="next-btn" style={styles.button} loading={loading} onClick={authenticateUser}>
                     Next
                 </Button>
                 <Form.Field>

@@ -74,11 +74,7 @@ const ListTranscriptions = () => {
         setStatusCache(cache);
     }, [_id, status, transcriptionList]);
 
-    const Empty = () => (
-        <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
-            You haven't uploaded any files for transcriptions!
-        </h3>
-    );
+    const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>You haven't uploaded any files for transcriptions!</h3>;
 
     const TranscriptionList = props =>
         props.list.map((each, key) => {
@@ -140,16 +136,7 @@ const ListTranscriptions = () => {
                         )}
                     </Menu.Item>
                     <Menu.Item style={{ width: '60%' }}>
-                        {cardsLoaded ? (
-                            <Input
-                                transparent
-                                icon={{ name: 'search', link: true }}
-                                placeholder="Search records..."
-                                onChange={searchBarHandler}
-                            />
-                        ) : (
-                            <Skeleton width={250} height={30} />
-                        )}
+                        {cardsLoaded ? <Input transparent icon={{ name: 'search', link: true }} placeholder="Search records..." onChange={searchBarHandler} /> : <Skeleton width={250} height={30} />}
                     </Menu.Item>
                 </Menu.Menu>
             </Menu>

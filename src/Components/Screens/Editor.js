@@ -8,11 +8,7 @@ import '../styles.css';
 import { useDispatch } from 'react-redux';
 import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
 
-const Empty = () => (
-    <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
-        No file selected into Editor, go to 'My Transcriptions' to select a file!
-    </h3>
-);
+const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>No file selected into Editor, go to 'My Transcriptions' to select a file!</h3>;
 
 const Editor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
@@ -124,11 +120,7 @@ const Editor = props => {
                 <Empty />
             ) : (
                 <React.Fragment>
-                    {fileInfo !== null ? (
-                        <h3 className="editor-title">{fileInfo.originalname}</h3>
-                    ) : (
-                        <Skeleton width={300} height={35} />
-                    )}
+                    {fileInfo !== null ? <h3 className="editor-title">{fileInfo.originalname}</h3> : <Skeleton width={300} height={35} />}
                     <span className="close-editor" onClick={closeEditor}>
                         <i className="fas fa-times"></i>
                     </span>
@@ -158,10 +150,7 @@ const Editor = props => {
                                 <span title="zoom out" className="btn-zoom-out btn btn-default">
                                     <i className="fa fa-search-minus"></i>
                                 </span>
-                                <span
-                                    title="Download the annotations as json"
-                                    className="btn-annotations-download btn btn-default"
-                                >
+                                <span title="Download the annotations as json" className="btn-annotations-download btn btn-default">
                                     Download JSON
                                 </span>
                             </div>
