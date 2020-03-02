@@ -64,12 +64,25 @@ const Playlist = props => {
                     const $pauseButton = $('.btn-pause');
                     const $stopButton = $('.btn-stop');
                     const $waveform = $('.playlist-tracks')[0];
+                    const $annotationsTextBox = document.getElementsByClassName('annotations-text')[0];
+                    const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
+                    const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
+                    const $cursor = document.getElementsByClassName('cursor')[0];
+
                     /* 
-                        Actions
+                        Actions on above Elements
                     */
 
                     $playButton.on('click', () => {
                         ee.emit('play');
+
+                        let cursorLimit = $annotationsBoxesDiv.offsetWidth;
+
+                        setInterval(() => {
+                            if (parseInt($cursor.style.left) >= cursorLimit) {
+                                $waveform.scrollTo(cursorLimit, 0);
+                            }
+                        }, 1000);
                     });
 
                     $pauseButton.on('click', () => {
@@ -77,6 +90,8 @@ const Playlist = props => {
                     });
 
                     $stopButton.on('click', () => {
+                        $waveform.scrollTo(0, 0);
+
                         ee.emit('stop');
                     });
 
@@ -88,9 +103,11 @@ const Playlist = props => {
                         return totalSeconds;
                     };
 
-                    let $annotationsTextBox = document.getElementsByClassName('annotations-text')[0];
-                    let $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
                     let prevScroll = 0;
+
+                    $waveform.addEventListener('scroll', e => {
+                        prevScroll = $waveform.scrollLeft;
+                    });
 
                     $annotationsTextBox.addEventListener('click', e => {
                         let $parent = e.path[1];
