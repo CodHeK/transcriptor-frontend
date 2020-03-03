@@ -56,7 +56,7 @@ const Playlist = props => {
                     setPlaylistLoaded(true);
 
                     let ee = playlist.getEventEmitter();
-                    // dispatch(saveEventEmitter(ee));
+                    dispatch(saveEventEmitter(ee));
 
                     /* 
                         Elements
@@ -73,15 +73,25 @@ const Playlist = props => {
                     const $annotations = document.getElementsByClassName('annotation');
 
                     /* 
+                        Unsubscribe to all event listeners
+                    */
+                    $waveform.removeEventListener('scroll', () => console.log('waveform scroll event removed'));
+                    $annotationsTextBox.removeEventListener('click', () => console.log('sentence click listener removed'));
+                    hotkeys.unbind('shift+down');
+                    hotkeys.unbind('shift+up');
+                    hotkeys.unbind('enter');
+
+                    /* 
                         Utility functions
                     */
 
-                    const unsetHighlight = element => {
-                        element.classList.remove('current');
+                    const removeHighlight = $element => {
+                        $element.classList.remove('current');
                     };
 
-                    const setHighlight = element => {
-                        element.classList.add('current');
+                    const addHighlight = $element => {
+                        console.log($element);
+                        $element.classList.add('current');
                     };
 
                     const removeAllHighlights = () => {
@@ -134,14 +144,33 @@ const Playlist = props => {
 
                                         $annotationsTextBox.scrollTo(0, scrollByVal);
                                     }
-                                    unsetHighlight($annotations[curr]);
-                                    setHighlight($annotations[next]);
+                                    removeHighlight($annotations[curr]);
+                                    addHighlight($annotations[next]);
                                     return true;
                                 }
                             }
                         }
-                        setHighlight($annotations[0]);
+                        addHighlight($annotations[0]);
                         return true;
+                    };
+
+                    const timeStringToFloat = time => {
+                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
+
+                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+                        return totalSeconds;
+                    };
+
+                    const getSentenceInfo = $element => {
+                        let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerHTML;
+                        let startTime = $element.getElementsByClassName('annotation-start')[0].innerHTML;
+                        let endTime = $element.getElementsByClassName('annotation-end')[0].innerHTML;
+
+                        startTime = timeStringToFloat(startTime);
+                        endTime = timeStringToFloat(endTime);
+
+                        return { sentenceId, startTime, endTime };
                     };
 
                     /* 
@@ -174,14 +203,6 @@ const Playlist = props => {
                         ee.emit('stop');
                     });
 
-                    const timeStringToFloat = time => {
-                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
-
-                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
-
-                        return totalSeconds;
-                    };
-
                     let prevScroll = 0;
 
                     $waveform.addEventListener('scroll', e => {
@@ -191,14 +212,8 @@ const Playlist = props => {
                     $annotationsTextBox.addEventListener('click', e => {
                         removeAllHighlights();
 
-                        let $parent = e.path[1];
-                        let sentenceId = $parent.getElementsByClassName('annotation-id')[0].innerHTML;
-
-                        let startTime = $parent.getElementsByClassName('annotation-start')[0].innerHTML;
-                        let endTime = $parent.getElementsByClassName('annotation-end')[0].innerHTML;
-
-                        startTime = timeStringToFloat(startTime);
-                        endTime = timeStringToFloat(endTime);
+                        let $currentClickedSentence = e.path[1];
+                        let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
 
                         let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
 
@@ -206,7 +221,14 @@ const Playlist = props => {
 
                         prevScroll += scrollVal;
 
-                        ee.emit('play', startTime, endTime);
+                        /* 
+                            Mouse click on sentence to play that section 
+                            not needed for now!
+                        */
+
+                        // ee.emit('play', startTime, endTime);
+
+                        addHighlight($currentClickedSentence);
                     });
 
                     /* 
@@ -249,15 +271,28 @@ const Playlist = props => {
                     });
 
                     hotkeys('enter', (e, handler) => {
+                        let $currentHighlighted = getCurrentHighlightedElement();
+
+                        let $currentAnnotationText = $currentHighlighted.getElementsByClassName('annotation-lines')[0];
+
+                        /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
+                        setTimeout(() => $currentAnnotationText.focus(), 0);
+                    });
+
+                    hotkeys('shift+space', (e, handler) => {
                         if (keyboardBoardMode) {
                             let $currentHighlighted = getCurrentHighlightedElement();
 
-                            let $currentAnnotationText = $currentHighlighted.getElementsByClassName('annotation-lines')[0];
+                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
 
-                            /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
-                            setTimeout(() => $currentAnnotationText.focus(), 0);
+                            let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
 
-                            console.log($currentAnnotationText);
+                            $waveform.scrollTo(prevScroll + scrollVal, 0);
+
+                            prevScroll += scrollVal;
+
+                            ee.emit('play', startTime, endTime);
+                            setTimeout(() => addHighlight($currentHighlighted), (endTime - startTime + 0.5) * 1000);
                         }
                     });
                 });
