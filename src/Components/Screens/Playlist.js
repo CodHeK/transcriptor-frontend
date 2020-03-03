@@ -71,6 +71,12 @@ const Playlist = props => {
                     const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
                     const $cursor = document.getElementsByClassName('cursor')[0];
                     const $annotations = document.getElementsByClassName('annotation');
+                    const $timeTicks = $('.time');
+
+                    /* 
+                        Time constants
+                    */
+                    const oneSecond = parseInt($timeTicks[1].style.left) / 2;
 
                     /* 
                         Unsubscribe to all event listeners
@@ -171,6 +177,13 @@ const Playlist = props => {
                         endTime = timeStringToFloat(endTime);
 
                         return { sentenceId, startTime, endTime };
+                    };
+
+                    const getCursorStopPoint = () => {
+                        let cursorPos = parseInt($cursor.style.left);
+                        let stopTime = parseFloat(cursorPos / oneSecond);
+
+                        return stopTime;
                     };
 
                     /* 
@@ -279,11 +292,15 @@ const Playlist = props => {
                         setTimeout(() => $currentAnnotationText.focus(), 0);
                     });
 
+                    let playMode = 'play';
+
                     hotkeys('shift+space', (e, handler) => {
                         if (keyboardBoardMode) {
                             let $currentHighlighted = getCurrentHighlightedElement();
 
                             let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
+
+                            let setHighlighter = null;
 
                             let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
 
@@ -291,8 +308,22 @@ const Playlist = props => {
 
                             prevScroll += scrollVal;
 
-                            ee.emit('play', startTime, endTime);
-                            setTimeout(() => addHighlight($currentHighlighted), (endTime - startTime + 0.5) * 1000);
+                            if (playMode === 'pause') {
+                                ee.emit('pause');
+                                playMode = 'resume';
+                                if (setHighlighter !== null) {
+                                    clearTimeout(setHighlighter);
+                                }
+                                // make sure highlight is added just after pause
+                                setTimeout(() => addHighlight($currentHighlighted), 10);
+                            } else {
+                                if (playMode === 'resume') {
+                                    startTime = getCursorStopPoint();
+                                    setHighlighter = setTimeout(() => addHighlight($currentHighlighted), (endTime - startTime + 0.01) * 1000);
+                                }
+                                ee.emit('play', startTime, endTime);
+                                playMode = 'pause';
+                            }
                         }
                     });
                 });
