@@ -17,6 +17,12 @@
     #register {
         margin: 30px 28px !important;
     }
+    .playlist .annotations {
+        letter-spacing: 0.7px !important;
+        font-family: 'Open Sans' !important;
+        height: 720px !important;
+        padding-bottom: 200px !important;
+    }
 }
 
 /* 

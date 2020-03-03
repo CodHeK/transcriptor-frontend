@@ -101,25 +101,38 @@ const Playlist = props => {
                         return null;
                     };
 
-                    const getNextForHighlight = scrollPoints => {
+                    const getNextForHighlight = (scrollPoints, mode) => {
                         let len = $annotations.length;
                         for (let idx in $annotations) {
                             let id = parseInt(idx);
                             if (!isNaN(id)) {
                                 if ($annotations[id].classList.length > 1) {
-                                    let curr = id,
-                                        next = (id + 1) % len;
                                     /* 
                                         Auto scroll annotations container
                                     */
-                                    if (next === 0) {
-                                        $annotationsTextBox.scrollTo(0, 0);
-                                    } else {
-                                        if (scrollPoints.has(next)) {
-                                            let scrollByVal = scrollPoints.get(next);
+                                    let curr, next;
+                                    if (mode === 'down') {
+                                        curr = id;
+                                        next = (id + 1) % len;
 
-                                            $annotationsTextBox.scrollTo(0, scrollByVal);
+                                        if (next === 0) {
+                                            $annotationsTextBox.scrollTo(0, 0);
                                         }
+                                    } else {
+                                        curr = id;
+                                        next = (id - 1) % len;
+
+                                        if (curr === 0) {
+                                            let points = Array.from(scrollPoints.values());
+                                            next = len - 1;
+                                            $annotationsTextBox.scrollTo(0, points[points.length - 1]);
+                                        }
+                                    }
+
+                                    if (scrollPoints.has(next)) {
+                                        let scrollByVal = scrollPoints.get(next);
+
+                                        $annotationsTextBox.scrollTo(0, scrollByVal);
                                     }
                                     unsetHighlight($annotations[curr]);
                                     setHighlight($annotations[next]);
@@ -199,26 +212,34 @@ const Playlist = props => {
                     /* 
                         Define keyboard shortcuts
                     */
+
+                    let annotationsContainerHeight = $annotationsTextBox.offsetHeight > 320 ? 550 : 300;
+                    let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
+                    let scrollPoints = new Map();
+                    let page = 1;
+
+                    for (let i = 1; i < annotationBoxHeights.length; i++) {
+                        annotationBoxHeights[i] += annotationBoxHeights[i - 1];
+                        if (annotationBoxHeights[i] >= annotationsContainerHeight * page) {
+                            scrollPoints.set(i, annotationBoxHeights[i - 1]);
+                            page++;
+                        }
+                    }
+
                     let keyboardBoardMode = false;
 
                     hotkeys('shift+down', (e, handler) => {
-                        let annotationsContainerHeight = 300;
-                        let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
+                        keyboardBoardMode = getNextForHighlight(scrollPoints, 'down');
 
-                        let scrollPoints = new Map();
-                        let page = 1;
+                        /* 
+                            Call function to save edit here
+                        */
 
-                        for (let i = 1; i < annotationBoxHeights.length; i++) {
-                            annotationBoxHeights[i] += annotationBoxHeights[i - 1];
-                            if (annotationBoxHeights[i] >= annotationsContainerHeight * page) {
-                                scrollPoints.set(i, annotationBoxHeights[i - 1]);
-                                page++;
-                            }
-                        }
+                        e.preventDefault();
+                    });
 
-                        console.log(scrollPoints);
-
-                        keyboardBoardMode = getNextForHighlight(scrollPoints);
+                    hotkeys('shift+up', (e, handler) => {
+                        keyboardBoardMode = getNextForHighlight(scrollPoints, 'up');
 
                         /* 
                             Call function to save edit here
