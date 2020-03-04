@@ -113,7 +113,7 @@ const Editor = props => {
         notes: transcript,
     };
 
-    console.log(inSaveMode);
+    // console.log("inSaveMode ", inSaveMode);
 
     return (
         <React.Fragment>

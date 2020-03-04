@@ -26,6 +26,13 @@ export const inSaveMode = flag => {
     };
 };
 
+export const updateNotes = notes => {
+    return {
+        type: 'UPDATE_NOTES',
+        payload: notes,
+    };
+};
+
 export const enableEditMode = () => {
     return {
         type: 'ENABLE_EDIT_MODE',
