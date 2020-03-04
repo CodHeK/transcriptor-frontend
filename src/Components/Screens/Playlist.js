@@ -60,6 +60,12 @@ const Playlist = props => {
                     dispatch(saveEventEmitter(ee));
 
                     /* 
+                        setInterval objects
+                    */
+                    let cursorUpdate = null;
+                    let autoSave = null;
+
+                    /* 
                         Elements
                     */
                     const $window = $(window);
@@ -87,6 +93,8 @@ const Playlist = props => {
                     hotkeys.unbind('shift+down');
                     hotkeys.unbind('shift+up');
                     hotkeys.unbind('enter');
+                    clearInterval(autoSave);
+                    clearInterval(cursorUpdate);
 
                     /* 
                         Utility functions
@@ -211,25 +219,35 @@ const Playlist = props => {
                                     sentenceId: props.notes[sentenceId - 1]['sentenceId'],
                                     text: text,
                                 });
+                                const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts`;
+                                const token = localStorage.getItem('token');
+
+                                const res = await axios({
+                                    method: 'PUT',
+                                    url: URL,
+                                    headers: {
+                                        Authorization: `Bearer ${token}`,
+                                    },
+                                    data: {
+                                        sentences,
+                                    },
+                                });
+
+                                return res;
                             }
                         }
-
-                        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts`;
-                        const token = localStorage.getItem('token');
-
-                        const res = await axios({
-                            method: 'PUT',
-                            url: URL,
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                            data: {
-                                sentences,
-                            },
-                        });
-
-                        return res;
+                        return null;
                     };
+
+                    autoSave = setInterval(() => {
+                        let $currentHighlighted = getCurrentHighlightedElement();
+
+                        save($currentHighlighted).then(resp => {
+                            if (resp !== null) {
+                                console.log('Auto saved!', resp);
+                            }
+                        });
+                    }, 500);
 
                     /* 
                         Actions on above Elements
@@ -242,7 +260,7 @@ const Playlist = props => {
 
                         let cursorLimit = $annotationsBoxesDiv.offsetWidth;
 
-                        setInterval(() => {
+                        cursorUpdate = setInterval(() => {
                             if (parseInt($cursor.style.left) >= cursorLimit) {
                                 $waveform.scrollTo(cursorLimit, 0);
                             }
