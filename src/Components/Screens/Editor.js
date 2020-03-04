@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
+import InfoModal from '../Utils/InfoModal';
 import Playlist from './Playlist';
 import Skeleton from 'react-loading-skeleton';
 import $ from 'jquery';
@@ -152,6 +153,7 @@ const Editor = props => {
                                 <span title="Download the annotations as json" className="btn-annotations-download btn btn-default">
                                     Download JSON
                                 </span>
+                                <InfoModal />
                             </div>
                         </div>
                         <div id="waveform-playlist-container"></div>

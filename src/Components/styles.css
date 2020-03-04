@@ -551,3 +551,15 @@ body ::-webkit-scrollbar-track {
 footer {
     margin-top: 2em;
 }
+
+/* 
+    InfoModal styles
+*/
+.modal {
+    margin: 10% auto !important;
+    width: 300px !important;
+    height: 400px !important;
+    text-align: center !important;
+    letter-spacing: 0.7px !important;
+    font-family: 'Open Sans' !important;
+}
