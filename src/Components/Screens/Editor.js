@@ -5,7 +5,10 @@ import Skeleton from 'react-loading-skeleton';
 import $ from 'jquery';
 import '../styles.css';
 
-import { useDispatch } from 'react-redux';
+import Loader from 'react-loader-spinner';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+
+import { useDispatch, useSelector } from 'react-redux';
 import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
 
 const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>No file selected into Editor, go to 'My Transcriptions' to select a file!</h3>;
@@ -14,6 +17,8 @@ const Editor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
     const [transcript, setTranscript] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
+
+    const { inSaveMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let dispatch = useDispatch();
 
@@ -46,12 +51,14 @@ const Editor = props => {
                     return sentence + ' ' + word.text;
                 }, '');
 
+                lines = s.text === undefined ? lines : s.text;
+
                 notes.push({
                     begin: `${startime}`,
                     end: `${endTime}`,
                     id: `${counter}`,
                     language: s.language,
-                    lines: s.text === undefined ? lines : s.text,
+                    lines: lines.trim(),
                     sentenceId: s._id,
                 });
 
@@ -76,7 +83,6 @@ const Editor = props => {
                     const { uploadedFile, sentences } = data.speech;
 
                     const notes = processSentances(sentences);
-                    console.log(notes);
 
                     setFileInfo(uploadedFile);
                     setTranscript(notes);
@@ -107,6 +113,8 @@ const Editor = props => {
         notes: transcript,
     };
 
+    console.log(inSaveMode);
+
     return (
         <React.Fragment>
             {transcriptionId === null ? (
@@ -115,7 +123,7 @@ const Editor = props => {
                 <React.Fragment>
                     {fileInfo !== null ? <h3 className="editor-title">{fileInfo.originalname}</h3> : <Skeleton width={300} height={35} />}
                     <span className="close-editor" onClick={closeEditor}>
-                        <i className="fas fa-times"></i>
+                        {!inSaveMode ? <i className="fas fa-times"></i> : <Loader type="TailSpin" color="gray" height={20} width={20} />}
                     </span>
                     <div id="top-bar" className="playlist-top-bar">
                         <div className="playlist-toolbar">

@@ -19,6 +19,13 @@ export const saveEventEmitter = ee => {
     };
 };
 
+export const inSaveMode = flag => {
+    return {
+        type: 'IN_SAVE_MODE',
+        payload: flag,
+    };
+};
+
 export const enableEditMode = () => {
     return {
         type: 'ENABLE_EDIT_MODE',

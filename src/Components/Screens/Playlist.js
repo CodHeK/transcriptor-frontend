@@ -6,7 +6,7 @@ import $ from 'jquery';
 import '../styles.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { saveEventEmitter } from '../../actions/TranscriptionActions';
+import { saveEventEmitter, inSaveMode } from '../../actions/TranscriptionActions';
 
 const WaveformPlaylist = require('waveform-playlist');
 const axios = require('axios');
@@ -105,7 +105,6 @@ const Playlist = props => {
                     };
 
                     const addHighlight = $element => {
-                        console.log($element);
                         $element.classList.add('current');
                     };
 
@@ -187,7 +186,7 @@ const Playlist = props => {
                         let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerHTML;
                         let startTime = $element.getElementsByClassName('annotation-start')[0].innerHTML;
                         let endTime = $element.getElementsByClassName('annotation-end')[0].innerHTML;
-                        let text = $element.getElementsByClassName('annotation-lines')[0].innerHTML;
+                        let text = $element.getElementsByClassName('annotation-lines')[0].innerHTML.trim();
 
                         startTime = timeStringToFloat(startTime);
                         endTime = timeStringToFloat(endTime);
@@ -205,7 +204,7 @@ const Playlist = props => {
                     const diffExists = (sentenceId, newText) => {
                         const oldText = props.notes[sentenceId]['lines'];
 
-                        return newText.length !== oldText.length;
+                        return newText.length !== oldText.length || newText !== oldText;
                     };
 
                     const save = async $sentenceNode => {
@@ -217,14 +216,16 @@ const Playlist = props => {
                             if (diffExists(sentenceId - 1, text)) {
                                 sentences.push({
                                     sentenceId: props.notes[sentenceId - 1]['sentenceId'],
-                                    text: text,
+                                    text: text.trim(),
                                 });
+
                                 const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts`;
                                 const token = localStorage.getItem('token');
 
                                 const res = await axios({
                                     method: 'PUT',
                                     url: URL,
+                                    mode: 'cors',
                                     headers: {
                                         Authorization: `Bearer ${token}`,
                                     },
@@ -241,10 +242,9 @@ const Playlist = props => {
 
                     autoSave = setInterval(() => {
                         let $currentHighlighted = getCurrentHighlightedElement();
-
                         save($currentHighlighted).then(resp => {
                             if (resp !== null) {
-                                console.log('Auto saved!', resp);
+                                console.log('Auto saved!');
                             }
                         });
                     }, 500);

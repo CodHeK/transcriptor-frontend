@@ -3,6 +3,7 @@ const initialState = {
     assignId: null,
     editMode: false,
     ee: null,
+    inSaveMode: false,
 };
 
 const transcriptionReducers = (state = initialState, { type, payload }) => {
@@ -21,6 +22,9 @@ const transcriptionReducers = (state = initialState, { type, payload }) => {
             break;
         case 'SAVE_EVENT_EMITTER':
             state = { ...state, ee: payload };
+            break;
+        case 'IN_SAVE_MODE':
+            state = { ...state, inSaveMode: payload };
             break;
         default:
             return state;
