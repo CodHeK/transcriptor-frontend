@@ -204,25 +204,9 @@ const Playlist = props => {
                     };
 
                     const diffExists = (sentenceId, newText) => {
-                        return new Promise((resolve, _) => {
-                            setTimeout(() => {
-                                const prevNotes = JSON.parse(localStorage.getItem('notes'));
+                        const oldText = props.notes[sentenceId]['lines'];
 
-                                const oldText = prevNotes[sentenceId]['lines'];
-
-                                console.log(oldText, newText);
-
-                                if (newText.length !== oldText.length || newText !== oldText) {
-                                    dispatch(inSaveMode(true));
-
-                                    prevNotes[sentenceId]['lines'] = newText;
-                                    localStorage.setItem('notes', JSON.stringify(prevNotes));
-
-                                    resolve(true);
-                                }
-                                resolve(false);
-                            }, 1000);
-                        });
+                        return newText.length !== oldText.length || newText !== oldText;
                     };
 
                     const save = async $sentenceNode => {
@@ -231,9 +215,7 @@ const Playlist = props => {
                         if ($sentenceNode !== null) {
                             let { sentenceId, text } = getSentenceInfo($sentenceNode);
 
-                            const diff = await diffExists(sentenceId - 1, text);
-
-                            if (diff) {
+                            if (diffExists(sentenceId - 1, text)) {
                                 sentences.push({
                                     sentenceId: props.notes[sentenceId - 1]['sentenceId'],
                                     text: text.trim(),
@@ -265,11 +247,9 @@ const Playlist = props => {
                         save($currentHighlighted).then(resp => {
                             if (resp !== null) {
                                 console.log('Auto saved!');
-                                dispatch(inSaveMode(false));
-                                // setTimeout(() => dispatch(inSaveMode(false)), 1000);
                             }
                         });
-                    }, 1000);
+                    }, 500);
 
                     /* 
                         Actions on above Elements
