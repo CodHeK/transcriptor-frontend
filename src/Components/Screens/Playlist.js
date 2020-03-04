@@ -364,8 +364,6 @@ const Playlist = props => {
                                 if (setHighlighter !== null) {
                                     clearTimeout(setHighlighter);
                                 }
-                                /* make sure highlight is added just after pause */
-                                setTimeout(() => addHighlight($currentHighlighted), 10);
                             } else {
                                 if (playMode === 'resume') {
                                     startTime = getCursorStopPoint();
@@ -374,6 +372,8 @@ const Playlist = props => {
                                 ee.emit('play', startTime, endTime);
                                 playMode = 'pause';
                             }
+                            /* make sure highlight is added just after pause / resume */
+                            setTimeout(() => addHighlight($currentHighlighted), 10);
                         }
                     });
                 });
