@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { saveEventEmitter } from '../../actions/TranscriptionActions';
 
 const WaveformPlaylist = require('waveform-playlist');
+const axios = require('axios');
 
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
@@ -152,12 +153,18 @@ const Playlist = props => {
                                     }
                                     removeHighlight($annotations[curr]);
                                     addHighlight($annotations[next]);
-                                    return true;
+                                    return {
+                                        mode: true,
+                                        $prevSentenceNode: $annotations[curr],
+                                    };
                                 }
                             }
                         }
                         addHighlight($annotations[0]);
-                        return true;
+                        return {
+                            mode: true,
+                            $prevSentenceNode: null,
+                        };
                     };
 
                     const timeStringToFloat = time => {
@@ -172,11 +179,12 @@ const Playlist = props => {
                         let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerHTML;
                         let startTime = $element.getElementsByClassName('annotation-start')[0].innerHTML;
                         let endTime = $element.getElementsByClassName('annotation-end')[0].innerHTML;
+                        let text = $element.getElementsByClassName('annotation-lines')[0].innerHTML;
 
                         startTime = timeStringToFloat(startTime);
                         endTime = timeStringToFloat(endTime);
 
-                        return { sentenceId, startTime, endTime };
+                        return { sentenceId, startTime, endTime, text };
                     };
 
                     const getCursorStopPoint = () => {
@@ -184,6 +192,43 @@ const Playlist = props => {
                         let stopTime = parseFloat(cursorPos / oneSecond);
 
                         return stopTime;
+                    };
+
+                    const diffExists = (sentenceId, newText) => {
+                        const oldText = props.notes[sentenceId]['lines'];
+
+                        return newText.length !== oldText.length;
+                    };
+
+                    const save = async $sentenceNode => {
+                        const sentences = [];
+
+                        if ($sentenceNode !== null) {
+                            let { sentenceId, text } = getSentenceInfo($sentenceNode);
+
+                            if (diffExists(sentenceId - 1, text)) {
+                                sentences.push({
+                                    sentenceId: props.notes[sentenceId - 1]['sentenceId'],
+                                    text: text,
+                                });
+                            }
+                        }
+
+                        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts`;
+                        const token = localStorage.getItem('token');
+
+                        const res = await axios({
+                            method: 'PUT',
+                            url: URL,
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                            data: {
+                                sentences,
+                            },
+                        });
+
+                        return res;
                     };
 
                     /* 
@@ -247,7 +292,6 @@ const Playlist = props => {
                     /* 
                         Define keyboard shortcuts
                     */
-
                     let annotationsContainerHeight = $annotationsTextBox.offsetHeight > 320 ? 550 : 300;
                     let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
                     let scrollPoints = new Map();
@@ -264,21 +308,27 @@ const Playlist = props => {
                     let keyboardBoardMode = false;
 
                     hotkeys('shift+down', (e, handler) => {
-                        keyboardBoardMode = getNextForHighlight(scrollPoints, 'down');
-
+                        const { mode, $prevSentenceNode } = getNextForHighlight(scrollPoints, 'down');
+                        keyboardBoardMode = mode;
                         /* 
                             Call function to save edit here
                         */
+                        save($prevSentenceNode).then(resp => {
+                            console.log('saved!');
+                        });
 
                         e.preventDefault();
                     });
 
                     hotkeys('shift+up', (e, handler) => {
-                        keyboardBoardMode = getNextForHighlight(scrollPoints, 'up');
-
+                        const { mode, $prevSentenceNode } = getNextForHighlight(scrollPoints, 'up');
+                        keyboardBoardMode = mode;
                         /* 
                             Call function to save edit here
                         */
+                        save($prevSentenceNode).then(resp => {
+                            console.log('saved!');
+                        });
 
                         e.preventDefault();
                     });
@@ -314,7 +364,7 @@ const Playlist = props => {
                                 if (setHighlighter !== null) {
                                     clearTimeout(setHighlighter);
                                 }
-                                // make sure highlight is added just after pause
+                                /* make sure highlight is added just after pause */
                                 setTimeout(() => addHighlight($currentHighlighted), 10);
                             } else {
                                 if (playMode === 'resume') {

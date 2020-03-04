@@ -36,15 +36,6 @@ const Editor = props => {
         $('#waveform-playlist-container').hide();
 
         const processSentances = sentences => {
-            /* 
-                Remove the sort function after git pull
-            */
-            sentences.sort((s1, s2) => {
-                if (s1.startTime < s2.startTime) return -1;
-                if (s1.startTime > s2.startTime) return 1;
-                return 0;
-            });
-
             let notes = [],
                 counter = 1;
             for (let s of sentences) {
@@ -60,7 +51,8 @@ const Editor = props => {
                     end: `${endTime}`,
                     id: `${counter}`,
                     language: s.language,
-                    lines,
+                    lines: s.text === undefined ? lines : s.text,
+                    sentenceId: s._id,
                 });
 
                 counter++;
@@ -84,6 +76,7 @@ const Editor = props => {
                     const { uploadedFile, sentences } = data.speech;
 
                     const notes = processSentances(sentences);
+                    console.log(notes);
 
                     setFileInfo(uploadedFile);
                     setTranscript(notes);
