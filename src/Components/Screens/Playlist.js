@@ -93,8 +93,12 @@ const Playlist = props => {
                     /* 
                         Unsubscribe to all event listeners
                     */
-                    $waveform.removeEventListener('scroll', () => console.log('waveform scroll event removed'));
-                    $annotationsTextBoxContainer.removeEventListener('click', () => console.log('sentence click listener removed'));
+                    $waveform.removeEventListener('scroll', () => console.log('rmd'));
+                    $annotationsTextBoxContainer.removeEventListener('click', () => console.log('rmd'));
+                    Array.from($annotationsTextBoxes).map($annotationsTextBox => {
+                        $annotationsTextBox.removeEventListener('keydown', () => console.log('rmd'));
+                        $annotationsTextBox.removeEventListener('click', () => console.log('rmd'));
+                    });
                     hotkeys.unbind('shift+down');
                     hotkeys.unbind('shift+up');
                     hotkeys.unbind('enter');
@@ -187,10 +191,10 @@ const Playlist = props => {
                     };
 
                     const getSentenceInfo = $element => {
-                        let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerHTML;
-                        let startTime = $element.getElementsByClassName('annotation-start')[0].innerHTML;
-                        let endTime = $element.getElementsByClassName('annotation-end')[0].innerHTML;
-                        let text = $element.getElementsByClassName('annotation-lines')[0].innerHTML.trim();
+                        let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerText;
+                        let startTime = $element.getElementsByClassName('annotation-start')[0].innerText;
+                        let endTime = $element.getElementsByClassName('annotation-end')[0].innerText;
+                        let text = $element.getElementsByClassName('annotation-lines')[0].innerText.trim();
 
                         startTime = timeStringToFloat(startTime);
                         endTime = timeStringToFloat(endTime);
