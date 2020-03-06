@@ -84,6 +84,7 @@ const Playlist = props => {
                     const $timeTicks = $('.time');
 
                     let notesCache = props.notes;
+                    let prevScroll = 0;
 
                     /* 
                         Time constants
@@ -114,16 +115,16 @@ const Playlist = props => {
                     };
 
                     const addHighlight = $element => {
-                        console.log($element);
                         $element.classList.add('current');
                     };
 
+                    const addSectionHighlight = $element => {
+                        $element.classList.add('section-highlight');
+                    };
+
                     const removeAllHighlights = () => {
-                        for (let $annotation of $annotations) {
-                            if ($annotation.classList.length > 1) {
-                                $annotation.classList.remove('current');
-                            }
-                        }
+                        Array.from($annotations).map($e => $e.classList.remove('current'));
+                        Array.from($sentenceSectionBoxes).map($e => $e.classList.remove('section-highlight'));
                     };
 
                     const getCurrentHighlightedElement = () => {
@@ -288,6 +289,16 @@ const Playlist = props => {
                         setTimeout(() => addHighlight($currentHighlighted), 10);
                     };
 
+                    const scrollToSection = sentenceId => {
+                        addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
+
+                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
+
+                        $waveform.scrollTo(prevScroll + scrollVal, 0);
+
+                        prevScroll += scrollVal;
+                    };
+
                     autoSave = setInterval(() => {
                         let $currentHighlighted = getCurrentHighlightedElement();
                         if (!inSaveMode) {
@@ -330,8 +341,6 @@ const Playlist = props => {
                         ee.emit('stop');
                     });
 
-                    let prevScroll = 0;
-
                     $waveform.addEventListener('scroll', e => {
                         prevScroll = $waveform.scrollLeft;
                     });
@@ -355,21 +364,9 @@ const Playlist = props => {
                             removeAllHighlights();
 
                             let $currentClickedSentence = e.path[1];
-                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
+                            let { sentenceId } = getSentenceInfo($currentClickedSentence);
 
-                            let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
-
-                            $waveform.scrollTo(prevScroll + scrollVal, 0);
-
-                            prevScroll += scrollVal;
-
-                            /* 
-                                Mouse click on sentence to play that section 
-                                not needed for now!
-                            */
-
-                            // ee.emit('play', startTime, endTime);
-
+                            scrollToSection(sentenceId);
                             addHighlight($currentClickedSentence);
                         });
                     }
@@ -429,9 +426,12 @@ const Playlist = props => {
 
                         if ($currentHighlighted !== null) {
                             let $currentAnnotationText = $currentHighlighted.getElementsByClassName('annotation-lines')[0];
+                            let { sentenceId } = getSentenceInfo($currentHighlighted);
 
                             /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
                             setTimeout(() => $currentAnnotationText.focus(), 0);
+
+                            scrollToSection(sentenceId);
                         }
                     });
 
