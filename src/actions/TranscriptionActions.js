@@ -19,17 +19,10 @@ export const saveEventEmitter = ee => {
     };
 };
 
-export const inSaveMode = flag => {
+export const toggleSaveMode = flag => {
     return {
-        type: 'IN_SAVE_MODE',
+        type: 'TOGGLE_SAVE_MODE',
         payload: flag,
-    };
-};
-
-export const updateNotes = notes => {
-    return {
-        type: 'UPDATE_NOTES',
-        payload: notes,
     };
 };
 

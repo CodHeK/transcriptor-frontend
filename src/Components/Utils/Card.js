@@ -104,7 +104,7 @@ const CustomCardStyles = {
     Card: {
         marginLeft: '1%',
         width: '48%',
-        height: '250px', // (Keep it auto)
+        height: 'auto', // (Keep it auto)
         cursor: 'pointer',
         fontFamily: 'Open Sans',
         fontWeight: '300',

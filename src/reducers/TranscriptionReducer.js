@@ -4,7 +4,6 @@ const initialState = {
     editMode: false,
     ee: null,
     inSaveMode: false,
-    savedNotes: null,
 };
 
 const transcriptionReducers = (state = initialState, { type, payload }) => {
@@ -24,11 +23,8 @@ const transcriptionReducers = (state = initialState, { type, payload }) => {
         case 'SAVE_EVENT_EMITTER':
             state = { ...state, ee: payload };
             break;
-        case 'IN_SAVE_MODE':
+        case 'TOGGLE_SAVE_MODE':
             state = { ...state, inSaveMode: payload };
-            break;
-        case 'UPDATE_NOTES':
-            state = { ...state, savedNotes: payload };
             break;
         default:
             return state;

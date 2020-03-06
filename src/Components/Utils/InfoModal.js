@@ -12,6 +12,8 @@ const InfoModal = () => (
                 <p>Move down one sentence</p>
                 <Header>ENTER</Header>
                 <p>Toggle edit mode</p>
+                <Header>SHIFT + SPACE</Header>
+                <p>Toggle play / pause mode</p>
             </Modal.Description>
         </Modal.Content>
     </Modal>
