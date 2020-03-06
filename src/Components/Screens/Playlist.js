@@ -110,6 +110,7 @@ const Playlist = props => {
                     };
 
                     const addHighlight = $element => {
+                        console.log($element);
                         $element.classList.add('current');
                     };
 
@@ -205,10 +206,10 @@ const Playlist = props => {
                     };
 
                     const diffExists = (sentenceId, newText) => {
-                        const oldText = notesCache[sentenceId]['lines'];
+                        const oldText = notesCache[sentenceId]['lines'].trim();
 
                         if (newText.length !== oldText.length || newText !== oldText) {
-                            notesCache[sentenceId]['lines'] = newText;
+                            notesCache[sentenceId]['lines'] = newText.trim();
 
                             return true;
                         }
@@ -219,7 +220,7 @@ const Playlist = props => {
                         const sentences = [];
 
                         if ($sentenceNode !== null) {
-                            let { sentenceId, text } = getSentenceInfo($sentenceNode);
+                            let { sentenceId, text, startTime, endTime } = getSentenceInfo($sentenceNode);
 
                             if (diffExists(sentenceId - 1, text)) {
                                 dispatch(toggleSaveMode(true));
@@ -227,6 +228,8 @@ const Playlist = props => {
                                 sentences.push({
                                     sentenceId: props.notes[sentenceId - 1]['sentenceId'],
                                     text: text.trim(),
+                                    startTime,
+                                    endTime,
                                 });
 
                                 const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts`;
@@ -329,37 +332,41 @@ const Playlist = props => {
                         prevScroll = $waveform.scrollLeft;
                     });
 
-                    $annotationsTextBoxContainer.addEventListener('click', e => {
-                        removeAllHighlights();
-
-                        let $currentClickedSentence = e.path[1];
-                        let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
-
-                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
-
-                        $waveform.scrollTo(prevScroll + scrollVal, 0);
-
-                        prevScroll += scrollVal;
-
-                        /* 
-                            Mouse click on sentence to play that section 
-                            not needed for now!
-                        */
-
-                        // ee.emit('play', startTime, endTime);
-
-                        addHighlight($currentClickedSentence);
-                    });
-
-                    /* 
-                        Play audio when focused into edit mode
-                        on a sentence
-                    */
                     for (let $annotationTextBox of $annotationsTextBoxes) {
+                        /* 
+                            Play audio when focused into edit mode
+                            on a sentence
+                        */
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 80) {
                                 playSelectedSentence();
                             }
+                        });
+
+                        /* 
+                           Click to select sentence and scroll to 
+                           corresponding section on the waveform
+                        */
+                        $annotationTextBox.addEventListener('click', e => {
+                            removeAllHighlights();
+
+                            let $currentClickedSentence = e.path[1];
+                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
+
+                            let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
+
+                            $waveform.scrollTo(prevScroll + scrollVal, 0);
+
+                            prevScroll += scrollVal;
+
+                            /* 
+                                Mouse click on sentence to play that section 
+                                not needed for now!
+                            */
+
+                            // ee.emit('play', startTime, endTime);
+
+                            addHighlight($currentClickedSentence);
                         });
                     }
 
@@ -380,7 +387,7 @@ const Playlist = props => {
                         }
                     }
 
-                    hotkeys('shift+down', (e, handler) => {
+                    hotkeys('down', (e, handler) => {
                         e.preventDefault();
                         const { $prevSentenceNode } = getNextForHighlight(scrollPoints, 'down');
 
@@ -395,7 +402,7 @@ const Playlist = props => {
                         playMode = 'play';
                     });
 
-                    hotkeys('shift+up', (e, handler) => {
+                    hotkeys('up', (e, handler) => {
                         e.preventDefault();
                         const { $prevSentenceNode } = getNextForHighlight(scrollPoints, 'up');
 
