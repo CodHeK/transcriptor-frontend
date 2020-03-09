@@ -24,7 +24,6 @@ const Playlist = props => {
                 container: document.getElementById('waveform-playlist-container'),
                 timescale: true,
                 state: 'select',
-                samplesPerPixel: 1024,
                 colors: {
                     waveOutlineColor: 'white',
                     timeColor: 'grey',
@@ -38,6 +37,9 @@ const Playlist = props => {
                     linkEndpoints: true,
                 },
                 seekStyle: 'line',
+                samplesPerPixel: 2000,
+                waveHeight: 100,
+                zoomLevels: [50, 100, 200, 300, 400, 500, 1000, 2000],
                 options: {
                     isAutomaticScroll: true,
                 },
@@ -74,6 +76,8 @@ const Playlist = props => {
                     const $playButton = $('.btn-play');
                     const $pauseButton = $('.btn-pause');
                     const $stopButton = $('.btn-stop');
+                    const $zoomOut = $('.btn-zoom-out');
+                    const $zoomIn = $('.btn-zoom-in');
                     const $waveform = $('.playlist-tracks')[0];
                     const $annotationsTextBoxContainer = document.getElementsByClassName('annotations-text')[0];
                     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
@@ -106,7 +110,7 @@ const Playlist = props => {
                     /* 
                         Time constants
                     */
-                    const oneSecond = $timeTicks && parseInt($timeTicks[1].style.left) / 2;
+                    let oneSecond = $timeTicks && parseInt($timeTicks[1].style.left) / 2;
 
                     /* 
                         Unsubscribe to all event listeners
@@ -470,6 +474,8 @@ const Playlist = props => {
                             let cursorPos = getCursorPosition();
                             let { $currSentence, sentenceId } = findSentence(cursorPos);
 
+                            console.log(cursorPos, oneSecond, sentenceId);
+
                             sentenceIdOnCursor = sentenceId;
 
                             removeAllSentenceHighlights();
@@ -477,6 +483,20 @@ const Playlist = props => {
                             $currSentence && addSentenceHighlight($currSentence);
                         }
                     }, 1000);
+
+                    /* 
+                        Events
+                    */
+
+                    $zoomIn.on('click', e => {
+                        ee.emit('zoomin');
+                        setTimeout(() => (oneSecond = parseInt($timeTicks[1].style.left) / 2), 100);
+                    });
+
+                    $zoomOut.on('click', e => {
+                        ee.emit('zoomout');
+                        setTimeout(() => (oneSecond = parseInt($timeTicks[1].style.left) / 2), 100);
+                    });
 
                     $waveform.addEventListener('scroll', e => {
                         prevScroll = $waveform.scrollLeft;
@@ -512,7 +532,7 @@ const Playlist = props => {
                         /* 
                             Plus 0.1s to track
 
-                            CTRL + rightArrow
+                            CTRL + plus
                         */
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 187) {
@@ -525,7 +545,7 @@ const Playlist = props => {
                         /* 
                             Minus 0.1s to track
 
-                            CTRL + leftArrow
+                            CTRL + minus
                         */
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 189) {
@@ -535,6 +555,10 @@ const Playlist = props => {
                             }
                         });
 
+                        /* 
+                            Press enter to move out of focus 
+                            after editing sentence
+                        */
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.keyCode === 13) {
                                 e.preventDefault();
