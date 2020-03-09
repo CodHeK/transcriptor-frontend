@@ -89,8 +89,11 @@ const Playlist = props => {
                     let annotationsContainerHeight = $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
                     let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
                     let scrollPoints = new Map();
-                    let page = 1;
+                    let page = 1,
+                        sentenceIdOnCursor = -1;
+                    let cursorLimit = $annotationsBoxesDiv.offsetWidth;
                     let playMode = 'play';
+                    let sentenceFocus = false;
 
                     for (let i = 1; i < annotationBoxHeights.length; i++) {
                         annotationBoxHeights[i] += annotationBoxHeights[i - 1];
@@ -124,16 +127,29 @@ const Playlist = props => {
                         Utility functions
                     */
 
-                    const removeHighlight = $element => {
+                    const removeSentenceHighlight = $element => {
+                        console.log($element, ' removed');
                         $element.classList.remove('current');
                     };
 
-                    const addHighlight = $element => {
+                    const addSentenceHighlight = $element => {
                         $element.classList.add('current');
+                    };
+
+                    const removeAllSentenceHighlights = () => {
+                        Array.from($annotations).map($e => $e.classList.remove('current'));
                     };
 
                     const addSectionHighlight = $element => {
                         $element.classList.add('section-highlight');
+                    };
+
+                    const removeSectionHighlight = $element => {
+                        $element.classList.remove('section-highlight');
+                    };
+
+                    const removeAllSectionHighlights = () => {
+                        Array.from($sentenceSectionBoxes).map($e => $e.classList.remove('section-highlight'));
                     };
 
                     const removeAllHighlights = () => {
@@ -191,15 +207,15 @@ const Playlist = props => {
 
                                         $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
                                     }
-                                    removeHighlight($annotations[curr]);
-                                    addHighlight($annotations[next]);
+                                    removeSentenceHighlight($annotations[curr]);
+                                    addSentenceHighlight($annotations[next]);
                                     return {
                                         $prevSentenceNode: $annotations[curr],
                                     };
                                 }
                             }
                         }
-                        addHighlight($annotations[0]);
+                        addSentenceHighlight($annotations[0]);
                         return {
                             $prevSentenceNode: null,
                         };
@@ -220,7 +236,7 @@ const Playlist = props => {
                         return null;
                     };
 
-                    const getCursorStopPoint = () => {
+                    const getCursorPosition = () => {
                         let cursorPos = parseInt($cursor.style.left);
                         let stopTime = parseFloat(cursorPos / oneSecond);
 
@@ -374,9 +390,9 @@ const Playlist = props => {
                     const cue = (mode = 'normal') => {
                         let $currentHighlighted = getCurrentHighlightedElement();
 
-                        const initialCursorPoint = getCursorStopPoint();
+                        const initialCursorPoint = getCursorPosition();
 
-                        if ($currentHighlighted !== null) {
+                        if ($currentHighlighted !== null && sentenceFocus) {
                             let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
 
                             let setHighlighter = null;
@@ -395,9 +411,9 @@ const Playlist = props => {
                                 }
                             } else {
                                 if (playMode === 'resume') {
-                                    startTime = getCursorStopPoint();
+                                    startTime = getCursorPosition();
                                     setHighlighter = setTimeout(
-                                        () => addHighlight($currentHighlighted),
+                                        () => addSentenceHighlight($currentHighlighted),
                                         (endTime - startTime + 0.01) * 1000
                                     );
                                 }
@@ -405,10 +421,32 @@ const Playlist = props => {
                                 playMode = 'pause';
                             }
                             /* make sure highlight is added just after pause / resume */
-                            setTimeout(() => addHighlight($currentHighlighted), 10);
+                            setTimeout(() => addSentenceHighlight($currentHighlighted), 20);
                         } else {
-                            ee.emit('play', initialCursorPoint);
+                            if (playMode === 'play') {
+                                // removeAllSentenceHighlights();
+
+                                ee.emit('play', initialCursorPoint);
+                                playMode = 'pause';
+                            } else if (playMode === 'pause') {
+                                ee.emit('pause');
+                                playMode = 'play';
+                            }
                         }
+                    };
+
+                    const findSentence = time => {
+                        for (let $annotation of $annotations) {
+                            let { sentenceId, startTime, endTime } = getSentenceInfo($annotation);
+
+                            if (time >= startTime && time < endTime) {
+                                return {
+                                    $currSentence: $annotation,
+                                    sentenceId,
+                                };
+                            }
+                        }
+                        return {};
                     };
 
                     autoSave = setInterval(() => {
@@ -423,8 +461,25 @@ const Playlist = props => {
                         }
                     }, 500);
 
+                    cursorUpdate = setInterval(() => {
+                        if (parseInt($cursor.style.left) >= cursorLimit) {
+                            $waveform.scrollTo(cursorLimit, 0);
+                        }
+
+                        if (!sentenceFocus) {
+                            let cursorPos = getCursorPosition();
+                            let { $currSentence, sentenceId } = findSentence(cursorPos);
+
+                            sentenceIdOnCursor = sentenceId;
+
+                            removeAllSentenceHighlights();
+
+                            $currSentence && addSentenceHighlight($currSentence);
+                        }
+                    }, 1000);
+
                     // $playButton.on('click', () => {
-                    //     const initialCursorPoint = getCursorStopPoint();
+                    //     const initialCursorPoint = getCursorPosition();
 
                     //     ee.emit('play', initialCursorPoint);
 
@@ -475,6 +530,7 @@ const Playlist = props => {
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 66) {
                                 playMode = 'play';
+
                                 cue('restart');
                             }
                         });
@@ -487,6 +543,7 @@ const Playlist = props => {
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 187) {
                                 e.preventDefault();
+
                                 moveCursor(0.1);
                             }
                         });
@@ -499,7 +556,24 @@ const Playlist = props => {
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 189) {
                                 e.preventDefault();
+
                                 moveCursor(-0.1);
+                            }
+                        });
+
+                        $annotationTextBox.addEventListener('keydown', e => {
+                            if (e.keyCode === 13) {
+                                e.preventDefault();
+
+                                let $currentHighlighted = getCurrentHighlightedElement();
+                                let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
+                                    'annotation-lines'
+                                )[0];
+
+                                // sentenceFocus = false;
+                                removeAllSectionHighlights();
+
+                                $currentAnnotationText.blur();
                             }
                         });
 
@@ -508,13 +582,16 @@ const Playlist = props => {
                            corresponding section on the waveform
                         */
                         $annotationTextBox.addEventListener('click', e => {
+                            playMode = 'play';
+                            sentenceFocus = true;
+
                             removeAllHighlights();
 
                             let $currentClickedSentence = e.path[1];
                             let { sentenceId } = getSentenceInfo($currentClickedSentence);
 
                             scrollToSection(sentenceId);
-                            addHighlight($currentClickedSentence);
+                            addSentenceHighlight($currentClickedSentence);
                         });
                     }
 
@@ -524,8 +601,6 @@ const Playlist = props => {
 
                             removeAllHighlights();
                             const sentenceId = parseInt(e.srcElement.innerText) - 1;
-
-                            console.log($annotations[sentenceId]);
 
                             scrollToSentence(sentenceId);
                         });
@@ -568,7 +643,10 @@ const Playlist = props => {
                         e.preventDefault();
                         let $currentHighlighted = getCurrentHighlightedElement();
 
-                        console.log('enter');
+                        playMode = 'play';
+                        sentenceFocus = true;
+
+                        if ($currentHighlighted === null) $currentHighlighted = $annotations[sentenceIdOnCursor];
 
                         if ($currentHighlighted !== null) {
                             let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
@@ -580,6 +658,7 @@ const Playlist = props => {
                             setTimeout(() => $currentAnnotationText.focus(), 0);
 
                             scrollToSection(sentenceId);
+                            setTimeout(() => addSentenceHighlight($currentHighlighted), 10);
                         }
                     });
 
