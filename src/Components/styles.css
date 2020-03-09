@@ -561,9 +561,9 @@ footer {
     InfoModal styles
 */
 .modal {
-    margin: 10% auto !important;
-    width: 300px !important;
-    height: 400px !important;
+    margin: 5% auto !important;
+    width: 350px !important;
+    height: auto !important;
     text-align: center !important;
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;

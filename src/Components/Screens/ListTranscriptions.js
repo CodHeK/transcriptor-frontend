@@ -49,7 +49,7 @@ const ListTranscriptions = () => {
     useEffect(() => {
         let cache = [];
         for (let each of transcriptionList) {
-            if (each.status === '') {
+            if (each.status === 'processing') {
                 if (each._id === _id) {
                     cache[each._id] = status;
                 } else {
@@ -135,7 +135,9 @@ const ListTranscriptions = () => {
                                     ? filteredList.length > 1
                                         ? `(${filteredList.length} records found)`
                                         : `(${filteredList.length} record found)`
-                                    : `(${transcriptionList.length} records found)`}
+                                    : transcriptionList.length > 1
+                                    ? `(${transcriptionList.length} records found)`
+                                    : `(${transcriptionList.length} record found)`}
                             </span>
                         )}
                     </Menu.Item>
