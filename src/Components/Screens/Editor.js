@@ -139,7 +139,7 @@ const Editor = props => {
                     <div id="top-bar" className="playlist-top-bar">
                         <div className="playlist-toolbar">
                             <div className="btn-group">
-                                <span className="btn-pause btn btn-warning">
+                                {/* <span className="btn-pause btn btn-warning">
                                     <i className="fa fa-pause"></i>
                                 </span>
                                 <span className="btn-play btn btn-success">
@@ -147,7 +147,7 @@ const Editor = props => {
                                 </span>
                                 <span className="btn-stop btn btn-danger">
                                     <i className="fa fa-stop"></i>
-                                </span>
+                                </span> */}
                                 {/* <span className="btn-rewind btn btn-success">
                                     <i className="fa fa-fast-backward"></i>
                                 </span>
