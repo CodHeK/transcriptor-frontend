@@ -89,7 +89,7 @@ const Playlist = props => {
                     /* 
                         Time constants
                     */
-                    const oneSecond = parseInt($timeTicks[1].style.left) / 2;
+                    const oneSecond = $timeTicks && parseInt($timeTicks[1].style.left) / 2;
 
                     /* 
                         Unsubscribe to all event listeners
@@ -134,6 +134,14 @@ const Playlist = props => {
                             }
                         }
                         return null;
+                    };
+
+                    const timeStringToFloat = time => {
+                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
+
+                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+                        return totalSeconds;
                     };
 
                     const getNextForHighlight = (scrollPoints, mode) => {
@@ -183,14 +191,6 @@ const Playlist = props => {
                         };
                     };
 
-                    const timeStringToFloat = time => {
-                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
-
-                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
-
-                        return totalSeconds;
-                    };
-
                     const getSentenceInfo = $element => {
                         let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerText;
                         let startTime = $element.getElementsByClassName('annotation-start')[0].innerText;
@@ -210,15 +210,45 @@ const Playlist = props => {
                         return stopTime;
                     };
 
-                    const diffExists = (sentenceId, newText) => {
+                    const diffTimes = (oldTime, newTime) => oldTime !== newTime;
+
+                    const getSentenceTimeInfo = ($sentence, sentenceId) => {
+                        const { startTime: newStartTime, endTime: newEndTime } = getSentenceInfo($sentence);
+
+                        const oldStartTime = parseFloat(notesCache[sentenceId]['begin']);
+                        const oldEndTime = parseFloat(notesCache[sentenceId]['end']);
+
+                        return { newStartTime, newEndTime, oldStartTime, oldEndTime };
+                    };
+
+                    const diffExists = (sentenceId, newText, currNewStartTime, currNewEndTime) => {
                         const oldText = notesCache[sentenceId]['lines'].trim();
 
+                        const currOldStartTime = parseFloat(notesCache[sentenceId]['begin']);
+                        const currOldEndTime = parseFloat(notesCache[sentenceId]['end']);
+
+                        const currStartTimeChanged = diffTimes(currOldStartTime, currNewStartTime);
+                        const currEndTimeChanged = diffTimes(currOldEndTime, currNewEndTime);
+
+                        let textChanged = false;
+
+                        if (currStartTimeChanged) {
+                            notesCache[sentenceId]['begin'] = currNewStartTime.toString();
+                        }
+                        if (currEndTimeChanged) {
+                            notesCache[sentenceId]['end'] = currNewEndTime.toString();
+                        }
                         if (newText.length !== oldText.length || newText !== oldText) {
                             notesCache[sentenceId]['lines'] = newText.trim();
 
-                            return true;
+                            textChanged = true;
                         }
-                        return false;
+
+                        return {
+                            currStartTimeChanged,
+                            currEndTimeChanged,
+                            textChanged,
+                        };
                     };
 
                     const save = async $sentenceNode => {
@@ -227,12 +257,55 @@ const Playlist = props => {
                         if ($sentenceNode !== null) {
                             let { sentenceId, text, startTime, endTime } = getSentenceInfo($sentenceNode);
 
-                            if (diffExists(sentenceId - 1, text)) {
+                            sentenceId -= 1; // convert to zero based indexing
+
+                            const { currStartTimeChanged, currEndTimeChanged, textChanged } = diffExists(
+                                sentenceId,
+                                text,
+                                startTime,
+                                endTime
+                            );
+
+                            if (currStartTimeChanged || currEndTimeChanged || textChanged) {
                                 dispatch(toggleSaveMode(true));
 
+                                if (sentenceId == 0) {
+                                    let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId + 1]);
+                                    sentences.push({
+                                        sentenceId: props.notes[sentenceId + 1]['sentenceId'],
+                                        text,
+                                        startTime,
+                                        endTime,
+                                    });
+                                } else if (sentenceId === $annotations.length - 1) {
+                                    let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId - 1]);
+                                    sentences.push({
+                                        sentenceId: props.notes[sentenceId - 1]['sentenceId'],
+                                        text,
+                                        startTime,
+                                        endTime,
+                                    });
+                                } else {
+                                    let { sentenceId: prevId, ...prevSentenceData } = getSentenceInfo(
+                                        $annotations[sentenceId + 1]
+                                    );
+                                    sentences.push({
+                                        sentenceId: props.notes[sentenceId + 1]['sentenceId'],
+                                        ...prevSentenceData,
+                                    });
+
+                                    let { sentenceId: nextId, ...nextSentenceData } = getSentenceInfo(
+                                        $annotations[sentenceId - 1]
+                                    );
+                                    sentences.push({
+                                        sentenceId: props.notes[sentenceId - 1]['sentenceId'],
+                                        ...nextSentenceData,
+                                    });
+                                }
+
                                 sentences.push({
-                                    sentenceId: props.notes[sentenceId - 1]['sentenceId'],
-                                    text: text.trim(),
+                                    sentenceId: props.notes[sentenceId]['sentenceId'],
+                                    text,
                                     startTime,
                                     endTime,
                                 });
@@ -258,6 +331,16 @@ const Playlist = props => {
                         return null;
                     };
 
+                    const scrollToSection = sentenceId => {
+                        addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
+
+                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
+
+                        $waveform.scrollTo(prevScroll + scrollVal, 0);
+
+                        prevScroll += scrollVal;
+                    };
+
                     const playSelectedSentence = () => {
                         let $currentHighlighted = getCurrentHighlightedElement();
 
@@ -265,11 +348,7 @@ const Playlist = props => {
 
                         let setHighlighter = null;
 
-                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
-
-                        $waveform.scrollTo(prevScroll + scrollVal, 0);
-
-                        prevScroll += scrollVal;
+                        scrollToSection(sentenceId);
 
                         if (playMode === 'pause') {
                             ee.emit('pause');
@@ -280,23 +359,16 @@ const Playlist = props => {
                         } else {
                             if (playMode === 'resume') {
                                 startTime = getCursorStopPoint();
-                                setHighlighter = setTimeout(() => addHighlight($currentHighlighted), (endTime - startTime + 0.01) * 1000);
+                                setHighlighter = setTimeout(
+                                    () => addHighlight($currentHighlighted),
+                                    (endTime - startTime + 0.01) * 1000
+                                );
                             }
                             ee.emit('play', startTime, endTime);
                             playMode = 'pause';
                         }
                         /* make sure highlight is added just after pause / resume */
                         setTimeout(() => addHighlight($currentHighlighted), 10);
-                    };
-
-                    const scrollToSection = sentenceId => {
-                        addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
-
-                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
-
-                        $waveform.scrollTo(prevScroll + scrollVal, 0);
-
-                        prevScroll += scrollVal;
                     };
 
                     autoSave = setInterval(() => {
@@ -388,6 +460,8 @@ const Playlist = props => {
                         }
                     }
 
+                    console.log(scrollPoints);
+
                     hotkeys('down', (e, handler) => {
                         e.preventDefault();
                         const { $prevSentenceNode } = getNextForHighlight(scrollPoints, 'down');
@@ -425,7 +499,9 @@ const Playlist = props => {
                         console.log('enter');
 
                         if ($currentHighlighted !== null) {
-                            let $currentAnnotationText = $currentHighlighted.getElementsByClassName('annotation-lines')[0];
+                            let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
+                                'annotation-lines'
+                            )[0];
                             let { sentenceId } = getSentenceInfo($currentHighlighted);
 
                             /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */

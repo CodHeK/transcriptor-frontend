@@ -12,7 +12,11 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
 
-const Empty = () => <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>No file selected into Editor, go to 'My Transcriptions' to select a file!</h3>;
+const Empty = () => (
+    <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
+        No file selected into Editor, go to 'My Transcriptions' to select a file!
+    </h3>
+);
 
 const Editor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
@@ -46,7 +50,7 @@ const Editor = props => {
                 counter = 1;
             for (let s of sentences) {
                 let startime = s.startTime;
-                let endTime = s.startTime + s.duration;
+                let endTime = s.endTime === undefined ? s.startTime + s.duration : s.endTime;
 
                 let lines = s.words.reduce((sentence, word) => {
                     return sentence + ' ' + word.text;
@@ -120,9 +124,17 @@ const Editor = props => {
                 <Empty />
             ) : (
                 <React.Fragment>
-                    {fileInfo !== null ? <h3 className="editor-title">{fileInfo.originalname}</h3> : <Skeleton width={300} height={35} />}
+                    {fileInfo !== null ? (
+                        <h3 className="editor-title">{fileInfo.originalname}</h3>
+                    ) : (
+                        <Skeleton width={300} height={35} />
+                    )}
                     <span className="close-editor" onClick={closeEditor}>
-                        {!inSaveMode ? <i className="fas fa-times"></i> : <Loader type="TailSpin" color="gray" height={20} width={20} />}
+                        {!inSaveMode ? (
+                            <i className="fas fa-times"></i>
+                        ) : (
+                            <Loader type="TailSpin" color="gray" height={20} width={20} />
+                        )}
                     </span>
                     <div id="top-bar" className="playlist-top-bar">
                         <div className="playlist-toolbar">
@@ -150,7 +162,10 @@ const Editor = props => {
                                 <span title="zoom out" className="btn-zoom-out btn btn-default">
                                     <i className="fa fa-search-minus"></i>
                                 </span>
-                                <span title="Download the annotations as json" className="btn-annotations-download btn btn-default">
+                                <span
+                                    title="Download the annotations as json"
+                                    className="btn-annotations-download btn btn-default"
+                                >
                                     Download JSON
                                 </span>
                                 <InfoModal />

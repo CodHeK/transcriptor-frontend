@@ -8,7 +8,12 @@ import '../styles.css';
 import { useDispatch, useSelector } from 'react-redux';
 
 /* import actions */
-import { setTranscriptionIdForEdit, setTranscriptionIdForAssign, enableEditMode, disableEditMode } from '../../actions/TranscriptionActions';
+import {
+    setTranscriptionIdForEdit,
+    setTranscriptionIdForAssign,
+    enableEditMode,
+    disableEditMode,
+} from '../../actions/TranscriptionActions';
 
 const moment = require('moment');
 
@@ -25,7 +30,9 @@ const CustomCard = props => {
     const time = moment(props.meta).format('LT');
     const date = moment(props.meta).format('LL');
 
-    const editorNotSaved = localStorage.getItem('editorConfig') !== null && JSON.parse(localStorage.getItem('editorConfig'))._id === props._id;
+    const editorNotSaved =
+        localStorage.getItem('editorConfig') !== null &&
+        JSON.parse(localStorage.getItem('editorConfig'))._id === props._id;
 
     const options = [
         { key: 1, text: 'edit', value: 1, disabled: editMode || editorNotSaved },
@@ -79,7 +86,11 @@ const CustomCard = props => {
                 </Card.Header>
                 <Card.Meta className="card-meta">
                     {!loading ? date + ', ' + time : <Skeleton width={180} height={15} />}
-                    {!loading ? <span style={{ display: 'none' }}>dummy skeleton</span> : <Skeleton width={60} height={15} />}
+                    {!loading ? (
+                        <span style={{ display: 'none' }}>dummy skeleton</span>
+                    ) : (
+                        <Skeleton width={60} height={15} />
+                    )}
                     <div className="tags-container">
                         <div className="tag">{props.language}</div>
                         <div className="tag">{props.mimeType}</div>
@@ -103,7 +114,7 @@ Card.propTypes = {
 const CustomCardStyles = {
     Card: {
         marginLeft: '1%',
-        width: '48%',
+        width: '98%',
         height: 'auto', // (Keep it auto)
         cursor: 'pointer',
         fontFamily: 'Open Sans',
