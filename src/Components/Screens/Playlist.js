@@ -132,7 +132,6 @@ const Playlist = props => {
                     */
 
                     const removeSentenceHighlight = $element => {
-                        console.log($element, ' removed');
                         $element.classList.remove('current');
                     };
 
@@ -254,6 +253,13 @@ const Playlist = props => {
                         cursorPos += offset;
 
                         $cursor.style.left = cursorPos.toString() + 'px';
+                    };
+
+                    const setCursor = time => {
+                        let offset = time * oneSecond;
+
+                        console.log(time, offset);
+                        $cursor.style.left = offset.toString() + 'px';
                     };
 
                     const diffTimes = (oldTime, newTime) => oldTime !== newTime;
@@ -378,8 +384,6 @@ const Playlist = props => {
                     };
 
                     const scrollToSection = sentenceId => {
-                        console.log(sentenceId);
-
                         addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
 
                         let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) - 20;
@@ -465,16 +469,17 @@ const Playlist = props => {
                         }
                     }, 500);
 
+                    // let scrollPage = prevScroll / cursorLimit;
                     cursorUpdate = setInterval(() => {
                         if (!sentenceFocus) {
-                            if (parseInt($cursor.style.left) >= cursorLimit) {
-                                $waveform.scrollBy(cursorLimit, 0);
-                            }
+                            // scrollPage = prevScroll / cursorLimit;
+                            // if (parseInt($cursor.style.left) > cursorLimit * scrollPage) {
+                            //     $waveform.scrollBy(cursorLimit, 0);
+                            //     scrollPage++;
+                            // }
 
                             let cursorPos = getCursorPosition();
                             let { $currSentence, sentenceId } = findSentence(cursorPos);
-
-                            console.log(cursorPos, oneSecond, sentenceId);
 
                             sentenceIdOnCursor = sentenceId;
 
@@ -568,8 +573,11 @@ const Playlist = props => {
                                     'annotation-lines'
                                 )[0];
 
+                                let { startTime } = getSentenceInfo($currentHighlighted);
+
                                 sentenceFocus = false;
                                 removeAllSectionHighlights();
+                                setCursor(startTime + 0.1);
 
                                 $currentAnnotationText.blur();
                             }
@@ -587,9 +595,11 @@ const Playlist = props => {
                             removeAllHighlights();
 
                             let $currentClickedSentence = e.path[1];
-                            let { sentenceId } = getSentenceInfo($currentClickedSentence);
+                            let { sentenceId, startTime } = getSentenceInfo($currentClickedSentence);
 
                             scrollToSection(sentenceId);
+                            setCursor(startTime + 0.1);
+
                             addSentenceHighlight($currentClickedSentence);
                         });
                     }
@@ -650,18 +660,21 @@ const Playlist = props => {
 
                         if ($currentHighlighted !== null) {
                             ee.emit('stop');
+
                             playMode = 'play';
                             sentenceFocus = true;
 
                             let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
                                 'annotation-lines'
                             )[0];
-                            let { sentenceId } = getSentenceInfo($currentHighlighted);
+                            let { sentenceId, startTime } = getSentenceInfo($currentHighlighted);
 
                             /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
                             setTimeout(() => $currentAnnotationText.focus(), 0);
 
                             scrollToSection(sentenceId);
+                            setCursor(startTime + 0.1);
+
                             setTimeout(() => addSentenceHighlight($currentHighlighted), 10);
                         }
                     });

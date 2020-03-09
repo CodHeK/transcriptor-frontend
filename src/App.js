@@ -13,7 +13,7 @@ const App = () => {
 
     if (page === 'register') {
         Form = <RegisterForm />;
-    } else if (page === 'login') {
+    } else if (page === '' || page === 'login') {
         Form = <LoginForm />;
     }
 
