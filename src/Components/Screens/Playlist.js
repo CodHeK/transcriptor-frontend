@@ -424,7 +424,7 @@ const Playlist = props => {
                             setTimeout(() => addSentenceHighlight($currentHighlighted), 20);
                         } else {
                             if (playMode === 'play') {
-                                // removeAllSentenceHighlights();
+                                removeAllSectionHighlights();
 
                                 ee.emit('play', initialCursorPoint);
                                 playMode = 'pause';
@@ -477,32 +477,6 @@ const Playlist = props => {
                             $currSentence && addSentenceHighlight($currSentence);
                         }
                     }, 1000);
-
-                    // $playButton.on('click', () => {
-                    //     const initialCursorPoint = getCursorPosition();
-
-                    //     ee.emit('play', initialCursorPoint);
-
-                    //     let cursorLimit = $annotationsBoxesDiv.offsetWidth;
-
-                    //     cursorUpdate = setInterval(() => {
-                    //         if (parseInt($cursor.style.left) >= cursorLimit) {
-                    //             $waveform.scrollTo(cursorLimit, 0);
-                    //         }
-                    //     }, 1000);
-                    // });
-
-                    // $pauseButton.on('click', () => {
-                    //     ee.emit('pause');
-                    // });
-
-                    // $stopButton.on('click', () => {
-                    //     removeAllHighlights();
-
-                    //     $waveform.scrollTo(0, 0);
-
-                    //     ee.emit('stop');
-                    // });
 
                     $waveform.addEventListener('scroll', e => {
                         prevScroll = $waveform.scrollLeft;
@@ -570,7 +544,7 @@ const Playlist = props => {
                                     'annotation-lines'
                                 )[0];
 
-                                // sentenceFocus = false;
+                                sentenceFocus = false;
                                 removeAllSectionHighlights();
 
                                 $currentAnnotationText.blur();
@@ -611,6 +585,8 @@ const Playlist = props => {
                     */
                     hotkeys('down', (e, handler) => {
                         e.preventDefault();
+                        sentenceFocus = true;
+
                         const { $prevSentenceNode } = getNextForHighlight(scrollPoints, 'down');
 
                         /* 
@@ -626,6 +602,8 @@ const Playlist = props => {
 
                     hotkeys('up', (e, handler) => {
                         e.preventDefault();
+                        sentenceFocus = true;
+
                         const { $prevSentenceNode } = getNextForHighlight(scrollPoints, 'up');
 
                         /* 
