@@ -378,9 +378,11 @@ const Playlist = props => {
                     };
 
                     const scrollToSection = sentenceId => {
+                        console.log(sentenceId);
+
                         addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
 
-                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left);
+                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) - 20;
 
                         $waveform.scrollTo(prevScroll + scrollVal, 0);
 
@@ -400,8 +402,6 @@ const Playlist = props => {
                             let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
 
                             let setHighlighter = null;
-
-                            scrollToSection(sentenceId);
 
                             if (initialCursorPoint > startTime && mode === 'normal') {
                                 startTime = initialCursorPoint;
@@ -466,11 +466,11 @@ const Playlist = props => {
                     }, 500);
 
                     cursorUpdate = setInterval(() => {
-                        if (parseInt($cursor.style.left) >= cursorLimit) {
-                            $waveform.scrollTo(cursorLimit, 0);
-                        }
-
                         if (!sentenceFocus) {
+                            if (parseInt($cursor.style.left) >= cursorLimit) {
+                                $waveform.scrollBy(cursorLimit, 0);
+                            }
+
                             let cursorPos = getCursorPosition();
                             let { $currSentence, sentenceId } = findSentence(cursorPos);
 
@@ -580,6 +580,7 @@ const Playlist = props => {
                            corresponding section on the waveform
                         */
                         $annotationTextBox.addEventListener('click', e => {
+                            ee.emit('stop');
                             playMode = 'play';
                             sentenceFocus = true;
 
@@ -645,12 +646,13 @@ const Playlist = props => {
                         e.preventDefault();
                         let $currentHighlighted = getCurrentHighlightedElement();
 
-                        playMode = 'play';
-                        sentenceFocus = true;
-
                         if ($currentHighlighted === null) $currentHighlighted = $annotations[sentenceIdOnCursor];
 
                         if ($currentHighlighted !== null) {
+                            ee.emit('stop');
+                            playMode = 'play';
+                            sentenceFocus = true;
+
                             let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
                                 'annotation-lines'
                             )[0];
