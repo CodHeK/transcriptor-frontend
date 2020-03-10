@@ -50,20 +50,14 @@ const Editor = props => {
                 counter = 1;
             for (let s of sentences) {
                 let startime = s.startTime;
-                let endTime = s.endTime === undefined ? s.startTime + s.duration : s.endTime;
-
-                let lines = s.words.reduce((sentence, word) => {
-                    return sentence + ' ' + word.text;
-                }, '');
-
-                lines = s.text === undefined ? lines : s.text;
+                let endTime = s.endTime;
 
                 notes.push({
                     begin: `${startime}`,
                     end: `${endTime}`,
                     id: `${counter}`,
                     language: s.language,
-                    lines: lines.trim(),
+                    lines: s.text,
                     sentenceId: s._id,
                 });
 
