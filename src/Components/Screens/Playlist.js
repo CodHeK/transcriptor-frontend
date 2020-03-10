@@ -121,9 +121,10 @@ const Playlist = props => {
                         $annotationsTextBox.removeEventListener('keydown', () => console.log('rmd'));
                         $annotationsTextBox.removeEventListener('click', () => console.log('rmd'));
                     });
-                    hotkeys.unbind('shift+down');
-                    hotkeys.unbind('shift+up');
+                    hotkeys.unbind('down');
+                    hotkeys.unbind('up');
                     hotkeys.unbind('enter');
+                    hotkeys.unbind('ctrl+p');
                     clearInterval(autoSave);
                     clearInterval(cursorUpdate);
 
