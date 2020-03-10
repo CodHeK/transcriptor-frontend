@@ -61,7 +61,7 @@ const CustomCard = props => {
         const { status } = { ...props };
         const styles = CustomCardStyles;
 
-        if (status !== 'done') {
+        if (status.toLowerCase() !== 'done') {
             return <span className="status-flag">{status}</span>;
         } else {
             return <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />;
