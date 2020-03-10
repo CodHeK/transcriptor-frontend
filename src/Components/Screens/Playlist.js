@@ -259,7 +259,6 @@ const Playlist = props => {
                     const setCursor = time => {
                         let offset = time * oneSecond;
 
-                        console.log(time, offset);
                         $cursor.style.left = offset.toString() + 'px';
                     };
 
