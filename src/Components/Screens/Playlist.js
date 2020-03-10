@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
@@ -72,10 +73,6 @@ const Playlist = props => {
                     /* 
                         Elements & Variables
                     */
-                    const $window = $(window);
-                    const $playButton = $('.btn-play');
-                    const $pauseButton = $('.btn-pause');
-                    const $stopButton = $('.btn-stop');
                     const $zoomOut = $('.btn-zoom-out');
                     const $zoomIn = $('.btn-zoom-in');
                     const $waveform = $('.playlist-tracks')[0];
@@ -86,6 +83,8 @@ const Playlist = props => {
                     const $cursor = document.getElementsByClassName('cursor')[0];
                     const $annotations = document.getElementsByClassName('annotation');
                     const $timeTicks = $('.time');
+
+                    console.log($annotations);
 
                     let notesCache = props.notes;
                     let prevScroll = 0;
@@ -120,6 +119,9 @@ const Playlist = props => {
                     Array.from($annotationsTextBoxes).map($annotationsTextBox => {
                         $annotationsTextBox.removeEventListener('keydown', () => console.log('rmd'));
                         $annotationsTextBox.removeEventListener('click', () => console.log('rmd'));
+                    });
+                    Array.from($sentenceSectionBoxes).map($sentenceBox => {
+                        $sentenceBox.removeEventListener('click', () => console.log('rmd'));
                     });
                     hotkeys.unbind('down');
                     hotkeys.unbind('up');
@@ -321,6 +323,8 @@ const Playlist = props => {
                             if (currStartTimeChanged || currEndTimeChanged || textChanged) {
                                 dispatch(toggleSaveMode(true));
 
+                                console.log($annotations);
+
                                 if (sentenceId === 0 && $annotations[sentenceId + 1] && props.notes[sentenceId + 1]) {
                                     let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId + 1]);
                                     sentences.push({
@@ -409,7 +413,7 @@ const Playlist = props => {
                         const initialCursorPoint = getCursorPosition();
 
                         if ($currentHighlighted !== null && sentenceFocus) {
-                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
+                            let { startTime, endTime } = getSentenceInfo($currentHighlighted);
 
                             let setHighlighter = null;
 
@@ -604,7 +608,7 @@ const Playlist = props => {
                             let { sentenceId, startTime } = getSentenceInfo($currentClickedSentence);
 
                             scrollToSection(sentenceId);
-                            setCursor(startTime + 0.1);
+                            setCursor(startTime + 0.2);
 
                             addSentenceHighlight($currentClickedSentence);
                         });
@@ -679,7 +683,7 @@ const Playlist = props => {
                             setTimeout(() => $currentAnnotationText.focus(), 0);
 
                             scrollToSection(sentenceId);
-                            setCursor(startTime + 0.1);
+                            setCursor(startTime + 0.2);
 
                             setTimeout(() => addSentenceHighlight($currentHighlighted), 10);
                         }
@@ -692,7 +696,7 @@ const Playlist = props => {
                     });
                 });
         }, 100);
-    }, [dispatch, inSaveMode, props._id, props.fileInfo.path, props.notes]);
+    }, []);
 
     const PLaylistGhostLoader = () => {
         const ListGhostLoader = props => {
