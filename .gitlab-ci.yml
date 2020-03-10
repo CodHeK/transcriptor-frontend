@@ -1,0 +1,117 @@
+# do not use "latest" here, if you want this to work in the future
+image: docker:19
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - test
+  - release
+  - deploy
+
+before_script:
+  - docker version
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  # - echo $CI_REGISTRY_USER # prints out: gitlab-ci-token
+  # - echo $CI_REGISTRY_PASSWORD # prints out: [MASKED]
+  # - echo $CI_REGISTRY # prints out: registry.gitlab.com
+  # - echo $CI_REGISTRY_IMAGE # prints out: registry.gitlab.com/maitrungduc1410/portfolio
+  # - echo $CI_COMMIT_SHA # prints out: 3a8c64173360b5c6af0b0af562b82be27534193c (commit hash)
+  # - echo $CI_PROJECT_URL # prints out: https://gitlab.com/maitrungduc1410/portfolio
+
+build:
+  stage: build
+  script:
+    # fetches the latest image (not failing if image is not found)
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    # notice the cache-from, which is going to use the image we just pulled locally
+    # the built image is tagged locally with the commit SHA, and then pushed to 
+    # the GitLab registry
+    - >
+      docker build
+      --pull
+      --build-arg VCS_REF=$CI_COMMIT_SHA
+      --build-arg VCS_URL=$CI_PROJECT_URL
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+# .tests:
+#   stage: test
+#   before_script: # this before script will overwrite the parent's one
+#     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+#     - pip install docker-compose
+#     - docker-compose version
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA # pull the image we just push to register
+#     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest # tag this image as latest because in our docker-compose file we specify it with tag latest
+
+# start-up-test:
+#   extends: .tests
+#   script:
+#     - docker-compose up -d
+#     - sleep 15
+#     - docker-compose exec -T app pm2 status
+
+# Here, the goal is to tag the "master" branch as "latest"
+release-latest:
+  variables:
+    # We are just playing with Docker here. 
+    # We do not need GitLab to clone the source code.
+    GIT_STRATEGY: none
+  stage: release
+  only:
+    # Only "master" should be tagged "latest"
+    - master
+  script:
+    # Because we have no guarantee that this job will be picked up by the same runner 
+    # that built the image in the previous step, we pull it again locally
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    # Then we tag it "latest"
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    # Then we push it.
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+release-tag:
+  variables:
+    # Again, we do not need the source code here. Just playing with Docker.
+    GIT_STRATEGY: none
+  stage: release
+  except:
+    # We want this job to be run on other branches except master.
+    - master
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+deploy:
+  stage: deploy
+  variables:
+    # Again, we do not need the source code here. Just playing with Docker.
+    GIT_STRATEGY: none
+  only:
+    - master
+  before_script:
+    - apk update && apk add openssh-client bash
+  script:
+    # run ssh-agent
+    - eval $(ssh-agent -s)
+
+    # add ssh key stored in SSH_PRIVATE_KEY variable to the agent store
+    - bash -c 'ssh-add <(echo "$SSH_PRIVATE_KEY")'
+
+    - mkdir -p ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - >
+      ssh $SSH_USER@$SSH_SERVER_IP
+      "docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
+      cd ${PATH_TO_PROJECT};
+      docker-compose down;
+      docker pull ${CI_REGISTRY_IMAGE}:latest;
+      docker-compose up -d;
+      docker image prune -f;" # after pulling new image, the old one will be unused, so we need to remove it
+
