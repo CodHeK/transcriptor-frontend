@@ -225,7 +225,7 @@ const Playlist = props => {
                     };
 
                     const getSentenceInfo = $element => {
-                        if ($element !== null) {
+                        if ($element) {
                             let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerText;
                             let startTime = $element.getElementsByClassName('annotation-start')[0].innerText;
                             let endTime = $element.getElementsByClassName('annotation-end')[0].innerText;
@@ -321,7 +321,7 @@ const Playlist = props => {
                             if (currStartTimeChanged || currEndTimeChanged || textChanged) {
                                 dispatch(toggleSaveMode(true));
 
-                                if (sentenceId == 0) {
+                                if (sentenceId === 0 && $annotations[sentenceId + 1] && props.notes[sentenceId + 1]) {
                                     let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId + 1]);
                                     sentences.push({
                                         sentenceId: props.notes[sentenceId + 1]['sentenceId'],
@@ -329,7 +329,11 @@ const Playlist = props => {
                                         startTime,
                                         endTime,
                                     });
-                                } else if (sentenceId === $annotations.length - 1) {
+                                } else if (
+                                    sentenceId === $annotations.length - 1 &&
+                                    $annotations[sentenceId - 1] &&
+                                    props.notes[sentenceId - 1]
+                                ) {
                                     let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId - 1]);
                                     sentences.push({
                                         sentenceId: props.notes[sentenceId - 1]['sentenceId'],
@@ -338,21 +342,23 @@ const Playlist = props => {
                                         endTime,
                                     });
                                 } else {
-                                    let { sentenceId: prevId, ...prevSentenceData } = getSentenceInfo(
-                                        $annotations[sentenceId + 1]
-                                    );
-                                    sentences.push({
-                                        sentenceId: props.notes[sentenceId + 1]['sentenceId'],
-                                        ...prevSentenceData,
-                                    });
+                                    if ($annotations[sentenceId + 1] && $annotations[sentenceId - 1]) {
+                                        let { sentenceId: prevId, ...prevSentenceData } = getSentenceInfo(
+                                            $annotations[sentenceId + 1]
+                                        );
+                                        sentences.push({
+                                            sentenceId: props.notes[sentenceId + 1]['sentenceId'],
+                                            ...prevSentenceData,
+                                        });
 
-                                    let { sentenceId: nextId, ...nextSentenceData } = getSentenceInfo(
-                                        $annotations[sentenceId - 1]
-                                    );
-                                    sentences.push({
-                                        sentenceId: props.notes[sentenceId - 1]['sentenceId'],
-                                        ...nextSentenceData,
-                                    });
+                                        let { sentenceId: nextId, ...nextSentenceData } = getSentenceInfo(
+                                            $annotations[sentenceId - 1]
+                                        );
+                                        sentences.push({
+                                            sentenceId: props.notes[sentenceId - 1]['sentenceId'],
+                                            ...nextSentenceData,
+                                        });
+                                    }
                                 }
 
                                 sentences.push({
@@ -686,7 +692,7 @@ const Playlist = props => {
                     });
                 });
         }, 100);
-    }, []);
+    }, [dispatch, inSaveMode, props._id, props.fileInfo.path, props.notes]);
 
     const PLaylistGhostLoader = () => {
         const ListGhostLoader = props => {
