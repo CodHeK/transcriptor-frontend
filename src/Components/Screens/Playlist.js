@@ -82,9 +82,7 @@ const Playlist = props => {
                     const $annotationsTextBoxes = document.getElementsByClassName('annotation-lines');
                     const $cursor = document.getElementsByClassName('cursor')[0];
                     const $annotations = document.getElementsByClassName('annotation');
-                    const $timeTicks = $('.time');
-
-                    console.log($annotations);
+                    const $timeTicks = Array.from(document.getElementsByClassName('time'));
 
                     let notesCache = props.notes;
                     let prevScroll = 0;
@@ -106,10 +104,37 @@ const Playlist = props => {
                         }
                     }
 
-                    /* 
-                        Time constants
+                    /*
+                        Time related vars and methods
                     */
-                    let oneSecond = $timeTicks && parseInt($timeTicks[1].style.left) / 2;
+
+                    const timeStringToFloat = time => {
+                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
+
+                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+                        return totalSeconds;
+                    };
+
+                    const unitTimeOfMeasure = () => {
+                        return (
+                            $timeTicks &&
+                            timeStringToFloat('00:' + $timeTicks[1].innerText) -
+                                timeStringToFloat('00:' + $timeTicks[0].innerText)
+                        );
+                    };
+
+                    let unitTime = null;
+
+                    const oneSecondinPx = () => {
+                        unitTime = unitTimeOfMeasure();
+                        return (
+                            $timeTicks &&
+                            (parseInt($timeTicks[1].style.left) - parseInt($timeTicks[0].style.left)) / unitTime
+                        );
+                    };
+
+                    let oneSecond = oneSecondinPx();
 
                     /* 
                         Unsubscribe to all event listeners
@@ -170,14 +195,6 @@ const Playlist = props => {
                             }
                         }
                         return null;
-                    };
-
-                    const timeStringToFloat = time => {
-                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
-
-                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
-
-                        return totalSeconds;
                     };
 
                     const getNextForHighlight = (scrollPoints, mode) => {
@@ -479,16 +496,19 @@ const Playlist = props => {
                         }
                     }, 500);
 
-                    // let scrollPage = prevScroll / cursorLimit;
                     cursorUpdate = setInterval(() => {
                         if (!sentenceFocus) {
-                            // scrollPage = prevScroll / cursorLimit;
-                            // if (parseInt($cursor.style.left) > cursorLimit * scrollPage) {
-                            //     $waveform.scrollBy(cursorLimit, 0);
-                            //     scrollPage++;
-                            // }
-
                             let cursorPos = getCursorPosition();
+                            let relativeFirstTick = parseInt($timeTicks[0].style.left);
+                            let relativeFirstTickTime = timeStringToFloat('00:' + $timeTicks[0].innerText);
+
+                            let cursorPosFromStart =
+                                relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
+
+                            if (cursorPosFromStart >= cursorLimit) {
+                                $waveform.scrollTo(prevScroll + cursorLimit, 0);
+                            }
+
                             let { $currSentence, sentenceId } = findSentence(cursorPos);
 
                             sentenceIdOnCursor = sentenceId;
@@ -505,12 +525,12 @@ const Playlist = props => {
 
                     $zoomIn.on('click', e => {
                         ee.emit('zoomin');
-                        setTimeout(() => (oneSecond = parseInt($timeTicks[1].style.left) / 2), 100);
+                        setTimeout(() => (oneSecond = oneSecondinPx()), 100);
                     });
 
                     $zoomOut.on('click', e => {
                         ee.emit('zoomout');
-                        setTimeout(() => (oneSecond = parseInt($timeTicks[1].style.left) / 2), 100);
+                        setTimeout(() => (oneSecond = oneSecondinPx()), 100);
                     });
 
                     $waveform.addEventListener('scroll', e => {
