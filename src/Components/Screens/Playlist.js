@@ -91,19 +91,15 @@ const Playlist = props => {
 
                     let annotationsContainerHeight = $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
                     let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
-                    let scrollPoints = new Map();
-                    let page = 1,
-                        sentenceIdOnCursor = -1;
+                    let scrollPoints = new Set();
+                    let page = 1;
+                    let sentenceIdOnCursor = -1;
                     let cursorLimit = $annotationsBoxesDiv.offsetWidth;
                     let playMode = 'play';
                     let sentenceFocus = false;
 
                     for (let i = 1; i < annotationBoxHeights.length; i++) {
                         annotationBoxHeights[i] += annotationBoxHeights[i - 1];
-                        if (annotationBoxHeights[i] >= annotationsContainerHeight * page) {
-                            scrollPoints.set(i, annotationBoxHeights[i - 1]);
-                            page++;
-                        }
                     }
 
                     /*
@@ -160,7 +156,6 @@ const Playlist = props => {
                     /* 
                         Utility functions
                     */
-
                     const removeSentenceHighlight = $element => {
                         $element.classList.remove('current');
                     };
@@ -199,6 +194,45 @@ const Playlist = props => {
                         return null;
                     };
 
+                    const lower_bound = (target, list) => {
+                        let l = 0,
+                            r = list.length;
+
+                        while (l < r) {
+                            const mid = parseInt((l + r) / 2);
+
+                            if (list[mid] >= target) {
+                                r = mid;
+                            } else {
+                                l = mid + 1;
+                            }
+                        }
+
+                        return l;
+                    };
+
+                    const calcSentenceScrollEndPoints = () => {
+                        const annotationsContainerScrollTop = $annotationsTextBoxContainer.scrollTop;
+                        console.log(annotationsContainerScrollTop);
+
+                        let topSentenceId = lower_bound(annotationsContainerScrollTop, annotationBoxHeights);
+
+                        if (annotationBoxHeights[topSentenceId] === annotationsContainerHeight) {
+                            topSentenceId += 1;
+                        }
+
+                        let bottomSentenceId = lower_bound(
+                            annotationBoxHeights[topSentenceId] + annotationsContainerHeight,
+                            annotationBoxHeights
+                        );
+
+                        scrollPoints.clear();
+                        scrollPoints.add(topSentenceId);
+                        scrollPoints.add(bottomSentenceId);
+
+                        console.log(scrollPoints);
+                    };
+
                     const getNextForHighlight = (scrollPoints, mode) => {
                         let len = $annotations.length;
                         for (let idx in $annotations) {
@@ -215,23 +249,30 @@ const Playlist = props => {
 
                                         if (next === 0) {
                                             $annotationsTextBoxContainer.scrollTo(0, 0);
+                                        } else {
+                                            if (scrollPoints.has(next)) {
+                                                let scrollByVal = annotationBoxHeights[curr];
+
+                                                $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
+                                            }
                                         }
                                     } else {
                                         curr = id;
                                         next = (id - 1) % len;
 
                                         if (curr === 0) {
-                                            let points = Array.from(scrollPoints.values());
+                                            let scrollByVal = annotationBoxHeights[len - 1];
                                             next = len - 1;
-                                            $annotationsTextBoxContainer.scrollTo(0, points[points.length - 1]);
+                                            $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
+                                        } else {
+                                            if (scrollPoints.has(next)) {
+                                                let scrollByVal = annotationBoxHeights[next - 1];
+
+                                                $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
+                                            }
                                         }
                                     }
 
-                                    if (scrollPoints.has(next)) {
-                                        let scrollByVal = scrollPoints.get(next);
-
-                                        $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
-                                    }
                                     removeSentenceHighlight($annotations[curr]);
                                     addSentenceHighlight($annotations[next]);
                                     return {
@@ -533,6 +574,8 @@ const Playlist = props => {
                         Events
                     */
 
+                    calcSentenceScrollEndPoints(); // init scroll points
+
                     $zoomIn.on('click', e => {
                         ee.emit('zoomin');
                         setTimeout(() => (oneSecond = oneSecondinPx()), 100);
@@ -678,6 +721,10 @@ const Playlist = props => {
                     */
                     $waveformTrack.addEventListener('click', () => {
                         $cursor.style.left = $selectionPoint.style.left;
+                    });
+
+                    $annotationsTextBoxContainer.addEventListener('scroll', () => {
+                        calcSentenceScrollEndPoints();
                     });
 
                     /* 
