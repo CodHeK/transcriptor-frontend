@@ -81,6 +81,8 @@ const Playlist = props => {
                     const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
                     const $annotationsTextBoxes = document.getElementsByClassName('annotation-lines');
                     const $cursor = document.getElementsByClassName('cursor')[0];
+                    const $waveformTrack = document.getElementsByClassName('waveform')[0];
+                    const $selectionPoint = document.getElementsByClassName('point')[0];
                     const $annotations = document.getElementsByClassName('annotation');
                     const $timeTicks = Array.from(document.getElementsByClassName('time'));
 
@@ -456,7 +458,7 @@ const Playlist = props => {
                                 playMode = 'pause';
                             }
                             /* make sure highlight is added just after pause / resume */
-                            setTimeout(() => addSentenceHighlight($currentHighlighted), 20);
+                            setTimeout(() => addSentenceHighlight($currentHighlighted), 10);
                         } else {
                             if (playMode === 'play') {
                                 removeAllSectionHighlights();
@@ -499,14 +501,22 @@ const Playlist = props => {
                     cursorUpdate = setInterval(() => {
                         if (!sentenceFocus) {
                             let cursorPos = getCursorPosition();
-                            let relativeFirstTick = parseInt($timeTicks[0].style.left);
-                            let relativeFirstTickTime = timeStringToFloat('00:' + $timeTicks[0].innerText);
 
-                            let cursorPosFromStart =
-                                relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
+                            /* 
+                                playMode denotes the next possible 
+                                state of the player. If playMode is 'pause' 
+                                it is currently playing the track.
+                            */
+                            if (playMode === 'pause') {
+                                let relativeFirstTick = parseInt($timeTicks[0].style.left);
+                                let relativeFirstTickTime = timeStringToFloat('00:' + $timeTicks[0].innerText);
 
-                            if (cursorPosFromStart >= cursorLimit) {
-                                $waveform.scrollTo(prevScroll + cursorLimit, 0);
+                                let cursorPosFromStart =
+                                    relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
+
+                                if (cursorPosFromStart >= cursorLimit) {
+                                    $waveform.scrollTo(prevScroll + cursorLimit, 0);
+                                }
                             }
 
                             let { $currSentence, sentenceId } = findSentence(cursorPos);
@@ -607,9 +617,10 @@ const Playlist = props => {
 
                                 sentenceFocus = false;
                                 removeAllSectionHighlights();
-                                setCursor(startTime + 0.1);
+                                setCursor(startTime + 0.2);
 
                                 $currentAnnotationText.blur();
+                                addSentenceHighlight($currentHighlighted);
                             }
                         });
 
@@ -634,16 +645,40 @@ const Playlist = props => {
                         });
                     }
 
+                    /* 
+                        Events handling interactions with 
+                        the section box 
+                    */
                     for (let $sectionBox of $sentenceSectionBoxes) {
                         $sectionBox.addEventListener('click', e => {
                             e.preventDefault();
 
                             removeAllHighlights();
                             const sentenceId = parseInt(e.srcElement.innerText) - 1;
+                            let $currentElement = $annotations[sentenceId];
 
-                            scrollToSentence(sentenceId);
+                            playMode = 'pause';
+
+                            if ($currentElement) {
+                                let { startTime, endTime } = getSentenceInfo($currentElement);
+
+                                scrollToSentence(sentenceId);
+
+                                setTimeout(() => {
+                                    setCursor(startTime + 0.2);
+                                    addSentenceHighlight($currentElement);
+                                }, (endTime - startTime + 0.1) * 1000);
+                            }
                         });
                     }
+
+                    /* 
+                        Set point on track to start
+                        playing from clicked point on track
+                    */
+                    $waveformTrack.addEventListener('click', () => {
+                        $cursor.style.left = $selectionPoint.style.left;
+                    });
 
                     /* 
                         Define keyboard shortcuts
@@ -705,7 +740,7 @@ const Playlist = props => {
                             scrollToSection(sentenceId);
                             setCursor(startTime + 0.2);
 
-                            setTimeout(() => addSentenceHighlight($currentHighlighted), 10);
+                            setTimeout(() => addSentenceHighlight($currentHighlighted), 20);
                         }
                     });
 
