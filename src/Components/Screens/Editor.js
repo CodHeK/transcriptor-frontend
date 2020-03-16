@@ -102,7 +102,7 @@ const Editor = props => {
         /* Transition back to 'My Transcriptions' page */
         props.subPageCallback('My Transcriptions');
         localStorage.setItem('subpage', 'My Transcriptions');
-        localStorage.setItem('loadSavedState', false);
+        localStorage.setItem('loadSavedState', 'false');
 
         document.getElementById('waveform-playlist-container').remove();
     };

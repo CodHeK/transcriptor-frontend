@@ -17,6 +17,6 @@ const rootReducer = combineReducers({
 
 let middlewares = [createPromise(), thunk, socketMiddleWare()];
 
-middlewares = `${process.env.NODE_ENV}` === 'development' ? [...middlewares, createLogger()] : middlewares;
+// middlewares = `${process.env.NODE_ENV}` === 'development' ? [...middlewares, createLogger()] : middlewares;
 
 export default createStore(rootReducer, applyMiddleware(...middlewares));

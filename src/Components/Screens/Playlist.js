@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { saveEventEmitter, toggleSaveMode } from '../../actions/TranscriptionActions';
 
 const WaveformPlaylist = require('waveform-playlist');
+const hasListeners = require('event-emitter/has-listeners');
 const axios = require('axios');
 
 const Playlist = props => {
@@ -38,7 +39,9 @@ const Playlist = props => {
                     linkEndpoints: true,
                 },
                 seekStyle: 'line',
-                samplesPerPixel: 1000,
+                samplesPerPixel: JSON.parse(localStorage.getItem('editorState'))
+                    ? JSON.parse(localStorage.getItem('editorState')).zoomLevel
+                    : 1000,
                 waveHeight: 100,
                 zoomLevels: [50, 100, 200, 300, 400, 500, 1000, 2000],
                 options: {
@@ -99,7 +102,6 @@ const Playlist = props => {
                     let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
                     let playMode = 'play';
                     let sentenceFocus = false;
-                    let loadSavedState = localStorage.getItem('loadSavedState');
 
                     for (let i = 1; i < annotationBoxHeights.length; i++) {
                         annotationBoxHeights[i] += annotationBoxHeights[i - 1];
@@ -383,8 +385,6 @@ const Playlist = props => {
                             if (currStartTimeChanged || currEndTimeChanged || textChanged) {
                                 dispatch(toggleSaveMode(true));
 
-                                console.log($annotations);
-
                                 if (sentenceId === 0 && $annotations[sentenceId + 1] && props.notes[sentenceId + 1]) {
                                     let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId + 1]);
                                     sentences.push({
@@ -574,14 +574,19 @@ const Playlist = props => {
 
                     const updateEditorState = () => {
                         let $currentHighlighted = getCurrentHighlightedElement();
+                        let sentenceId = null;
+
+                        if ($currentHighlighted) {
+                            sentenceId = getSentenceInfo($currentHighlighted).sentenceId;
+                        }
+
                         let currEditorState = {
                             waveFormScroll: $waveform.scrollLeft,
                             annotationsContainerScroll: $annotationsTextBoxContainer.scrollTop,
                             cursorPos: $cursor.style.left,
-                            currentHighlightedSentenceId:
-                                $currentHighlighted && getSentenceInfo($currentHighlighted).sentenceId,
+                            currentHighlightedSentenceId: sentenceId,
                             sentenceInFocus: sentenceFocus,
-                            currZoomLevel,
+                            zoomLevel: zoomLevels[currZoomLevel],
                         };
                         localStorage.setItem('editorState', JSON.stringify(currEditorState));
                     };
@@ -598,7 +603,6 @@ const Playlist = props => {
 
                             sentenceId && addSentenceHighlight($annotations[sentenceId - 1]);
                             sentenceFocus = prevState.sentenceInFocus;
-                            currZoomLevel = prevState.currZoomLevel;
 
                             if (sentenceFocus) {
                                 let $currentAnnotationText = $annotations[sentenceId - 1].getElementsByClassName(
@@ -609,16 +613,16 @@ const Playlist = props => {
                                 addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
                             }
 
-                            localStorage.setItem('loadSavedState', false);
+                            localStorage.setItem('loadSavedState', 'false');
                         }
                     };
 
                     /* 
                         Events
                     */
-
                     calcSentenceScrollEndPoints(); // init scroll points
-                    loadSavedState && loadEditorState(); // load prev state from localStorage
+
+                    localStorage.getItem('loadSavedState') === 'true' && loadEditorState(); // load prev state from localStorage
 
                     $zoomIn.on('click', e => {
                         ee.emit('zoomin');
