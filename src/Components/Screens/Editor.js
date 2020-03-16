@@ -95,12 +95,16 @@ const Editor = props => {
             and remove items from localStorage
         */
         localStorage.removeItem('editorConfig');
+        localStorage.removeItem('editorState');
         dispatch(disableEditMode());
         dispatch(setTranscriptionIdForEdit(null));
 
         /* Transition back to 'My Transcriptions' page */
         props.subPageCallback('My Transcriptions');
         localStorage.setItem('subpage', 'My Transcriptions');
+        localStorage.setItem('loadSavedState', false);
+
+        document.getElementById('waveform-playlist-container').remove();
     };
 
     /*
@@ -155,12 +159,6 @@ const Editor = props => {
                                 </span>
                                 <span title="zoom out" className="btn-zoom-out btn btn-default">
                                     <i className="fa fa-search-minus"></i>
-                                </span>
-                                <span
-                                    title="Download the annotations as json"
-                                    className="btn-annotations-download btn btn-default"
-                                >
-                                    Download JSON
                                 </span>
                                 <InfoModal />
                             </div>

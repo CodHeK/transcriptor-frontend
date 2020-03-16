@@ -34,9 +34,26 @@ const CustomCard = props => {
         localStorage.getItem('editorConfig') !== null &&
         JSON.parse(localStorage.getItem('editorConfig'))._id === props._id;
 
+    const isDisabled = () => {
+        return (
+            (localStorage.getItem('editorConfig') !== null &&
+                JSON.parse(localStorage.getItem('editorConfig'))._id === props._id) ||
+            editId === props._id
+        );
+    };
+
     const options = [
-        { key: 1, text: 'edit', value: 1, disabled: editMode || editorNotSaved },
-        { key: 2, text: 'assign', value: 2 },
+        {
+            key: 1,
+            text: 'edit',
+            value: 1,
+            disabled: isDisabled(),
+        },
+        {
+            key: 2,
+            text: 'assign',
+            value: 2,
+        },
     ];
 
     const ActionDispatchers = {
@@ -46,10 +63,10 @@ const CustomCard = props => {
     };
 
     const modeHandler = (e, { options, value }) => {
-        let optionText = options.filter(option => option.value === value)[0].text;
-        setMode(optionText);
-
         if (value === 1) {
+            let optionText = options.filter(option => option.value === value)[0].text;
+            setMode(optionText);
+
             ActionDispatchers.transcriptionIdForEdit(props._id);
         } else {
             ActionDispatchers.EditMode(false);
@@ -76,9 +93,9 @@ const CustomCard = props => {
                     <span>
                         {!loading &&
                             (editMode && editId === props._id ? (
-                                <span className="edit-flag">EDIT</span>
+                                <span className="edit-flag">IN EDIT</span>
                             ) : editorNotSaved ? (
-                                <span className="edit-flag">EDIT</span>
+                                <span className="edit-flag">IN EDIT</span>
                             ) : (
                                 <i className="fas fa-times-circle"></i>
                             ))}

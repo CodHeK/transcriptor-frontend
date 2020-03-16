@@ -38,7 +38,7 @@ const Playlist = props => {
                     linkEndpoints: true,
                 },
                 seekStyle: 'line',
-                samplesPerPixel: 2000,
+                samplesPerPixel: 1000,
                 waveHeight: 100,
                 zoomLevels: [50, 100, 200, 300, 400, 500, 1000, 2000],
                 options: {
@@ -88,15 +88,18 @@ const Playlist = props => {
 
                     let notesCache = props.notes;
                     let prevScroll = 0;
+                    let zoomLevels = [50, 100, 200, 300, 400, 500, 1000, 2000];
+                    let currZoomLevel = 6;
 
-                    let annotationsContainerHeight = $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
+                    let annotationsContainerHeight =
+                        $annotationsTextBoxContainer && $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
                     let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
                     let scrollPoints = new Set();
-                    let page = 1;
                     let sentenceIdOnCursor = -1;
-                    let cursorLimit = $annotationsBoxesDiv.offsetWidth;
+                    let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
                     let playMode = 'play';
                     let sentenceFocus = false;
+                    let loadSavedState = localStorage.getItem('loadSavedState');
 
                     for (let i = 1; i < annotationBoxHeights.length; i++) {
                         annotationBoxHeights[i] += annotationBoxHeights[i - 1];
@@ -213,7 +216,6 @@ const Playlist = props => {
 
                     const calcSentenceScrollEndPoints = () => {
                         const annotationsContainerScrollTop = $annotationsTextBoxContainer.scrollTop;
-                        console.log(annotationsContainerScrollTop);
 
                         let topSentenceId = lower_bound(annotationsContainerScrollTop, annotationBoxHeights);
 
@@ -229,8 +231,6 @@ const Playlist = props => {
                         scrollPoints.clear();
                         scrollPoints.add(topSentenceId);
                         scrollPoints.add(bottomSentenceId);
-
-                        console.log(scrollPoints);
                     };
 
                     const getNextForHighlight = (scrollPoints, mode) => {
@@ -567,27 +567,79 @@ const Playlist = props => {
                             removeAllSentenceHighlights();
 
                             $currSentence && addSentenceHighlight($currSentence);
+
+                            updateEditorState();
                         }
                     }, 1000);
+
+                    const updateEditorState = () => {
+                        let $currentHighlighted = getCurrentHighlightedElement();
+                        let currEditorState = {
+                            waveFormScroll: $waveform.scrollLeft,
+                            annotationsContainerScroll: $annotationsTextBoxContainer.scrollTop,
+                            cursorPos: $cursor.style.left,
+                            currentHighlightedSentenceId:
+                                $currentHighlighted && getSentenceInfo($currentHighlighted).sentenceId,
+                            sentenceInFocus: sentenceFocus,
+                            currZoomLevel,
+                        };
+                        localStorage.setItem('editorState', JSON.stringify(currEditorState));
+                    };
+
+                    const loadEditorState = () => {
+                        let prevState = JSON.parse(localStorage.getItem('editorState'));
+
+                        if (prevState) {
+                            $waveform.scrollTo(prevState.waveFormScroll, 0);
+                            $annotationsTextBoxContainer.scrollTo(0, prevState.annotationsContainerScroll);
+                            $cursor.style.left = prevState.cursorPos;
+
+                            let sentenceId = prevState.currentHighlightedSentenceId;
+
+                            sentenceId && addSentenceHighlight($annotations[sentenceId - 1]);
+                            sentenceFocus = prevState.sentenceInFocus;
+                            currZoomLevel = prevState.currZoomLevel;
+
+                            if (sentenceFocus) {
+                                let $currentAnnotationText = $annotations[sentenceId - 1].getElementsByClassName(
+                                    'annotation-lines'
+                                )[0];
+
+                                setTimeout(() => $currentAnnotationText.focus(), 0);
+                                addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
+                            }
+
+                            localStorage.setItem('loadSavedState', false);
+                        }
+                    };
 
                     /* 
                         Events
                     */
 
                     calcSentenceScrollEndPoints(); // init scroll points
+                    loadSavedState && loadEditorState(); // load prev state from localStorage
 
                     $zoomIn.on('click', e => {
                         ee.emit('zoomin');
+                        currZoomLevel = Math.min(zoomLevels.length - 1, currZoomLevel + 1);
                         setTimeout(() => (oneSecond = oneSecondinPx()), 100);
+
+                        updateEditorState();
                     });
 
                     $zoomOut.on('click', e => {
                         ee.emit('zoomout');
+                        currZoomLevel = Math.max(0, currZoomLevel - 1);
                         setTimeout(() => (oneSecond = oneSecondinPx()), 100);
+
+                        updateEditorState();
                     });
 
                     $waveform.addEventListener('scroll', e => {
                         prevScroll = $waveform.scrollLeft;
+
+                        updateEditorState();
                     });
 
                     for (let $annotationTextBox of $annotationsTextBoxes) {
@@ -600,6 +652,8 @@ const Playlist = props => {
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 80) {
                                 cue('normal');
+
+                                updateEditorState();
                             }
                         });
 
@@ -614,6 +668,8 @@ const Playlist = props => {
                                 playMode = 'play';
 
                                 cue('restart');
+
+                                updateEditorState();
                             }
                         });
 
@@ -627,6 +683,8 @@ const Playlist = props => {
                                 e.preventDefault();
 
                                 moveCursor(0.1);
+
+                                updateEditorState();
                             }
                         });
 
@@ -640,6 +698,8 @@ const Playlist = props => {
                                 e.preventDefault();
 
                                 moveCursor(-0.1);
+
+                                updateEditorState();
                             }
                         });
 
@@ -664,6 +724,8 @@ const Playlist = props => {
 
                                 $currentAnnotationText.blur();
                                 addSentenceHighlight($currentHighlighted);
+
+                                updateEditorState();
                             }
                         });
 
@@ -685,6 +747,8 @@ const Playlist = props => {
                             setCursor(startTime + 0.2);
 
                             addSentenceHighlight($currentClickedSentence);
+
+                            updateEditorState();
                         });
                     }
 
@@ -712,6 +776,8 @@ const Playlist = props => {
                                     addSentenceHighlight($currentElement);
                                 }, (endTime - startTime + 0.1) * 1000);
                             }
+
+                            updateEditorState();
                         });
                     }
 
@@ -721,10 +787,14 @@ const Playlist = props => {
                     */
                     $waveformTrack.addEventListener('click', () => {
                         $cursor.style.left = $selectionPoint.style.left;
+
+                        updateEditorState();
                     });
 
                     $annotationsTextBoxContainer.addEventListener('scroll', () => {
                         calcSentenceScrollEndPoints();
+
+                        updateEditorState();
                     });
 
                     /* 
@@ -745,6 +815,8 @@ const Playlist = props => {
                         });
 
                         playMode = 'play';
+
+                        updateEditorState();
                     });
 
                     hotkeys('up', (e, handler) => {
@@ -762,6 +834,8 @@ const Playlist = props => {
                         });
 
                         playMode = 'play';
+
+                        updateEditorState();
                     });
 
                     hotkeys('enter', (e, handler) => {
@@ -789,12 +863,16 @@ const Playlist = props => {
 
                             setTimeout(() => addSentenceHighlight($currentHighlighted), 20);
                         }
+
+                        updateEditorState();
                     });
 
                     hotkeys('ctrl+p', (e, handler) => {
                         e.preventDefault();
 
                         cue();
+
+                        updateEditorState();
                     });
                 });
         }, 100);

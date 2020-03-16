@@ -49,6 +49,9 @@ const Dashboard = props => {
                 history.push('/login');
             } else {
                 localStorage.setItem('subpage', name);
+                if (name === 'Editor') {
+                    localStorage.setItem('loadSavedState', true);
+                }
                 setPage(name);
             }
         };
@@ -61,6 +64,7 @@ const Dashboard = props => {
                 save the state of the application when refreshed
             */
             localStorage.setItem('subpage', 'Editor');
+            localStorage.setItem('loadSavedState', false);
             localStorage.setItem('editorConfig', JSON.stringify({ _id: editId, active: true }));
 
             setPage('Editor');
