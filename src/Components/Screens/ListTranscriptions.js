@@ -5,7 +5,9 @@ import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/reac
 import CustomCard from '../Utils/Card';
 
 /* import react-redux hook for getting state */
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { setTranscriptionId } from '../../actions/TranscriptionActions';
 
 const ListTranscriptions = () => {
     const [subPage, setSubPage] = useState('Created');
@@ -17,13 +19,33 @@ const ListTranscriptions = () => {
         Transcription status related operations
     */
     const { _id, content: status } = useSelector(state => ({ ...state.SOCKET.statusData }));
+    const { transcriptionId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
     const [statusCache, setStatusCache] = useState(null);
+
+    let dispatch = useDispatch();
 
     const handleSubTabClick = (e, { name }) => setSubPage(name);
 
     useEffect(() => {
-        const URL = `${process.env.REACT_APP_API_HOST}/api/speech`;
         const token = localStorage.getItem('token');
+        if (transcriptionId != null) {
+            const DELETE_URL = `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}`;
+            fetch(DELETE_URL, {
+                method: 'DELETE',
+                mode: 'cors',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                });
+
+            dispatch(setTranscriptionId(null));
+        }
+
+        const URL = `${process.env.REACT_APP_API_HOST}/api/speech`;
 
         setTimeout(() => {
             fetch(URL, {
@@ -41,10 +63,7 @@ const ListTranscriptions = () => {
                     setCardLoaded(true);
                 });
         }, 500);
-    }, []); /* 
-               useEffect(() => {...},[]) -> to make sure infinte loop doesn't occur 
-               https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
-           */
+    }, [transcriptionId]);
 
     useEffect(() => {
         let cache = [];

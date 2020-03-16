@@ -13,6 +13,7 @@ import {
     setTranscriptionIdForAssign,
     enableEditMode,
     disableEditMode,
+    deleteTranscription,
 } from '../../actions/TranscriptionActions';
 
 const moment = require('moment');
@@ -60,6 +61,7 @@ const CustomCard = props => {
         EditMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
         transcriptionIdForEdit: _id => dispatch(setTranscriptionIdForEdit(_id)),
         transcriptionIdForAssign: _id => dispatch(setTranscriptionIdForAssign(_id)),
+        delete: _id => dispatch(deleteTranscription(_id)),
     };
 
     const modeHandler = (e, { options, value }) => {
@@ -85,6 +87,8 @@ const CustomCard = props => {
         }
     };
 
+    const handleDelete = () => ActionDispatchers.delete(props._id);
+
     return (
         <Card style={styles.Card}>
             <Card.Content>
@@ -97,7 +101,7 @@ const CustomCard = props => {
                             ) : editorNotSaved ? (
                                 <span className="edit-flag">IN EDIT</span>
                             ) : (
-                                <i className="fas fa-times-circle"></i>
+                                <i className="fas fa-times-circle" onClick={handleDelete}></i>
                             ))}
                     </span>
                 </Card.Header>

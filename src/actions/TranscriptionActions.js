@@ -37,3 +37,17 @@ export const disableEditMode = () => {
         type: 'DISABLE_EDIT_MODE',
     };
 };
+
+export const deleteTranscription = transcriptionId => {
+    return {
+        type: 'DELETE_TRANSCRIPTION',
+        payload: transcriptionId,
+    };
+};
+
+export const setTranscriptionId = transcriptionId => {
+    return {
+        type: 'SET_TRANSCRIPTION_ID',
+        payload: transcriptionId,
+    };
+};

@@ -1,4 +1,5 @@
 const initialState = {
+    transcriptionId: null,
     editId: null,
     assignId: null,
     editMode: false,
@@ -25,6 +26,12 @@ const transcriptionReducers = (state = initialState, { type, payload }) => {
             break;
         case 'TOGGLE_SAVE_MODE':
             state = { ...state, inSaveMode: payload };
+            break;
+        case 'DELETE_TRANSCRIPTION':
+            state = { ...state, transcriptionId: payload };
+            break;
+        case 'SET_TRANSCRIPTION_ID':
+            state = { ...state, transcriptionId: payload };
             break;
         default:
             return state;
