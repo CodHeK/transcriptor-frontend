@@ -5,6 +5,8 @@ const initialState = {
     editMode: false,
     ee: null,
     inSaveMode: false,
+    sentenceId: null,
+    toast: null,
 };
 
 const transcriptionReducers = (state = initialState, { type, payload }) => {
@@ -32,6 +34,15 @@ const transcriptionReducers = (state = initialState, { type, payload }) => {
             break;
         case 'SET_TRANSCRIPTION_ID':
             state = { ...state, transcriptionId: payload };
+            break;
+        case 'DELETE_SENTENCE':
+            state = { ...state, sentenceId: payload };
+            break;
+        case 'SET_SENTENCE_ID':
+            state = { ...state, sentenceId: payload };
+            break;
+        case 'ADD_TOAST':
+            state = { ...state, toast: payload };
             break;
         default:
             return state;

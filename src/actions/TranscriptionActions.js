@@ -51,3 +51,25 @@ export const setTranscriptionId = transcriptionId => {
         payload: transcriptionId,
     };
 };
+
+export const deleteSentence = sentenceId => {
+    return {
+        type: 'DELETE_SENTENCE',
+        payload: sentenceId,
+    };
+};
+
+export const setSentenceId = sentenceId => {
+    return {
+        type: 'SET_SENTENCE_ID',
+        payload: sentenceId,
+    };
+};
+
+export const releaseToast = toastProps => {
+    console.log(toastProps);
+    return {
+        type: 'ADD_TOAST',
+        payload: toastProps,
+    };
+};

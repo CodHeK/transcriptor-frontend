@@ -16,7 +16,7 @@ const ListTranscriptions = () => {
     const [filteredList, setFilteredList] = useState([]);
 
     /* 
-        Transcription status related operations
+        Transcription related operations
     */
     const { _id, content: status } = useSelector(state => ({ ...state.SOCKET.statusData }));
     const { transcriptionId } = useSelector(state => ({ ...state.TRANSCRIPTION }));

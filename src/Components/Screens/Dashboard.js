@@ -42,16 +42,15 @@ const Dashboard = props => {
 
         const handleTabClick = (_, { name }) => {
             if (name === 'logout') {
-                localStorage.removeItem('token');
-                localStorage.removeItem('subpage');
-                localStorage.removeItem('editorConfig');
+                localStorage.clear();
 
                 history.push('/login');
             } else {
-                localStorage.setItem('subpage', name);
-                if (name === 'Editor' && editMode) {
+                const inEditMode = JSON.parse(localStorage.getItem('editorConfig'));
+                if (name === 'Editor' && inEditMode.active) {
                     localStorage.setItem('loadSavedState', 'true');
                 }
+                localStorage.setItem('subpage', name);
                 setPage(name);
             }
         };

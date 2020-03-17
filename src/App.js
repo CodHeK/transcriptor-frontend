@@ -17,6 +17,9 @@ const App = () => {
         Form = <LoginForm />;
     }
 
+    /* Clear localStorage */
+    localStorage.clear();
+
     return (
         <div className="App">
             <Grid columns={3}>

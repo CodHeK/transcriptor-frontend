@@ -557,6 +557,31 @@ footer {
     background-color: rgba(255, 251, 204, 1) !important;
 }
 
+.fa.fa-times {
+    color: #808080;
+}
+
+.fa.fa-times:hover {
+    color: black !important;
+}
+
+.flash {
+    background: white;
+    animation: flash-animation 1.5s;
+}
+
+@keyframes flash-animation {
+    0% {
+        background-color: white;
+    }
+    50% {
+        background-color: rgba(255, 251, 204, 1);
+    }
+    100% {
+        background-color: white;
+    }
+}
+
 /* 
     InfoModal styles
 */

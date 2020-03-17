@@ -7,7 +7,8 @@ import $ from 'jquery';
 import '../styles.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { saveEventEmitter, toggleSaveMode } from '../../actions/TranscriptionActions';
+import { saveEventEmitter, toggleSaveMode, releaseToast } from '../../actions/TranscriptionActions';
+import { useToasts } from 'react-toast-notifications';
 
 const WaveformPlaylist = require('waveform-playlist');
 const hasListeners = require('event-emitter/has-listeners');
@@ -16,9 +17,21 @@ const axios = require('axios');
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
 
-    const { inSaveMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { inSaveMode, toast } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
-    let dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const { addToast, removeToast } = useToasts();
+
+    useEffect(() => {
+        if (toast != null) {
+            const { content, ...toastProps } = toast;
+            addToast(content, { autoDismiss: true, ...toastProps });
+
+            dispatch(releaseToast(null));
+        }
+    }, [toast]);
+
+    // let deleteNotesCache = props.note;
 
     useEffect(() => {
         let playlist = WaveformPlaylist.init(
@@ -33,7 +46,7 @@ const Playlist = props => {
                 },
                 annotationList: {
                     annotations: props.notes,
-                    controls: [],
+                    controls: props.actions,
                     editable: true,
                     isContinuousPlay: false,
                     linkEndpoints: true,
@@ -86,13 +99,15 @@ const Playlist = props => {
                     const $cursor = document.getElementsByClassName('cursor')[0];
                     const $waveformTrack = document.getElementsByClassName('waveform')[0];
                     const $selectionPoint = document.getElementsByClassName('point')[0];
-                    const $annotations = document.getElementsByClassName('annotation');
+                    let $annotations = document.getElementsByClassName('annotation'); // will change on delete
                     const $timeTicks = Array.from(document.getElementsByClassName('time'));
+                    const $sentenceDeleteCrosses = $annotationsTextBoxContainer.getElementsByClassName('fa-times');
 
                     let notesCache = props.notes;
                     let prevScroll = 0;
                     let zoomLevels = [50, 100, 200, 300, 400, 500, 1000, 2000];
                     let currZoomLevel = 6;
+                    let annotationsMap = new Map();
 
                     let annotationsContainerHeight =
                         $annotationsTextBoxContainer && $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
@@ -161,6 +176,10 @@ const Playlist = props => {
                     /* 
                         Utility functions
                     */
+                    const updateAnnotations = () => {
+                        $annotations = document.getElementsByClassName('annotation');
+                    };
+
                     const removeSentenceHighlight = $element => {
                         $element.classList.remove('current');
                     };
@@ -568,7 +587,7 @@ const Playlist = props => {
 
                             $currSentence && addSentenceHighlight($currSentence);
 
-                            updateEditorState();
+                            // updateEditorState();
                         }
                     }, 1000);
 
@@ -615,6 +634,25 @@ const Playlist = props => {
 
                             localStorage.setItem('loadSavedState', 'false');
                         }
+                    };
+
+                    const deleteSentence = async sentence_id => {
+                        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts/delete`;
+                        const token = localStorage.getItem('token');
+
+                        const res = await axios({
+                            method: 'POST',
+                            url: URL,
+                            mode: 'cors',
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                            data: {
+                                sentences: [sentence_id],
+                            },
+                        });
+
+                        return res;
                     };
 
                     /* 
@@ -708,6 +746,23 @@ const Playlist = props => {
                         });
 
                         /* 
+                            Prevent page refresh on ctrl+r and command+r
+                        */
+                        $annotationTextBox.addEventListener('keydown', e => {
+                            if (e.ctrlKey && e.keyCode === 82) {
+                                // ctrl + r
+                                e.preventDefault();
+                            }
+                        });
+
+                        $annotationTextBox.addEventListener('keydown', e => {
+                            if (e.metaKey && e.keyCode === 82) {
+                                // command + r
+                                e.preventDefault();
+                            }
+                        });
+
+                        /* 
                             Press enter to move out of focus 
                             after editing sentence
                         */
@@ -786,6 +841,52 @@ const Playlist = props => {
                     }
 
                     /* 
+                        Handling delete sentence
+                    */
+                    let undoQueue = [];
+
+                    for (let $sentenceDeleteCross of $sentenceDeleteCrosses) {
+                        $sentenceDeleteCross.addEventListener('click', e => {
+                            const $sentence = e.path[2];
+
+                            const { sentenceId } = getSentenceInfo($sentence);
+                            const sentence_id = props.notes.filter(each => each.id === sentenceId)[0].sentenceId;
+
+                            // delete() and add toast saying ctrl + z to undo
+
+                            const $sentencesContainer = e.path[3];
+
+                            const $sentenceSectionBox = $annotationsBoxesDiv.querySelector(
+                                `div[data-id='${sentenceId}']`
+                            );
+
+                            $sentencesContainer.removeChild($sentence);
+                            // $annotationsBoxesDiv.removeChild($sentenceSectionBox);
+
+                            updateAnnotations();
+
+                            dispatch(
+                                releaseToast({
+                                    id: sentenceId,
+                                    content: 'Press CTRL + Z to undo delete',
+                                    appearance: 'info',
+                                    autoDismissTimeout: 5000,
+                                })
+                            );
+
+                            let undoTimeout = setTimeout(() => {
+                                deleteSentence(sentence_id).then(res => {
+                                    if (res.data.success) {
+                                        console.log('Sentence deleted on server!');
+                                    }
+                                });
+                            }, 5000);
+
+                            undoQueue.push({ $sentence, $parent: $sentencesContainer, timer: undoTimeout });
+                        });
+                    }
+
+                    /* 
                         Set point on track to start
                         playing from clicked point on track
                     */
@@ -804,6 +905,42 @@ const Playlist = props => {
                     /* 
                         Define keyboard shortcuts
                     */
+                    hotkeys('ctrl+z', (e, handler) => {
+                        e.preventDefault();
+
+                        if (undoQueue.length > 0) {
+                            const { $sentence, $parent, timer } = undoQueue.shift();
+                            if (timer != null) {
+                                clearTimeout(timer);
+
+                                const { startTime, endTime, sentenceId } = getSentenceInfo($sentence);
+
+                                let flag = true;
+
+                                $sentence.classList.add('flash'); // add flash higlight on undo
+                                setTimeout(() => $sentence.classList.remove('flash'), 1500);
+
+                                for (let idx in $annotations) {
+                                    let id = parseInt(idx);
+                                    if (!isNaN(id)) {
+                                        const info = getSentenceInfo($annotations[id]);
+
+                                        if (info.startTime >= endTime) {
+                                            // can be optimized using lower_bound()
+                                            $parent.insertBefore($sentence, $parent.children[id]);
+                                            flag = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (flag) $parent.appendChild($sentence); // last element was deleted
+
+                                removeToast(sentenceId);
+                                updateAnnotations();
+                            }
+                        }
+                    });
+
                     hotkeys('down', (e, handler) => {
                         e.preventDefault();
                         sentenceFocus = true;
@@ -877,6 +1014,19 @@ const Playlist = props => {
                         cue();
 
                         updateEditorState();
+                    });
+
+                    /* 
+                        Block refresh commands of the browser 
+                    */
+                    hotkeys('command+r', (e, handler) => {
+                        e.preventDefault();
+                        console.log('refreshed');
+                    });
+
+                    hotkeys('ctrl+r', (e, handler) => {
+                        e.preventDefault();
+                        console.log('refreshed');
                     });
                 });
         }, 100);

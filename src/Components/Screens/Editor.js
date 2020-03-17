@@ -7,10 +7,18 @@ import $ from 'jquery';
 import '../styles.css';
 
 import Loader from 'react-loader-spinner';
+import { ToastProvider } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
+import {
+    disableEditMode,
+    setTranscriptionIdForEdit,
+    deleteSentence,
+    setSentenceId,
+} from '../../actions/TranscriptionActions';
+
+const axios = require('axios');
 
 const Empty = () => (
     <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
@@ -23,7 +31,7 @@ const Editor = props => {
     const [transcript, setTranscript] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
 
-    const { inSaveMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { inSaveMode, sentenceId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let dispatch = useDispatch();
 
@@ -114,61 +122,70 @@ const Editor = props => {
         fileInfo,
         _id: transcriptionId,
         notes: transcript,
+        actions: [
+            {
+                class: 'fa.fa-times',
+                title: 'Delete sentence',
+                action: () => {} /* delete handled in Playlist.js */,
+            },
+        ],
     };
 
     return (
-        <React.Fragment>
-            {transcriptionId === null ? (
-                <Empty />
-            ) : (
-                <React.Fragment>
-                    {fileInfo !== null ? (
-                        <h3 className="editor-title">{fileInfo.originalname}</h3>
-                    ) : (
-                        <Skeleton width={300} height={35} />
-                    )}
-                    <span className="close-editor" onClick={closeEditor}>
-                        {!inSaveMode ? (
-                            <i className="fas fa-times"></i>
+        <ToastProvider placement={'top-right'}>
+            <React.Fragment>
+                {transcriptionId === null ? (
+                    <Empty />
+                ) : (
+                    <React.Fragment>
+                        {fileInfo !== null ? (
+                            <h3 className="editor-title">{fileInfo.originalname}</h3>
                         ) : (
-                            <Loader type="TailSpin" color="gray" height={20} width={20} />
+                            <Skeleton width={300} height={35} />
                         )}
-                    </span>
-                    <div id="top-bar" className="playlist-top-bar">
-                        <div className="playlist-toolbar">
-                            <div className="btn-group">
-                                {/* <span className="btn-pause btn btn-warning">
-                                    <i className="fa fa-pause"></i>
-                                </span>
-                                <span className="btn-play btn btn-success">
-                                    <i className="fa fa-play"></i>
-                                </span>
-                                <span className="btn-stop btn btn-danger">
-                                    <i className="fa fa-stop"></i>
-                                </span> */}
-                                {/* <span className="btn-rewind btn btn-success">
-                                    <i className="fa fa-fast-backward"></i>
-                                </span>
-                                <span className="btn-fast-forward btn btn-success">
-                                    <i className="fa fa-fast-forward"></i>
-                                </span> */}
+                        <span className="close-editor" onClick={closeEditor}>
+                            {!inSaveMode ? (
+                                <i className="fas fa-times"></i>
+                            ) : (
+                                <Loader type="TailSpin" color="gray" height={20} width={20} />
+                            )}
+                        </span>
+                        <div id="top-bar" className="playlist-top-bar">
+                            <div className="playlist-toolbar">
+                                <div className="btn-group">
+                                    {/* <span className="btn-pause btn btn-warning">
+                                        <i className="fa fa-pause"></i>
+                                    </span>
+                                    <span className="btn-play btn btn-success">
+                                        <i className="fa fa-play"></i>
+                                    </span>
+                                    <span className="btn-stop btn btn-danger">
+                                        <i className="fa fa-stop"></i>
+                                    </span> */}
+                                    {/* <span className="btn-rewind btn btn-success">
+                                        <i className="fa fa-fast-backward"></i>
+                                    </span>
+                                    <span className="btn-fast-forward btn btn-success">
+                                        <i className="fa fa-fast-forward"></i>
+                                    </span> */}
+                                </div>
+                                <div className="btn-group">
+                                    <span title="zoom in" className="btn-zoom-in btn btn-default">
+                                        <i className="fa fa-search-plus"></i>
+                                    </span>
+                                    <span title="zoom out" className="btn-zoom-out btn btn-default">
+                                        <i className="fa fa-search-minus"></i>
+                                    </span>
+                                    <InfoModal />
+                                </div>
                             </div>
-                            <div className="btn-group">
-                                <span title="zoom in" className="btn-zoom-in btn btn-default">
-                                    <i className="fa fa-search-plus"></i>
-                                </span>
-                                <span title="zoom out" className="btn-zoom-out btn btn-default">
-                                    <i className="fa fa-search-minus"></i>
-                                </span>
-                                <InfoModal />
-                            </div>
+                            <div id="waveform-playlist-container"></div>
+                            {transcript && <Playlist {...playlistProps} />}
                         </div>
-                        <div id="waveform-playlist-container"></div>
-                        {transcript && <Playlist {...playlistProps} />}
-                    </div>
-                </React.Fragment>
-            )}
-        </React.Fragment>
+                    </React.Fragment>
+                )}
+            </React.Fragment>
+        </ToastProvider>
     );
 };
 
