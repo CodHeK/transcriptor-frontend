@@ -113,7 +113,7 @@ const Playlist = props => {
                         $annotationsTextBoxContainer && $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
                     let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
                     let scrollPoints = new Set();
-                    let sentenceIdOnCursor = -1;
+                    let sentenceIdOnCursor = 0;
                     let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
                     let playMode = 'play';
                     let sentenceFocus = false;
@@ -983,9 +983,11 @@ const Playlist = props => {
                         e.preventDefault();
                         let $currentHighlighted = getCurrentHighlightedElement();
 
-                        if ($currentHighlighted === null) $currentHighlighted = $annotations[sentenceIdOnCursor];
+                        if (!$currentHighlighted) $currentHighlighted = $annotations[sentenceIdOnCursor];
 
-                        if ($currentHighlighted !== null) {
+                        console.log($currentHighlighted, sentenceIdOnCursor);
+
+                        if ($currentHighlighted) {
                             ee.emit('stop');
 
                             playMode = 'play';
