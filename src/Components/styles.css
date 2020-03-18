@@ -270,6 +270,7 @@ body ::-webkit-scrollbar-track {
     font-weight: 300;
     right: 20px;
     top: 8px;
+    border-radius: 50%;
 }
 
 .close-editor:hover {
@@ -606,11 +607,20 @@ footer {
     padding: 0 !important;
 }
 
-.controls {
+.zoom-controls {
     margin: 0px 1px !important;
     border: 1px solid black !important;
     height: 38px;
     width: 58px;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.btn.download-transcript {
+    margin: 0px 1px !important;
+    border: 1px solid black !important;
+    height: 38px;
+    width: 180px;
     border-radius: 10px;
     font-size: 15px;
 }
@@ -627,13 +637,16 @@ footer {
     border-color: rgba(0, 0, 0, 0) !important;
     left: 0;
     padding: 10.5px 0px;
-    border-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
     letter-spacing: 1px;
 }
 
-/* .ui.red.ribbon.label::after {
-    background-color: #E0EFF1 !important;
-} */
+.ui.red.ribbon.label:hover {
+    background-color: #000 !important;
+    color: white;
+    border-color: rgba(0, 0, 0, 0) !important;
+}
 
 /* 
     InfoModal styles

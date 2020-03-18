@@ -116,6 +116,10 @@ const Editor = props => {
         document.getElementById('waveform-playlist-container').remove();
     };
 
+    const downloadTranscript = () => {
+        // call to server
+    };
+
     /*
         Props passed to Playlist component:
     */
@@ -152,7 +156,7 @@ const Editor = props => {
                         )}
                         <span className="close-editor" onClick={closeEditor}>
                             {!inSaveMode ? (
-                                <i className="fas fa-times"></i>
+                                <i className="fas fa-times back"></i>
                             ) : (
                                 <Loader type="TailSpin" color="gray" height={20} width={20} />
                             )}
@@ -177,11 +181,17 @@ const Editor = props => {
                                     </span> */}
                                 </div>
                                 <div className="btn-group">
-                                    <span title="zoom in" className="btn-zoom-in btn btn-default controls">
+                                    <span title="zoom in" className="btn-zoom-in btn btn-default zoom-controls">
                                         <i className="fa fa-search-plus"></i>
                                     </span>
-                                    <span title="zoom out" className="btn-zoom-out btn btn-default controls">
+                                    <span title="zoom out" className="btn-zoom-out btn btn-default zoom-controls">
                                         <i className="fa fa-search-minus"></i>
+                                    </span>
+                                    <span
+                                        className="btn-download btn btn-default download-transcript"
+                                        onClick={downloadTranscript}
+                                    >
+                                        Download Transcript
                                     </span>
                                 </div>
                             </div>
