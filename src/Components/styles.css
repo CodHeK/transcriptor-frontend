@@ -141,18 +141,19 @@ body ::-webkit-scrollbar-track {
 }
 
 .status-flag {
-    color: red;
+    color: #000;
     letter-spacing: 0.7px;
     position: absolute !important;
     right: 12px !important;
     border-radius: 0.3rem;
     width: auto;
-    background-color: rgba(255, 0, 0, 0.1);
+    background-color: #f4eeff;
     font-size: 13px;
     text-align: center;
     padding-left: 5px;
     padding-right: 5px;
     bottom: 10px !important;
+    /* rgba(255, 0, 0, 0.1) */
 }
 
 .dot {
@@ -225,7 +226,7 @@ body ::-webkit-scrollbar-track {
     left: 0;
     border-bottom-left-radius: 0.3rem;
     border-bottom-right-radius: 0.3rem;
-    background-color: rgba(66, 103, 178, 0.8);
+    background-color: #424874;
 }
 
 /* 
