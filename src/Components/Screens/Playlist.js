@@ -849,6 +849,24 @@ const Playlist = props => {
 
                             updateEditorState();
                         });
+
+                        /* 
+                            When user only changes section times without ever
+                            going to any sentence
+                        */
+                        $sectionBox.addEventListener('dragend', e => {
+                            let $currentHighlighted = getCurrentHighlightedElement();
+
+                            if ($currentHighlighted === null) {
+                                let sentenceId = parseInt(e.path[1].getAttribute('data-id'));
+                                $currentHighlighted = $annotations[sentenceId - 1];
+
+                                save($currentHighlighted).then(res => {
+                                    console.log('saved section times!');
+                                    setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
+                                });
+                            }
+                        });
                     }
 
                     /* 
