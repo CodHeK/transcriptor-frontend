@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import { Card, Dropdown } from 'semantic-ui-react';
 import ConfirmationModal from './ConfirmationModal';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 import '../styles.css';
 
 /* import react-redux hook for dispatching actions */
@@ -82,12 +83,46 @@ const CustomCard = props => {
     };
 
     const Status = props => {
-        const { status } = { ...props };
+        const { status, id } = { ...props };
         const styles = CustomCardStyles;
+        const increment = parseFloat(100 / 8);
+        const $statusLoader = document.getElementsByClassName(`${id}`)[0];
 
         if (status.toLowerCase() !== 'done') {
+            if ($statusLoader) {
+                switch (status) {
+                    case 'MONOLIZE-RESAMPLE: monolize and resample the input file':
+                        $statusLoader.style.width = increment + '%';
+                        break;
+
+                    case 'DIARIZATION: partitioning an input audio stream into speech segments.':
+                        $statusLoader.style.width = increment * 2 + '%';
+                        break;
+
+                    case 'STARTING processing input file':
+                        $statusLoader.style.width = increment * 3 + '%';
+                        break;
+
+                    case 'KALDI-DATA-PREPARATION: convert to kaldi format':
+                        $statusLoader.style.width = increment * 4 + '%';
+                        break;
+
+                    case 'FEATURE-EXTRACTION: extract features in the input file':
+                        $statusLoader.style.width = increment * 5 + '%';
+                        break;
+
+                    case 'DECODING the input file to raw text':
+                        $statusLoader.style.width = increment * 6 + '%';
+                        break;
+
+                    case 'POST-PROCESSING convert raw text to different formats':
+                        $statusLoader.style.width = increment * 7 + '%';
+                        break;
+                }
+            }
             return <span className="status-flag">{status}</span>;
         } else {
+            if ($statusLoader) $statusLoader.style.display = 'none';
             return (
                 <React.Fragment>
                     <i className="fas fa-download" onClick={downloadTranscript}></i>
@@ -136,8 +171,9 @@ const CustomCard = props => {
                         <div className="tag">{props.mimeType}</div>
                     </div>
 
-                    {!loading && <Status status={props.status} />}
+                    {!loading && <Status status={props.status} id={props._id} />}
                 </Card.Meta>
+                <div className={`status-loader ${props._id}`}></div>
             </Card.Content>
         </Card>
     );

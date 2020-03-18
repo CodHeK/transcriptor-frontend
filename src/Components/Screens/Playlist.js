@@ -910,7 +910,7 @@ const Playlist = props => {
                                     id: sentenceId,
                                     content: 'Press CTRL + Z to undo delete',
                                     appearance: 'info',
-                                    autoDismissTimeout: 500000,
+                                    autoDismissTimeout: 5000,
                                 })
                             );
 
@@ -920,7 +920,7 @@ const Playlist = props => {
                                         console.log('Sentence deleted on server!');
                                     }
                                 });
-                            }, 500000);
+                            }, 5000);
 
                             undoQueue.push({
                                 $sentence,
