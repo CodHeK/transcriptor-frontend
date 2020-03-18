@@ -46,9 +46,13 @@ const Dashboard = props => {
 
                 history.push('/login');
             } else {
-                const inEditMode = JSON.parse(localStorage.getItem('editorConfig'));
-                if (name === 'Editor' && inEditMode.active) {
-                    localStorage.setItem('loadSavedState', 'true');
+                if (name === 'Editor') {
+                    if (localStorage.getItem('editorConfig')) {
+                        const inEditMode = JSON.parse(localStorage.getItem('editorConfig'));
+                        if (inEditMode.active) {
+                            localStorage.setItem('loadSavedState', 'true');
+                        }
+                    }
                 }
                 localStorage.setItem('subpage', name);
                 setPage(name);
