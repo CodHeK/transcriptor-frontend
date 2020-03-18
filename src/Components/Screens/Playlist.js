@@ -176,8 +176,18 @@ const Playlist = props => {
                     /* 
                         Utility functions
                     */
+                    const updateAnnotationBoxHeights = () => {
+                        annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
+
+                        for (let i = 1; i < annotationBoxHeights.length; i++) {
+                            annotationBoxHeights[i] += annotationBoxHeights[i - 1];
+                        }
+                    };
+
                     const updateAnnotations = () => {
                         $annotations = document.getElementsByClassName('annotation');
+
+                        updateAnnotationBoxHeights();
                     };
 
                     const removeSentenceHighlight = $element => {
@@ -586,8 +596,6 @@ const Playlist = props => {
                             removeAllSentenceHighlights();
 
                             $currSentence && addSentenceHighlight($currSentence);
-
-                            // updateEditorState();
                         }
                     }, 1000);
 
@@ -656,12 +664,15 @@ const Playlist = props => {
                     };
 
                     /* 
-                        Events
+                        Playlist initialization method calls
+                        and calculations done here
                     */
                     calcSentenceScrollEndPoints(); // init scroll points
-
                     localStorage.getItem('loadSavedState') === 'true' && loadEditorState(); // load prev state from localStorage
 
+                    /* 
+                        Events
+                    */
                     $zoomIn.on('click', e => {
                         ee.emit('zoomin');
                         currZoomLevel = Math.min(zoomLevels.length - 1, currZoomLevel + 1);

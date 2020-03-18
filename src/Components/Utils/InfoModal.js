@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Header, Modal } from 'semantic-ui-react';
+import '../styles.css';
 
 const InfoModal = () => (
     <Modal
@@ -8,6 +9,7 @@ const InfoModal = () => (
                 <i className="fas fa-info-circle"></i>
             </Button>
         }
+        className="info-modal"
     >
         <Modal.Header>KEYBOARD SHORTCUTS</Modal.Header>
         <Modal.Content>

@@ -144,13 +144,12 @@ const Editor = props => {
                 ) : (
                     <React.Fragment>
                         {fileInfo !== null ? (
-                            <>
+                            <div id="playlist-info">
                                 <Label as="a" color="red" ribbon>
                                     {fileInfo.originalname}
                                 </Label>
-                                {/* <h3 className="editor-title">{fileInfo.originalname}</h3>  */}
                                 <InfoModal />
-                            </>
+                            </div>
                         ) : (
                             <Skeleton width={300} height={35} />
                         )}

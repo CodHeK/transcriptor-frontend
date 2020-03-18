@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import { Card, Dropdown } from 'semantic-ui-react';
+import ConfirmationModal from './ConfirmationModal';
 import PropTypes from 'prop-types';
 import '../styles.css';
 
@@ -96,7 +97,11 @@ const CustomCard = props => {
         }
     };
 
-    const handleDelete = () => ActionDispatchers.delete(props._id);
+    const modalCallback = action => {
+        if (action === 'yes') {
+            ActionDispatchers.delete(props._id);
+        }
+    };
 
     return (
         <Card style={styles.Card}>
@@ -110,7 +115,12 @@ const CustomCard = props => {
                             ) : editorNotSaved ? (
                                 <span className="edit-flag">IN EDIT</span>
                             ) : (
-                                <i className="fas fa-times-circle" onClick={handleDelete}></i>
+                                <ConfirmationModal
+                                    callback={modalCallback}
+                                    content={'Warning'}
+                                    icon={'warning'}
+                                    body={'Are you sure you want to delete this transcription ?'}
+                                />
                             ))}
                     </span>
                 </Card.Header>
