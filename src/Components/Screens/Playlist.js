@@ -901,7 +901,7 @@ const Playlist = props => {
                             );
 
                             $sentencesContainer.removeChild($sentence);
-                            // $annotationsBoxesDiv.removeChild($sentenceSectionBox);
+                            $sentenceSectionBox.style.display = 'none';
 
                             updateAnnotations();
 
@@ -910,7 +910,7 @@ const Playlist = props => {
                                     id: sentenceId,
                                     content: 'Press CTRL + Z to undo delete',
                                     appearance: 'info',
-                                    autoDismissTimeout: 5000,
+                                    autoDismissTimeout: 500000,
                                 })
                             );
 
@@ -920,9 +920,14 @@ const Playlist = props => {
                                         console.log('Sentence deleted on server!');
                                     }
                                 });
-                            }, 5000);
+                            }, 500000);
 
-                            undoQueue.push({ $sentence, $parent: $sentencesContainer, timer: undoTimeout });
+                            undoQueue.push({
+                                $sentence,
+                                $parent: $sentencesContainer,
+                                timer: undoTimeout,
+                                $sentenceSectionBox,
+                            });
                         });
                     }
 
@@ -949,7 +954,7 @@ const Playlist = props => {
                         e.preventDefault();
 
                         if (undoQueue.length > 0) {
-                            const { $sentence, $parent, timer } = undoQueue.shift();
+                            const { $sentence, $parent, timer, $sentenceSectionBox } = undoQueue.shift();
                             if (timer != null) {
                                 clearTimeout(timer);
 
@@ -958,7 +963,6 @@ const Playlist = props => {
                                 let flag = true;
 
                                 $sentence.classList.add('flash'); // add flash higlight on undo
-                                setTimeout(() => $sentence.classList.remove('flash'), 1500);
 
                                 for (let idx in $annotations) {
                                     let id = parseInt(idx);
@@ -974,6 +978,14 @@ const Playlist = props => {
                                     }
                                 }
                                 if (flag) $parent.appendChild($sentence); // last element was deleted
+
+                                $sentenceSectionBox.style.display = 'block';
+                                $sentenceSectionBox.classList.add('flash');
+
+                                setTimeout(() => {
+                                    $sentence.classList.remove('flash');
+                                    $sentenceSectionBox.classList.remove('flash');
+                                }, 1500);
 
                                 removeToast(sentenceId);
                                 updateAnnotations();
