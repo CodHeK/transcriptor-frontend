@@ -137,7 +137,7 @@ const Editor = props => {
     };
 
     return (
-        <ToastProvider placement={'top-right'}>
+        <ToastProvider placement={'bottom-left'}>
             <React.Fragment>
                 {transcriptionId === null ? (
                     <Empty />

@@ -663,3 +663,11 @@ footer {
 .confirmation-modal {
     padding-top: 10% !important;
 }
+
+/* 
+    Toast notif css
+*/
+.react-toast-notifications__toast.react-toast-notifications__toast--info.css-17jyn9g-ToastElement {
+    background-color: black !important;
+    color: white !important;
+}

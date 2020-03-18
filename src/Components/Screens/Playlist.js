@@ -31,7 +31,11 @@ const Playlist = props => {
         }
     }, [toast]);
 
-    // let deleteNotesCache = props.note;
+    let cachedSamplesPerPixel =
+        2000 -
+        (JSON.parse(localStorage.getItem('editorState'))
+            ? JSON.parse(localStorage.getItem('editorState')).zoomLevel
+            : 1000);
 
     useEffect(() => {
         let playlist = WaveformPlaylist.init(
@@ -52,11 +56,9 @@ const Playlist = props => {
                     linkEndpoints: true,
                 },
                 seekStyle: 'line',
-                samplesPerPixel: JSON.parse(localStorage.getItem('editorState'))
-                    ? JSON.parse(localStorage.getItem('editorState')).zoomLevel
-                    : 1000,
+                samplesPerPixel: cachedSamplesPerPixel,
                 waveHeight: 100,
-                zoomLevels: [50, 100, 200, 300, 400, 500, 1000, 2000],
+                zoomLevels: [200, 300, 400, 500, 1000, 1500, 1600, 1700, 1800],
                 options: {
                     isAutomaticScroll: true,
                 },
@@ -105,8 +107,11 @@ const Playlist = props => {
 
                     let notesCache = props.notes;
                     let prevScroll = 0;
-                    let zoomLevels = [50, 100, 200, 300, 400, 500, 1000, 2000];
-                    let currZoomLevel = 6;
+                    let zoomLevels = [200, 300, 400, 500, 1000, 1500, 1600, 1700, 1800];
+                    let cachedZoomLevel = JSON.parse(localStorage.getItem('editorState'))
+                        ? JSON.parse(localStorage.getItem('editorState')).zoomLevel
+                        : 1000;
+                    let currZoomLevel = zoomLevels.indexOf(cachedZoomLevel);
                     let annotationsMap = new Map();
 
                     let annotationsContainerHeight =
@@ -630,6 +635,8 @@ const Playlist = props => {
 
                             sentenceId && addSentenceHighlight($annotations[sentenceId - 1]);
                             sentenceFocus = prevState.sentenceInFocus;
+                            const prevZoomLevel = prevState.zoomLevel;
+                            currZoomLevel = zoomLevels.indexOf(prevZoomLevel);
 
                             if (sentenceFocus) {
                                 let $currentAnnotationText = $annotations[sentenceId - 1].getElementsByClassName(
@@ -678,6 +685,8 @@ const Playlist = props => {
                         currZoomLevel = Math.min(zoomLevels.length - 1, currZoomLevel + 1);
                         setTimeout(() => (oneSecond = oneSecondinPx()), 100);
 
+                        console.log('curr int ', currZoomLevel);
+
                         updateEditorState();
                     });
 
@@ -685,6 +694,8 @@ const Playlist = props => {
                         ee.emit('zoomout');
                         currZoomLevel = Math.max(0, currZoomLevel - 1);
                         setTimeout(() => (oneSecond = oneSecondinPx()), 100);
+
+                        console.log('curr out ', currZoomLevel);
 
                         updateEditorState();
                     });
