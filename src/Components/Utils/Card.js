@@ -76,6 +76,10 @@ const CustomCard = props => {
         }
     };
 
+    const downloadTranscript = () => {
+        // file creation on the server
+    };
+
     const Status = props => {
         const { status } = { ...props };
         const styles = CustomCardStyles;
@@ -83,7 +87,12 @@ const CustomCard = props => {
         if (status.toLowerCase() !== 'done') {
             return <span className="status-flag">{status}</span>;
         } else {
-            return <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />;
+            return (
+                <React.Fragment>
+                    <i className="fas fa-download" onClick={downloadTranscript}></i>
+                    <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />
+                </React.Fragment>
+            );
         }
     };
 

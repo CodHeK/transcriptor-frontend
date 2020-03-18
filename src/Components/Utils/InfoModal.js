@@ -2,7 +2,13 @@ import React from 'react';
 import { Button, Header, Modal } from 'semantic-ui-react';
 
 const InfoModal = () => (
-    <Modal trigger={<Button>?</Button>}>
+    <Modal
+        trigger={
+            <Button>
+                <i className="fas fa-info-circle"></i>
+            </Button>
+        }
+    >
         <Modal.Header>KEYBOARD SHORTCUTS</Modal.Header>
         <Modal.Content>
             <Modal.Description>

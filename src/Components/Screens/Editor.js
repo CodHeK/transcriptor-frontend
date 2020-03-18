@@ -9,6 +9,7 @@ import '../styles.css';
 import Loader from 'react-loader-spinner';
 import { ToastProvider } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import { Label } from 'semantic-ui-react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -139,7 +140,13 @@ const Editor = props => {
                 ) : (
                     <React.Fragment>
                         {fileInfo !== null ? (
-                            <h3 className="editor-title">{fileInfo.originalname}</h3>
+                            <>
+                                <Label as="a" color="red" ribbon>
+                                    {fileInfo.originalname}
+                                </Label>
+                                {/* <h3 className="editor-title">{fileInfo.originalname}</h3>  */}
+                                <InfoModal />
+                            </>
                         ) : (
                             <Skeleton width={300} height={35} />
                         )}
@@ -170,13 +177,12 @@ const Editor = props => {
                                     </span> */}
                                 </div>
                                 <div className="btn-group">
-                                    <span title="zoom in" className="btn-zoom-in btn btn-default">
+                                    <span title="zoom in" className="btn-zoom-in btn btn-default controls">
                                         <i className="fa fa-search-plus"></i>
                                     </span>
-                                    <span title="zoom out" className="btn-zoom-out btn btn-default">
+                                    <span title="zoom out" className="btn-zoom-out btn btn-default controls">
                                         <i className="fa fa-search-minus"></i>
                                     </span>
-                                    <InfoModal />
                                 </div>
                             </div>
                             <div id="waveform-playlist-container"></div>
