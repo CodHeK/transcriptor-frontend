@@ -715,6 +715,8 @@ const Playlist = props => {
                         */
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 80) {
+                                e.preventDefault();
+
                                 cue('normal');
 
                                 updateEditorState();
@@ -729,6 +731,8 @@ const Playlist = props => {
                         */
                         $annotationTextBox.addEventListener('keydown', e => {
                             if (e.ctrlKey && e.keyCode === 66) {
+                                e.preventDefault();
+
                                 playMode = 'play';
 
                                 cue('restart');
