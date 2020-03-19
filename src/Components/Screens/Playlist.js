@@ -685,8 +685,6 @@ const Playlist = props => {
                         currZoomLevel = Math.min(zoomLevels.length - 1, currZoomLevel + 1);
                         setTimeout(() => (oneSecond = oneSecondinPx()), 100);
 
-                        console.log('curr int ', currZoomLevel);
-
                         updateEditorState();
                     });
 
@@ -694,8 +692,6 @@ const Playlist = props => {
                         ee.emit('zoomout');
                         currZoomLevel = Math.max(0, currZoomLevel - 1);
                         setTimeout(() => (oneSecond = oneSecondinPx()), 100);
-
-                        console.log('curr out ', currZoomLevel);
 
                         updateEditorState();
                     });

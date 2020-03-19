@@ -87,37 +87,36 @@ const CustomCard = props => {
         const styles = CustomCardStyles;
         const increment = parseFloat(100 / 8);
         const $statusLoader = document.getElementsByClassName(`${id}`)[0];
+        const stages = [
+            ['MONOLIZE-RESAMPLE: monolize and resample the input file', 0],
+            ['DIARIZATION: partitioning an input audio stream into speech segments.', 1],
+            ['STARTING processing input file', 2],
+            ['KALDI-DATA-PREPARATION: convert to kaldi format', 3],
+            ['FEATURE-EXTRACTION: extract features in the input file', 4],
+            ['DECODING the input file to raw text', 5],
+            ['POST-PROCESSING convert raw text to different formats', 6],
+        ];
+
+        const stageMap = new Map(stages);
 
         if (status.toLowerCase() !== 'done') {
             if ($statusLoader) {
-                switch (status) {
-                    case 'MONOLIZE-RESAMPLE: monolize and resample the input file':
-                        $statusLoader.style.width = increment + '%';
-                        break;
-
-                    case 'DIARIZATION: partitioning an input audio stream into speech segments.':
-                        $statusLoader.style.width = increment * 2 + '%';
-                        break;
-
-                    case 'STARTING processing input file':
-                        $statusLoader.style.width = increment * 3 + '%';
-                        break;
-
-                    case 'KALDI-DATA-PREPARATION: convert to kaldi format':
-                        $statusLoader.style.width = increment * 4 + '%';
-                        break;
-
-                    case 'FEATURE-EXTRACTION: extract features in the input file':
-                        $statusLoader.style.width = increment * 5 + '%';
-                        break;
-
-                    case 'DECODING the input file to raw text':
-                        $statusLoader.style.width = increment * 6 + '%';
-                        break;
-
-                    case 'POST-PROCESSING convert raw text to different formats':
-                        $statusLoader.style.width = increment * 7 + '%';
-                        break;
+                if (stageMap.has(status)) {
+                    const idx = stageMap.get(status);
+                    $statusLoader.animate(
+                        [
+                            {
+                                width: `${increment * idx}%`,
+                            },
+                            {
+                                width: `${increment * (idx + 1)}%`,
+                            },
+                        ],
+                        {
+                            duration: 1500,
+                            fill: 'forwards',
+                        }
+                    );
                 }
             }
             return <span className="status-flag">{status}</span>;

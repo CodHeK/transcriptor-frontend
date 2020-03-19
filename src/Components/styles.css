@@ -219,7 +219,6 @@ body ::-webkit-scrollbar-track {
 
 .status-loader {
     height: 5px;
-    /* border: 1px solid black; */
     width: 0px;
     position: absolute;
     bottom: 0;
@@ -228,6 +227,19 @@ body ::-webkit-scrollbar-track {
     border-bottom-right-radius: 0.3rem;
     background-color: #424874;
 }
+
+/* .DIARIZATION {
+    animation: DIARIZATION 2s forwards;
+}
+
+@keyframes DIARIZATION {
+    0% {
+        width: 129.75px;
+    }
+    100% {
+        width: 259.5px;
+    }
+} */
 
 /* 
     Status bar css (Card.js)
@@ -649,7 +661,7 @@ footer {
     border: 1px solid black;
     border-color: rgba(0, 0, 0, 0) !important;
     left: 0;
-    padding: 10.5px 0px;
+    padding: 10.5px 10px;
     border-bottom-left-radius: 10px;
     border-top-left-radius: 10px;
     letter-spacing: 1px;
@@ -680,7 +692,7 @@ footer {
 /* 
     Toast notif css
 */
-.react-toast-notifications__toast.react-toast-notifications__toast--info.css-17jyn9g-ToastElement {
+.react-toast-notifications__toast.react-toast-notifications__toast--info {
     background-color: black !important;
     color: white !important;
 }
