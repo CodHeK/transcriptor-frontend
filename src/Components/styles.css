@@ -614,9 +614,9 @@ footer {
 #playlist-info > .ui.button {
     background-color: white !important;
     font-size: 20px;
-    position: absolute;
-    left: 180px;
-    top: 9px;
+    position: relative;
+    left: 40px;
+    top: 3px;
     padding: 0 !important;
 }
 
