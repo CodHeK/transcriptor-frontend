@@ -228,19 +228,6 @@ body ::-webkit-scrollbar-track {
     background-color: #424874;
 }
 
-/* .DIARIZATION {
-    animation: DIARIZATION 2s forwards;
-}
-
-@keyframes DIARIZATION {
-    0% {
-        width: 129.75px;
-    }
-    100% {
-        width: 259.5px;
-    }
-} */
-
 /* 
     Status bar css (Card.js)
 */
@@ -672,6 +659,33 @@ footer {
     color: white;
     border-color: rgba(0, 0, 0, 0) !important;
 }
+
+.btn-group.right {
+    position: absolute;
+    right: 20px;
+}
+
+.auto-save {
+    font-size: 15px !important;
+    font-family: 'Open Sans' !important;
+    letter-spacing: 1px;
+    line-height: 12px !important;
+}
+
+/* .ui.toggle.checkbox .box:before, .ui.toggle.checkbox label:before {
+    width: 2.5rem !important;
+    margin-left: 10px;
+} */
+
+/* .ui.toggle.checkbox input:checked~.box:after, .ui.toggle.checkbox input:checked~label:after {
+    left: 1.1rem !important;
+    margin-left: 10px;
+} */
+
+/* .auto-save > label::before {
+    width: 39px !important;
+    height: 15px !important;
+} */
 
 /* 
     InfoModal styles

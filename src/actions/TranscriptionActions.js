@@ -67,7 +67,6 @@ export const setSentenceId = sentenceId => {
 };
 
 export const releaseToast = toastProps => {
-    console.log(toastProps);
     return {
         type: 'ADD_TOAST',
         payload: toastProps,

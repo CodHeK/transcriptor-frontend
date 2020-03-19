@@ -563,7 +563,9 @@ const Playlist = props => {
 
                     autoSave = setInterval(() => {
                         let $currentHighlighted = getCurrentHighlightedElement();
-                        if (!inSaveMode) {
+                        const autoSaveMode = localStorage.getItem('autoSave');
+                        console.log('autosave ', autoSaveMode);
+                        if (!inSaveMode && autoSaveMode === 'true') {
                             save($currentHighlighted).then(resp => {
                                 if (resp !== null) {
                                     console.log('Auto saved!');
@@ -785,7 +787,7 @@ const Playlist = props => {
                         });
 
                         /* 
-                            Press enter to move out of focus 
+                            Press ENTER to move out of focus 
                             after editing sentence
                         */
                         $annotationTextBox.addEventListener('keydown', e => {
@@ -826,6 +828,8 @@ const Playlist = props => {
 
                             scrollToSection(sentenceId);
                             setCursor(startTime + 0.2);
+
+                            console.log(getCursorPosition());
 
                             addSentenceHighlight($currentClickedSentence);
 

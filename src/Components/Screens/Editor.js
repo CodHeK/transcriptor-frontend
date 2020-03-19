@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import InfoModal from '../Utils/InfoModal';
 import Playlist from './Playlist';
 import Skeleton from 'react-loading-skeleton';
+import { Checkbox } from 'semantic-ui-react';
 import $ from 'jquery';
 import '../styles.css';
 
@@ -31,10 +32,15 @@ const Editor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
     const [transcript, setTranscript] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
+    const [autoSave, setAutoSave] = useState(
+        localStorage.getItem('autoSave') ? localStorage.getItem('autoSave') === 'true' : true
+    );
 
     const { inSaveMode, sentenceId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let dispatch = useDispatch();
+
+    console.log('Auto Save mode in Editor.js ', autoSave);
 
     useEffect(() => {
         let _id = null;
@@ -105,6 +111,7 @@ const Editor = props => {
         */
         localStorage.removeItem('editorConfig');
         localStorage.removeItem('editorState');
+        localStorage.removeItem('autoSave');
         dispatch(disableEditMode());
         dispatch(setTranscriptionIdForEdit(null));
 
@@ -127,6 +134,7 @@ const Editor = props => {
         fileInfo,
         _id: transcriptionId,
         notes: transcript,
+        autoSave,
         actions: [
             {
                 class: 'fa.fa-times',
@@ -134,6 +142,11 @@ const Editor = props => {
                 action: () => {} /* delete handled in Playlist.js */,
             },
         ],
+    };
+
+    const toggleAutoSave = () => {
+        setAutoSave(!autoSave);
+        localStorage.setItem('autoSave', !autoSave);
     };
 
     return (
@@ -162,23 +175,7 @@ const Editor = props => {
                         </span>
                         <div id="top-bar" className="playlist-top-bar">
                             <div className="playlist-toolbar">
-                                <div className="btn-group">
-                                    {/* <span className="btn-pause btn btn-warning">
-                                        <i className="fa fa-pause"></i>
-                                    </span>
-                                    <span className="btn-play btn btn-success">
-                                        <i className="fa fa-play"></i>
-                                    </span>
-                                    <span className="btn-stop btn btn-danger">
-                                        <i className="fa fa-stop"></i>
-                                    </span> */}
-                                    {/* <span className="btn-rewind btn btn-success">
-                                        <i className="fa fa-fast-backward"></i>
-                                    </span>
-                                    <span className="btn-fast-forward btn btn-success">
-                                        <i className="fa fa-fast-forward"></i>
-                                    </span> */}
-                                </div>
+                                <div className="btn-group"></div>
                                 <div className="btn-group">
                                     <span title="zoom in" className="btn-zoom-in btn btn-default zoom-controls">
                                         <i className="fa fa-search-plus"></i>
@@ -192,6 +189,15 @@ const Editor = props => {
                                     >
                                         Download Transcript
                                     </span>
+                                </div>
+                                <div className="btn-group right">
+                                    <Checkbox
+                                        className="auto-save"
+                                        checked={autoSave}
+                                        toggle
+                                        label={`Autosave: ${autoSave ? 'ON' : 'OFF'}`}
+                                        onChange={toggleAutoSave}
+                                    />
                                 </div>
                             </div>
                             <div id="waveform-playlist-container"></div>
