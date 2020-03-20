@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import { Card, Dropdown } from 'semantic-ui-react';
 import ConfirmationModal from './ConfirmationModal';
 import PropTypes from 'prop-types';
-import $ from 'jquery';
 import '../styles.css';
 
 /* import react-redux hook for dispatching actions */

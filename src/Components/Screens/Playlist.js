@@ -517,17 +517,19 @@ const Playlist = props => {
 
                             if (playMode === 'pause') {
                                 ee.emit('pause');
-                                playMode = 'resume';
+                                playMode = 'play';
                                 if (setHighlighter !== null) {
                                     clearTimeout(setHighlighter);
                                 }
                             } else {
-                                if (playMode === 'resume') {
+                                if (playMode === 'play') {
                                     startTime = getCursorPosition();
-                                    setHighlighter = setTimeout(
-                                        () => addSentenceHighlight($currentHighlighted),
-                                        (endTime - startTime + 0.01) * 1000
-                                    );
+                                    setHighlighter = setTimeout(() => {
+                                        addSentenceHighlight($currentHighlighted);
+                                        let { startTime: actualStartTime } = getSentenceInfo($currentHighlighted);
+                                        setCursor(actualStartTime + 0.2);
+                                        console.log(actualStartTime, 'in playmode timer');
+                                    }, (endTime - startTime + 0.05) * 1000);
                                 }
                                 ee.emit('play', startTime, endTime);
                                 playMode = 'pause';
@@ -564,7 +566,7 @@ const Playlist = props => {
                     autoSave = setInterval(() => {
                         let $currentHighlighted = getCurrentHighlightedElement();
                         const autoSaveMode = localStorage.getItem('autoSave');
-                        console.log('autosave ', autoSaveMode);
+                        // console.log('autosave ', autoSaveMode);
                         if (!inSaveMode && autoSaveMode === 'true') {
                             save($currentHighlighted).then(resp => {
                                 if (resp !== null) {
@@ -576,6 +578,7 @@ const Playlist = props => {
                     }, 500);
 
                     cursorUpdate = setInterval(() => {
+                        // console.log(sentenceFocus, " sentenceFocus");
                         if (!sentenceFocus) {
                             let cursorPos = getCursorPosition();
 
@@ -715,7 +718,7 @@ const Playlist = props => {
                             if (e.ctrlKey && e.keyCode === 80) {
                                 e.preventDefault();
 
-                                cue('normal');
+                                cue();
 
                                 updateEditorState();
                             }
@@ -799,10 +802,13 @@ const Playlist = props => {
                                     'annotation-lines'
                                 )[0];
 
-                                let { startTime } = getSentenceInfo($currentHighlighted);
+                                let { startTime, endTime } = getSentenceInfo($currentHighlighted);
+                                let cursorPosTime = getCursorPosition();
 
                                 sentenceFocus = false;
                                 removeAllSectionHighlights();
+                                if (cursorPosTime > startTime && cursorPosTime < endTime) startTime = cursorPosTime;
+
                                 setCursor(startTime + 0.2);
 
                                 $currentAnnotationText.blur();
@@ -828,8 +834,6 @@ const Playlist = props => {
 
                             scrollToSection(sentenceId);
                             setCursor(startTime + 0.2);
-
-                            console.log(getCursorPosition());
 
                             addSentenceHighlight($currentClickedSentence);
 
@@ -1052,15 +1056,22 @@ const Playlist = props => {
                             let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
                                 'annotation-lines'
                             )[0];
-                            let { sentenceId, startTime } = getSentenceInfo($currentHighlighted);
+                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
 
                             /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
                             setTimeout(() => $currentAnnotationText.focus(), 0);
 
-                            scrollToSection(sentenceId);
-                            setCursor(startTime + 0.2);
+                            let cursorPosTime = getCursorPosition();
+                            if (cursorPosTime > startTime && cursorPosTime < endTime) startTime = cursorPosTime;
 
-                            setTimeout(() => addSentenceHighlight($currentHighlighted), 20);
+                            console.log(startTime, 'hotkeys enter');
+
+                            scrollToSection(sentenceId);
+
+                            setTimeout(() => {
+                                setCursor(startTime);
+                                addSentenceHighlight($currentHighlighted);
+                            }, 20);
                         }
 
                         updateEditorState();

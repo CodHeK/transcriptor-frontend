@@ -36,11 +36,13 @@ const Editor = props => {
         localStorage.getItem('autoSave') ? localStorage.getItem('autoSave') === 'true' : true
     );
 
+    if (localStorage.getItem('autoSave') === null) {
+        localStorage.setItem('autoSave', 'true');
+    }
+
     const { inSaveMode, sentenceId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let dispatch = useDispatch();
-
-    console.log('Auto Save mode in Editor.js ', autoSave);
 
     useEffect(() => {
         let _id = null;
