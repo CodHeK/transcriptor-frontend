@@ -521,10 +521,8 @@ const Playlist = props => {
                                 clearTimeout(setHighlighter);
                             } else {
                                 if (playMode === 'play') {
-                                    startTime = getCursorPosition();
+                                    // startTime = getCursorPosition();
                                     clearTimeout(setHighlighter);
-
-                                    console.log(setHighlighter, ' in play bef');
 
                                     setHighlighter = setTimeout(() => {
                                         addSentenceHighlight($currentHighlighted);
@@ -536,7 +534,9 @@ const Playlist = props => {
                                 playMode = 'pause';
                             }
                             /* make sure highlight is added just after pause / resume */
-                            setTimeout(() => addSentenceHighlight($currentHighlighted), 10);
+                            setTimeout(() => {
+                                addSentenceHighlight($currentHighlighted);
+                            }, 50);
                         } else {
                             if (playMode === 'play') {
                                 removeAllSectionHighlights();
@@ -944,11 +944,20 @@ const Playlist = props => {
                                 deleteSentence(sentence_id).then(res => {
                                     if (res.data.success) {
                                         console.log('Sentence deleted on server!');
+
+                                        // null the timer in undoQueue
+                                        for (let e of undoQueue) {
+                                            if (e.sentenceId === sentenceId) {
+                                                e.timer = null;
+                                                break;
+                                            }
+                                        }
                                     }
                                 });
                             }, 5000);
 
                             undoQueue.push({
+                                sentenceId,
                                 $sentence,
                                 $parent: $sentencesContainer,
                                 timer: undoTimeout,
@@ -980,11 +989,11 @@ const Playlist = props => {
                         e.preventDefault();
 
                         if (undoQueue.length > 0) {
-                            const { $sentence, $parent, timer, $sentenceSectionBox } = undoQueue.shift();
-                            if (timer != null) {
+                            const { sentenceId, $sentence, $parent, timer, $sentenceSectionBox } = undoQueue.shift();
+                            if (timer !== null) {
                                 clearTimeout(timer);
 
-                                const { startTime, endTime, sentenceId } = getSentenceInfo($sentence);
+                                const { startTime, endTime } = getSentenceInfo($sentence);
 
                                 let flag = true;
 
