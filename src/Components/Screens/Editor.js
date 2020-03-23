@@ -20,6 +20,7 @@ import {
     setSentenceId,
 } from '../../actions/TranscriptionActions';
 
+const moment = require('moment');
 const axios = require('axios');
 
 const Empty = () => (
@@ -125,8 +126,28 @@ const Editor = props => {
         document.getElementById('waveform-playlist-container').remove();
     };
 
-    const downloadTranscript = () => {
-        // call to server
+    const downloadTranscript = fileInfo => {
+        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}/export`;
+        const token = localStorage.getItem('token');
+
+        const time = moment(fileInfo.createdAt).format('LT');
+        const date = moment(fileInfo.createdAt).format('LL');
+
+        axios({
+            url: URL,
+            method: 'GET',
+            responseType: 'blob', // important
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then(response => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${fileInfo.originalname}_${date}_${time}.zip`); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+        });
     };
 
     /*
@@ -187,7 +208,7 @@ const Editor = props => {
                                     </span>
                                     <span
                                         className="btn-download btn btn-default download-transcript"
-                                        onClick={downloadTranscript}
+                                        onClick={() => downloadTranscript(fileInfo)}
                                     >
                                         Download Transcript
                                     </span>

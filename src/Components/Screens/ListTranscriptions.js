@@ -104,8 +104,8 @@ const ListTranscriptions = () => {
             const data = {
                 _id: each._id,
                 uploadedFileId: each.uploadedFile._id,
-                header: each.uploadedFile.originalname,
-                meta: each.createdAt,
+                filename: each.uploadedFile.originalname,
+                createdAt: each.createdAt,
                 language: each.language,
                 mimeType: each.uploadedFile.mimetype,
                 status: statusCache[each._id],

@@ -702,12 +702,6 @@ const Playlist = props => {
                         updateEditorState();
                     });
 
-                    $waveform.addEventListener('scroll', e => {
-                        prevScroll = $waveform.scrollLeft;
-
-                        updateEditorState();
-                    });
-
                     for (let $annotationTextBox of $annotationsTextBoxes) {
                         /* 
                             Play audio when focused into edit mode
@@ -910,6 +904,7 @@ const Playlist = props => {
                         Handling delete sentence
                     */
                     let undoQueue = [];
+                    let undoSet = new Set();
 
                     for (let $sentenceDeleteCross of $sentenceDeleteCrosses) {
                         $sentenceDeleteCross.addEventListener('click', e => {
@@ -936,7 +931,7 @@ const Playlist = props => {
                                     id: sentenceId,
                                     content: 'Press CTRL + Z to undo delete',
                                     appearance: 'info',
-                                    autoDismissTimeout: 5000,
+                                    autoDismissTimeout: 500000,
                                 })
                             );
 
@@ -945,26 +940,57 @@ const Playlist = props => {
                                     if (res.data.success) {
                                         console.log('Sentence deleted on server!');
 
-                                        // null the timer in undoQueue
-                                        for (let e of undoQueue) {
-                                            if (e.sentenceId === sentenceId) {
-                                                e.timer = null;
-                                                break;
-                                            }
+                                        if (undoQueue.length > 0) {
+                                            undoQueue.shift();
+                                            undoSet.delete(sentenceId);
                                         }
                                     }
                                 });
-                            }, 5000);
+                            }, 500000);
 
                             undoQueue.push({
-                                sentenceId,
+                                sentenceId, // just for a quick lookup
                                 $sentence,
                                 $parent: $sentencesContainer,
                                 timer: undoTimeout,
                                 $sentenceSectionBox,
                             });
+
+                            undoSet.add(sentenceId);
                         });
                     }
+
+                    const updateSetenceBoxes = () => {
+                        // NOT BEING USED ANYWHERE
+                        if (undoQueue.length > 0) {
+                            /*
+                                There is some item that can be un-done
+                                do not update $waveform on scroll as waveform library re-paints
+                                the annotation-boxes and removes display:none on deleted boxes
+                            */
+                            const $updatedSentenceSectionBoxes = document.getElementsByClassName('annotation-box');
+
+                            for (let $box of $updatedSentenceSectionBoxes) {
+                                const sentenceId = $box.getAttribute('data-id');
+                                if (undoSet.has(sentenceId)) {
+                                    /* 
+                                        Means this sentenceId is in undoQueue for now
+                                        it's display needs to be none
+                                    */
+                                    console.log(sentenceId);
+                                    $box.style.display = 'none';
+                                }
+                            }
+                        }
+                    };
+
+                    $waveform.addEventListener('scroll', e => {
+                        e.preventDefault();
+
+                        prevScroll = $waveform.scrollLeft;
+
+                        updateEditorState();
+                    });
 
                     /* 
                         Set point on track to start
@@ -990,6 +1016,8 @@ const Playlist = props => {
 
                         if (undoQueue.length > 0) {
                             const { sentenceId, $sentence, $parent, timer, $sentenceSectionBox } = undoQueue.shift();
+                            undoSet.delete(sentenceId);
+
                             if (timer !== null) {
                                 clearTimeout(timer);
 

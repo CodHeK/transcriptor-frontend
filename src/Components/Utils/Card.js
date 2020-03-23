@@ -18,6 +18,7 @@ import {
 } from '../../actions/TranscriptionActions';
 
 const moment = require('moment');
+const axios = require('axios');
 
 const CustomCard = props => {
     const [mode, setMode] = useState('choose');
@@ -29,8 +30,8 @@ const CustomCard = props => {
 
     const styles = CustomCardStyles;
 
-    const time = moment(props.meta).format('LT');
-    const date = moment(props.meta).format('LL');
+    const time = moment(props.createdAt).format('LT');
+    const date = moment(props.createdAt).format('LL');
 
     const editorNotSaved =
         localStorage.getItem('editorConfig') !== null &&
@@ -78,7 +79,24 @@ const CustomCard = props => {
     };
 
     const downloadTranscript = () => {
-        // file creation on the server
+        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/export`;
+        const token = localStorage.getItem('token');
+
+        axios({
+            url: URL,
+            method: 'GET',
+            responseType: 'blob', // important
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then(response => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${props.filename}_${date}_${time}.zip`); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+        });
     };
 
     const Status = props => {
@@ -140,7 +158,7 @@ const CustomCard = props => {
         <Card style={styles.Card}>
             <Card.Content>
                 <Card.Header className="card-header">
-                    {!loading ? props.header : <Skeleton width={250} height={18} />}
+                    {!loading ? props.filename : <Skeleton width={250} height={18} />}
                     <span>
                         {!loading &&
                             (editMode && editId === props._id ? (
