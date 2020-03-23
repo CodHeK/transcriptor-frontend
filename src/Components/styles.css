@@ -619,7 +619,7 @@ footer {
     padding: 0 !important;
 }
 
-.zoom-controls {
+.editor-controls {
     margin: 0px 1px !important;
     border: 1px solid black !important;
     height: 38px;
@@ -670,6 +670,16 @@ footer {
     font-family: 'Open Sans' !important;
     letter-spacing: 1px;
     line-height: 12px !important;
+}
+
+.fa-play,
+.fa-pause,
+.fa-stop,
+.fa-search-plus,
+.fa-search-minus {
+    font-size: 16px !important;
+    padding-top: 3px !important;
+    padding-left: 2px !important;
 }
 
 /* .ui.toggle.checkbox .box:before, .ui.toggle.checkbox label:before {

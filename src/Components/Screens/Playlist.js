@@ -567,7 +567,7 @@ const Playlist = props => {
                     autoSave = setInterval(() => {
                         let $currentHighlighted = getCurrentHighlightedElement();
                         const autoSaveMode = localStorage.getItem('autoSave');
-                        // console.log('autosave ', autoSaveMode);
+
                         if (!inSaveMode && autoSaveMode === 'true') {
                             save($currentHighlighted).then(resp => {
                                 if (resp !== null) {
@@ -579,7 +579,6 @@ const Playlist = props => {
                     }, 500);
 
                     cursorUpdate = setInterval(() => {
-                        // console.log(sentenceFocus, " sentenceFocus");
                         if (!sentenceFocus) {
                             let cursorPos = getCursorPosition();
 
@@ -608,6 +607,8 @@ const Playlist = props => {
 
                             $currSentence && addSentenceHighlight($currSentence);
                         }
+
+                        localStorage.setItem('cursorPos', getCursorPosition());
                     }, 1000);
 
                     const updateEditorState = () => {
@@ -809,14 +810,13 @@ const Playlist = props => {
                                     startTime += 0.3;
                                 }
 
-                                setTimeout(() => {
-                                    setCursor(startTime);
-                                }, 20);
-
                                 $currentAnnotationText.blur();
                                 addSentenceHighlight($currentHighlighted);
 
-                                updateEditorState();
+                                setTimeout(() => {
+                                    setCursor(startTime);
+                                    updateEditorState();
+                                }, 20);
                             }
                         });
 
@@ -843,13 +843,12 @@ const Playlist = props => {
 
                             scrollToSection(sentenceId);
 
-                            setTimeout(() => {
-                                setCursor(startTime);
-                            }, 20);
-
                             addSentenceHighlight($currentClickedSentence);
 
-                            updateEditorState();
+                            setTimeout(() => {
+                                setCursor(startTime);
+                                updateEditorState();
+                            }, 20);
                         });
                     }
 
@@ -909,7 +908,7 @@ const Playlist = props => {
                     for (let $sentenceDeleteCross of $sentenceDeleteCrosses) {
                         $sentenceDeleteCross.addEventListener('click', e => {
                             const $sentence = e.path[2];
-
+                            const UNDO_TIME = 5000;
                             const { sentenceId } = getSentenceInfo($sentence);
                             const sentence_id = props.notes.filter(each => each.id === sentenceId)[0].sentenceId;
 
@@ -931,7 +930,7 @@ const Playlist = props => {
                                     id: sentenceId,
                                     content: 'Press CTRL + Z to undo delete',
                                     appearance: 'info',
-                                    autoDismissTimeout: 500000,
+                                    autoDismissTimeout: UNDO_TIME,
                                 })
                             );
 
@@ -946,7 +945,7 @@ const Playlist = props => {
                                         }
                                     }
                                 });
-                            }, 500000);
+                            }, UNDO_TIME);
 
                             undoQueue.push({
                                 sentenceId, // just for a quick lookup

@@ -33,6 +33,7 @@ const Editor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
     const [transcript, setTranscript] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
+    const [trackMode, setTrackMode] = useState('pause');
     const [autoSave, setAutoSave] = useState(
         localStorage.getItem('autoSave') ? localStorage.getItem('autoSave') === 'true' : true
     );
@@ -41,7 +42,7 @@ const Editor = props => {
         localStorage.setItem('autoSave', 'true');
     }
 
-    const { inSaveMode, sentenceId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { inSaveMode, sentenceId, ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let dispatch = useDispatch();
 
@@ -115,6 +116,8 @@ const Editor = props => {
         localStorage.removeItem('editorConfig');
         localStorage.removeItem('editorState');
         localStorage.removeItem('autoSave');
+        localStorage.removeItem('cursorPos');
+
         dispatch(disableEditMode());
         dispatch(setTranscriptionIdForEdit(null));
 
@@ -172,6 +175,20 @@ const Editor = props => {
         localStorage.setItem('autoSave', !autoSave);
     };
 
+    const toggleTrackMode = mode => {
+        if (mode !== 'stop') setTrackMode(mode);
+
+        if (mode === 'play') {
+            let startTime = 0;
+            if (localStorage.getItem('cursorPos')) {
+                startTime = parseFloat(localStorage.getItem('cursorPos'));
+            }
+            ee.emit(mode, startTime);
+        } else {
+            ee.emit(mode);
+        }
+    };
+
     return (
         <ToastProvider placement={'bottom-left'}>
             <React.Fragment>
@@ -200,10 +217,20 @@ const Editor = props => {
                             <div className="playlist-toolbar">
                                 <div className="btn-group"></div>
                                 <div className="btn-group">
-                                    <span title="zoom in" className="btn-zoom-in btn btn-default zoom-controls">
+                                    <span title="zoom in" className="btn-play-pause btn btn-default editor-controls">
+                                        {trackMode === 'pause' ? (
+                                            <i className="fa fa-play" onClick={() => toggleTrackMode('play')}></i>
+                                        ) : (
+                                            <i className="fa fa-pause" onClick={() => toggleTrackMode('pause')}></i>
+                                        )}
+                                    </span>
+                                    <span title="zoom out" className="btn-stop btn btn-default editor-controls">
+                                        <i className="fa fa-stop" onClick={() => toggleTrackMode('stop')}></i>
+                                    </span>
+                                    <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
                                         <i className="fa fa-search-plus"></i>
                                     </span>
-                                    <span title="zoom out" className="btn-zoom-out btn btn-default zoom-controls">
+                                    <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
                                         <i className="fa fa-search-minus"></i>
                                     </span>
                                     <span
