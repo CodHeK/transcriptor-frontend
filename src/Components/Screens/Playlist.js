@@ -565,6 +565,13 @@ const Playlist = props => {
                                 playMode = 'play';
                             }
                         }
+
+                        /* 
+                            Opposite as playMode denotes the next possible 
+                            state of the player. If playMode is 'pause' 
+                            it is currently playing the track.
+                        */
+                        props.callbacks.changeTrackMode(playMode === 'play' ? 'pause' : 'play', null, ee);
                     };
 
                     const findSentence = time => {
@@ -871,11 +878,10 @@ const Playlist = props => {
 
                             scrollToSection(sentenceId);
 
-                            addSentenceHighlight($currentClickedSentence);
-
                             setTimeout(() => {
                                 setCursor(startTime);
                                 updateEditorState();
+                                addSentenceHighlight($currentClickedSentence);
                             }, 20);
                         });
                     }

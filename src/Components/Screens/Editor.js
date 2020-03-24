@@ -154,6 +154,61 @@ const Editor = props => {
         });
     };
 
+    const toggleAutoSave = () => {
+        setAutoSave(!autoSave);
+        localStorage.setItem('autoSave', !autoSave);
+    };
+
+    const toggleTrackModes = (mode, args = null, e = null) => {
+        let $playListMuteButton = null,
+            keyBoardMode = true;
+
+        if (!e) {
+            // if no event emitter passed
+            e = ee;
+            keyBoardMode = false;
+        }
+
+        switch (mode) {
+            case 'play':
+                let startTime = 0;
+                if (localStorage.getItem('cursorPos')) {
+                    startTime = parseFloat(localStorage.getItem('cursorPos'));
+                }
+                setTrackMode(mode);
+                !keyBoardMode && e.emit(mode, startTime);
+                break;
+
+            case 'pause':
+                setTrackMode(mode);
+                !keyBoardMode && e.emit(mode);
+                break;
+
+            case 'stop':
+                e.emit(mode);
+                break;
+
+            case 'mute':
+                $playListMuteButton = document.getElementsByClassName('btn-mute')[0];
+                $playListMuteButton.click();
+
+                setMute(true);
+                e.emit(mode, args.track);
+                break;
+
+            case 'un-mute':
+                $playListMuteButton = document.getElementsByClassName('btn-mute')[0];
+                $playListMuteButton.click();
+
+                setMute(false);
+                e.emit('mute', args.track);
+                break;
+
+            default:
+                return;
+        }
+    };
+
     /*
         Props passed to Playlist component:
     */
@@ -162,6 +217,9 @@ const Editor = props => {
         _id: transcriptionId,
         notes: transcript,
         autoSave,
+        callbacks: {
+            changeTrackMode: (mode, args, e) => toggleTrackModes(mode, args, e),
+        },
         actions: [
             {
                 class: 'fa.fa-times',
@@ -169,53 +227,6 @@ const Editor = props => {
                 action: () => {} /* delete handled in Playlist.js */,
             },
         ],
-    };
-
-    const toggleAutoSave = () => {
-        setAutoSave(!autoSave);
-        localStorage.setItem('autoSave', !autoSave);
-    };
-
-    const toggleTrackModes = (mode, args = null) => {
-        let $playListMuteButton = null;
-        switch (mode) {
-            case 'play':
-                let startTime = 0;
-                if (localStorage.getItem('cursorPos')) {
-                    startTime = parseFloat(localStorage.getItem('cursorPos'));
-                }
-                setTrackMode(mode);
-                ee.emit(mode, startTime);
-                break;
-
-            case 'pause':
-                setTrackMode(mode);
-                ee.emit(mode);
-                break;
-
-            case 'stop':
-                ee.emit(mode);
-                break;
-
-            case 'mute':
-                $playListMuteButton = document.getElementsByClassName('btn-mute')[0];
-                $playListMuteButton.click();
-
-                setMute(true);
-                ee.emit(mode, args.track);
-                break;
-
-            case 'un-mute':
-                $playListMuteButton = document.getElementsByClassName('btn-mute')[0];
-                $playListMuteButton.click();
-
-                setMute(false);
-                ee.emit('mute', args.track);
-                break;
-
-            default:
-                return;
-        }
     };
 
     return (
