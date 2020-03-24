@@ -42,7 +42,7 @@ const Playlist = props => {
             {
                 container: document.getElementById('waveform-playlist-container'),
                 timescale: true,
-                state: 'select',
+                state: 'cursor',
                 colors: {
                     waveOutlineColor: 'white',
                     timeColor: 'grey',
@@ -62,6 +62,10 @@ const Playlist = props => {
                 options: {
                     isAutomaticScroll: true,
                 },
+                controls: {
+                    show: true, //whether or not to include the track controls
+                    width: 0, //width of controls in pixels
+                },
             },
             EventEmitter()
         );
@@ -71,6 +75,7 @@ const Playlist = props => {
                 .load([
                     {
                         src: `${process.env.REACT_APP_API_HOST}/${props.fileInfo.path}`,
+                        muted: false,
                     },
                 ])
                 .then(function() {

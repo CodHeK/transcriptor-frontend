@@ -37,6 +37,7 @@ const Editor = props => {
     const [autoSave, setAutoSave] = useState(
         localStorage.getItem('autoSave') ? localStorage.getItem('autoSave') === 'true' : true
     );
+    const [mute, setMute] = useState(false);
 
     if (localStorage.getItem('autoSave') === null) {
         localStorage.setItem('autoSave', 'true');
@@ -175,17 +176,45 @@ const Editor = props => {
         localStorage.setItem('autoSave', !autoSave);
     };
 
-    const toggleTrackMode = mode => {
-        if (mode !== 'stop') setTrackMode(mode);
+    const toggleTrackModes = (mode, args = null) => {
+        let $playListMuteButton = null;
+        switch (mode) {
+            case 'play':
+                let startTime = 0;
+                if (localStorage.getItem('cursorPos')) {
+                    startTime = parseFloat(localStorage.getItem('cursorPos'));
+                }
+                setTrackMode(mode);
+                ee.emit(mode, startTime);
+                break;
 
-        if (mode === 'play') {
-            let startTime = 0;
-            if (localStorage.getItem('cursorPos')) {
-                startTime = parseFloat(localStorage.getItem('cursorPos'));
-            }
-            ee.emit(mode, startTime);
-        } else {
-            ee.emit(mode);
+            case 'pause':
+                setTrackMode(mode);
+                ee.emit(mode);
+                break;
+
+            case 'stop':
+                ee.emit(mode);
+                break;
+
+            case 'mute':
+                $playListMuteButton = document.getElementsByClassName('btn-mute')[0];
+                $playListMuteButton.click();
+
+                setMute(true);
+                ee.emit(mode, args.track);
+                break;
+
+            case 'un-mute':
+                $playListMuteButton = document.getElementsByClassName('btn-mute')[0];
+                $playListMuteButton.click();
+
+                setMute(false);
+                ee.emit('mute', args.track);
+                break;
+
+            default:
+                return;
         }
     };
 
@@ -217,15 +246,34 @@ const Editor = props => {
                             <div className="playlist-toolbar">
                                 <div className="btn-group"></div>
                                 <div className="btn-group">
-                                    <span title="zoom in" className="btn-play-pause btn btn-default editor-controls">
+                                    <span
+                                        title={trackMode === 'pause' ? 'play' : 'pause'}
+                                        className="btn-play-pause btn btn-default editor-controls"
+                                    >
                                         {trackMode === 'pause' ? (
-                                            <i className="fa fa-play" onClick={() => toggleTrackMode('play')}></i>
+                                            <i className="fa fa-play" onClick={() => toggleTrackModes('play')}></i>
                                         ) : (
-                                            <i className="fa fa-pause" onClick={() => toggleTrackMode('pause')}></i>
+                                            <i className="fa fa-pause" onClick={() => toggleTrackModes('pause')}></i>
                                         )}
                                     </span>
-                                    <span title="zoom out" className="btn-stop btn btn-default editor-controls">
-                                        <i className="fa fa-stop" onClick={() => toggleTrackMode('stop')}></i>
+                                    <span title="stop" className="btn-stop btn btn-default editor-controls">
+                                        <i className="fa fa-stop" onClick={() => toggleTrackModes('stop')}></i>
+                                    </span>
+                                    <span
+                                        title={mute ? 'un-mute' : 'mute'}
+                                        className="btn-toggle-mute btn btn-default editor-controls"
+                                    >
+                                        {!mute ? (
+                                            <i
+                                                className="fa fa-volume-up"
+                                                onClick={() => toggleTrackModes('mute', { track: 'main-track' })}
+                                            ></i>
+                                        ) : (
+                                            <i
+                                                className="fa fa-volume-mute"
+                                                onClick={() => toggleTrackModes('un-mute', { track: 'main-track' })}
+                                            ></i>
+                                        )}
                                     </span>
                                     <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
                                         <i className="fa fa-search-plus"></i>
