@@ -63,8 +63,12 @@ const Playlist = props => {
                     isAutomaticScroll: true,
                 },
                 controls: {
-                    show: true, //whether or not to include the track controls
-                    width: 0, //width of controls in pixels
+                    /* 
+                        Controls display is set to none,
+                        only used to click() the mute button using JS
+                    */
+                    show: true,
+                    width: 0,
                 },
             },
             EventEmitter()
@@ -289,12 +293,12 @@ const Playlist = props => {
                                         next = (id + 1) % len;
 
                                         if (next === 0) {
-                                            $annotationsTextBoxContainer.scrollTo(0, 0);
+                                            $annotationsTextBoxContainer.scrollTo({ left: 0, top: 0 });
                                         } else {
                                             if (scrollPoints.has(next)) {
                                                 let scrollByVal = annotationBoxHeights[curr];
 
-                                                $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
+                                                $annotationsTextBoxContainer.scrollTo({ left: 0, top: scrollByVal });
                                             }
                                         }
                                     } else {
@@ -304,12 +308,12 @@ const Playlist = props => {
                                         if (curr === 0) {
                                             let scrollByVal = annotationBoxHeights[len - 1];
                                             next = len - 1;
-                                            $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
+                                            $annotationsTextBoxContainer.scrollTo({ left: 0, top: scrollByVal });
                                         } else {
                                             if (scrollPoints.has(next)) {
                                                 let scrollByVal = annotationBoxHeights[next - 1];
 
-                                                $annotationsTextBoxContainer.scrollTo(0, scrollByVal);
+                                                $annotationsTextBoxContainer.scrollTo({ left: 0, top: scrollByVal });
                                             }
                                         }
                                     }
@@ -497,13 +501,21 @@ const Playlist = props => {
 
                         let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) - 20;
 
-                        $waveform.scrollTo(prevScroll + scrollVal, 0);
+                        $waveform.scrollTo({
+                            left: prevScroll + scrollVal,
+                            top: 0,
+                            behavior: 'smooth',
+                        });
 
                         prevScroll += scrollVal;
                     };
 
                     const scrollToSentence = sentenceId => {
-                        $annotationsTextBoxContainer.scrollTo(0, annotationBoxHeights[sentenceId - 1]);
+                        $annotationsTextBoxContainer.scrollTo({
+                            left: 0,
+                            top: annotationBoxHeights[sentenceId - 1],
+                            behavior: 'smooth',
+                        });
                     };
 
                     let setHighlighter = null;
@@ -600,7 +612,7 @@ const Playlist = props => {
                                     relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
 
                                 if (cursorPosFromStart >= cursorLimit) {
-                                    $waveform.scrollTo(prevScroll + cursorLimit, 0);
+                                    $waveform.scrollTo({ left: prevScroll + cursorLimit, top: 0, behavior: 'smooth' });
                                 }
                             }
 
@@ -639,8 +651,12 @@ const Playlist = props => {
                         let prevState = JSON.parse(localStorage.getItem('editorState'));
 
                         if (prevState) {
-                            $waveform.scrollTo(prevState.waveFormScroll, 0);
-                            $annotationsTextBoxContainer.scrollTo(0, prevState.annotationsContainerScroll);
+                            $waveform.scrollTo({ left: prevState.waveFormScroll, top: 0 });
+                            $annotationsTextBoxContainer.scrollTo({
+                                left: 0,
+                                top: prevState.annotationsContainerScroll,
+                                behavior: 'smooth',
+                            });
                             $cursor.style.left = prevState.cursorPos;
 
                             let sentenceId = prevState.currentHighlightedSentenceId;
@@ -817,6 +833,9 @@ const Playlist = props => {
 
                                 $currentAnnotationText.blur();
                                 addSentenceHighlight($currentHighlighted);
+
+                                /* sentence height must have changed due to new text after edit */
+                                calcSentenceScrollEndPoints();
 
                                 setTimeout(() => {
                                     setCursor(startTime);

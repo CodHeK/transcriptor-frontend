@@ -585,6 +585,15 @@ footer {
     background-color: rgba(255, 251, 204, 1) !important;
 }
 
+/* autosave slider */
+.ui.toggle.checkbox input:checked ~ label:before {
+    background-color: rgba(33, 133, 208, 0.7) !important;
+}
+
+.ui.toggle.checkbox input:checked ~ label:after {
+    left: 2rem !important;
+}
+
 .fa.fa-times {
     color: #808080;
 }
@@ -624,15 +633,6 @@ footer {
     border: 1px solid black !important;
     height: 38px;
     width: 58px;
-    border-radius: 10px;
-    font-size: 15px;
-}
-
-.btn.download-transcript {
-    margin: 0px 1px !important;
-    border: 1px solid black !important;
-    height: 38px;
-    width: 180px;
     border-radius: 10px;
     font-size: 15px;
 }
@@ -694,21 +694,6 @@ footer {
     display: none;
 }
 
-/* .ui.toggle.checkbox .box:before, .ui.toggle.checkbox label:before {
-    width: 2.5rem !important;
-    margin-left: 10px;
-} */
-
-/* .ui.toggle.checkbox input:checked~.box:after, .ui.toggle.checkbox input:checked~label:after {
-    left: 1.1rem !important;
-    margin-left: 10px;
-} */
-
-/* .auto-save > label::before {
-    width: 39px !important;
-    height: 15px !important;
-} */
-
 /* 
     InfoModal styles
 */
@@ -719,6 +704,7 @@ footer {
     text-align: center !important;
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;
+    overflow-y: auto !important;
 }
 
 .confirmation-modal {
