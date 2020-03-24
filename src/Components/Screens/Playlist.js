@@ -823,6 +823,10 @@ const Playlist = props => {
                                     updateEditorState();
                                 }, 20);
                             }
+                            if (e.keyCode === 9) {
+                                // disable tab press
+                                e.preventDefault();
+                            }
                         });
 
                         /* 
@@ -1142,6 +1146,11 @@ const Playlist = props => {
                         cue();
 
                         updateEditorState();
+                    });
+
+                    hotkeys('tab', (e, handler) => {
+                        e.preventDefault();
+                        console.log('pressed tab!');
                     });
 
                     /* 

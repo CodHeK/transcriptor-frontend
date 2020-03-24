@@ -282,10 +282,12 @@ const Editor = props => {
                                         <i className="fa fa-search-minus"></i>
                                     </span>
                                     <span
-                                        className="btn-download btn btn-default download-transcript"
+                                        title="export transcript"
+                                        className="btn-download btn btn-default editor-controls"
                                         onClick={() => downloadTranscript(fileInfo)}
                                     >
-                                        Download Transcript
+                                        {/* Download Transcript */}
+                                        <i class="far fa-save"></i>
                                     </span>
                                 </div>
                                 <div className="btn-group right">
