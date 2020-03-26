@@ -486,7 +486,16 @@ body ::-webkit-scrollbar-track {
     margin-top: 1em;
     height: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
+    cursor: pointer;
+}
+
+.annotation-lines:focus {
+    cursor: auto;
+}
+
+.annotation-lines::selection {
+    background-color: rgba(255, 251, 204, 1);
 }
 
 .playlist .annotations .annotations-text .annotation {
@@ -496,6 +505,7 @@ body ::-webkit-scrollbar-track {
     justify-content: flex-start;
     align-items: stretch;
     padding-bottom: 1em;
+    border-radius: 5px;
 }
 
 .playlist .annotations .annotations-text .annotation span {
@@ -553,6 +563,10 @@ body ::-webkit-scrollbar-track {
     background-color: #ebf4f6;
 }
 
+.playlist .annotations .current-hover {
+    background-color: rgb(245, 245, 245);
+}
+
 .playlist .vocals {
     background-color: #c0dce0;
 }
@@ -595,6 +609,7 @@ footer {
 }
 
 .fa.fa-times {
+    /* display: none; */
     color: #808080;
 }
 

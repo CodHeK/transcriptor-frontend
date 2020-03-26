@@ -53,7 +53,7 @@ const Playlist = props => {
                     controls: props.actions,
                     editable: true,
                     isContinuousPlay: false,
-                    linkEndpoints: true,
+                    linkEndpoints: false,
                 },
                 seekStyle: 'line',
                 samplesPerPixel: cachedSamplesPerPixel,
@@ -121,7 +121,6 @@ const Playlist = props => {
                         ? JSON.parse(localStorage.getItem('editorState')).zoomLevel
                         : 1000;
                     let currZoomLevel = zoomLevels.indexOf(cachedZoomLevel);
-                    let annotationsMap = new Map();
 
                     let annotationsContainerHeight =
                         $annotationsTextBoxContainer && $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
@@ -235,7 +234,7 @@ const Playlist = props => {
 
                     const getCurrentHighlightedElement = () => {
                         for (let $annotation of $annotations) {
-                            if ($annotation.classList.length > 1) {
+                            if (Array.from($annotation.classList).includes('current')) {
                                 return $annotation;
                             }
                         }
@@ -718,17 +717,21 @@ const Playlist = props => {
                     $zoomIn.on('click', e => {
                         ee.emit('zoomin');
                         currZoomLevel = Math.min(zoomLevels.length - 1, currZoomLevel + 1);
-                        setTimeout(() => (oneSecond = oneSecondinPx()), 100);
 
-                        updateEditorState();
+                        setTimeout(() => {
+                            oneSecond = oneSecondinPx();
+                            updateEditorState();
+                        }, 100);
                     });
 
                     $zoomOut.on('click', e => {
                         ee.emit('zoomout');
                         currZoomLevel = Math.max(0, currZoomLevel - 1);
-                        setTimeout(() => (oneSecond = oneSecondinPx()), 100);
 
-                        updateEditorState();
+                        setTimeout(() => {
+                            oneSecond = oneSecondinPx();
+                            updateEditorState();
+                        }, 100);
                     });
 
                     for (let $annotationTextBox of $annotationsTextBoxes) {
@@ -870,6 +873,8 @@ const Playlist = props => {
                             let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
                             let cursorPosTime = getCursorPosition();
 
+                            console.log(startTime);
+
                             if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                 startTime = cursorPosTime;
                             } else {
@@ -878,11 +883,33 @@ const Playlist = props => {
 
                             scrollToSection(sentenceId);
 
+                            console.log(startTime);
+
                             setTimeout(() => {
                                 setCursor(startTime);
                                 updateEditorState();
                                 addSentenceHighlight($currentClickedSentence);
                             }, 20);
+                        });
+                    }
+
+                    for (let $annotation of $annotations) {
+                        $annotation.addEventListener('mouseover', e => {
+                            let $element = e.target;
+                            if ($element.classList[0] !== 'annotation') {
+                                $element = e.path[1]; // parent which is .annotation
+                            }
+                            if (!Array.from($element.classList).includes('current')) {
+                                $element.classList.add('current-hover');
+                            }
+                        });
+
+                        $annotation.addEventListener('mouseout', e => {
+                            let $element = e.target;
+                            if ($element.classList[0] !== 'annotation') {
+                                $element = e.path[1]; // parent which is .annotation
+                            }
+                            $element.classList.remove('current-hover');
                         });
                     }
 
@@ -899,6 +926,8 @@ const Playlist = props => {
                             let $currentElement = $annotations[sentenceId];
 
                             playMode = 'pause';
+
+                            props.callbacks.changeTrackMode('play', null, ee);
 
                             if ($currentElement) {
                                 let { startTime, endTime } = getSentenceInfo($currentElement);
