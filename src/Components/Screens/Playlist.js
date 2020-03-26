@@ -732,6 +732,19 @@ const Playlist = props => {
                         return res;
                     };
 
+                    const getEnclosingAnnotationElement = e => {
+                        let $element = e.target;
+
+                        if ($element.classList[0] !== 'annotation') {
+                            if ($element.classList[0] === 'fa') {
+                                $element = e.path[2];
+                            } else {
+                                $element = e.path[1]; // parent which is .annotation
+                            }
+                        }
+                        return $element;
+                    };
+
                     /* 
                         Playlist initialization method calls
                         and calculations done here
@@ -923,21 +936,23 @@ const Playlist = props => {
 
                     for (let $annotation of $annotations) {
                         $annotation.addEventListener('mouseover', e => {
-                            let $element = e.target;
-                            if ($element.classList[0] !== 'annotation') {
-                                $element = e.path[1]; // parent which is .annotation
-                            }
+                            let $element = getEnclosingAnnotationElement(e);
+
                             if (!Array.from($element.classList).includes('current')) {
                                 $element.classList.add('current-hover');
                             }
+
+                            const $deleteIcon = $element.getElementsByClassName('fa-times')[0];
+                            $deleteIcon.style.display = 'block';
                         });
 
                         $annotation.addEventListener('mouseout', e => {
-                            let $element = e.target;
-                            if ($element.classList[0] !== 'annotation') {
-                                $element = e.path[1]; // parent which is .annotation
-                            }
+                            let $element = getEnclosingAnnotationElement(e);
+
                             $element.classList.remove('current-hover');
+
+                            const $deleteIcon = $element.getElementsByClassName('fa-times')[0];
+                            $deleteIcon.style.display = 'none';
                         });
                     }
 

@@ -617,8 +617,10 @@ footer {
 }
 
 .fa.fa-times {
-    /* display: none; */
+    display: none;
     color: #808080;
+    padding-top: 5px;
+    font-size: 20px;
 }
 
 .fa.fa-times:hover {
