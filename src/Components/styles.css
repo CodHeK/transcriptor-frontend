@@ -537,6 +537,14 @@ body ::-webkit-scrollbar-track {
     flex-grow: 10;
     margin-top: 7px;
     font-size: 17px;
+    position: relative;
+    padding: 0px 10px 10px 10px;
+    border: 0;
+    background-color: inherit;
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    resize: none;
+    letter-spacing: 0.5px;
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-actions {

@@ -277,6 +277,33 @@ const Playlist = props => {
                         scrollPoints.add(bottomSentenceId);
                     };
 
+                    const constructAnnotationsContainer = () => {
+                        /*
+                            Convert the contenteditable in .annotations to textareas
+                        */
+                        for (let $annotation of $annotations) {
+                            const $contentEditAbleSpan = $annotation.getElementsByClassName('annotation-lines')[0];
+                            const $annotationsActionsDiv = $annotation.getElementsByClassName('annotation-actions')[0];
+                            const sentenceText = $contentEditAbleSpan.innerText.trim();
+
+                            const $textarea = document.createElement('textarea');
+
+                            $textarea.value = sentenceText;
+                            $textarea.classList.add('annotation-lines');
+
+                            $annotation.removeChild($contentEditAbleSpan);
+                            $annotation.insertBefore($textarea, $annotationsActionsDiv);
+                        }
+                    };
+
+                    const buildAnnotationHeights = () => {
+                        for (let $annotation of $annotations) {
+                            let $textarea = $annotation.getElementsByClassName('annotation-lines')[0];
+
+                            $textarea.style.height = $textarea.scrollHeight + 15 + 'px';
+                        }
+                    };
+
                     const getNextForHighlight = (scrollPoints, mode) => {
                         let len = $annotations.length;
                         for (let idx in $annotations) {
@@ -336,7 +363,7 @@ const Playlist = props => {
                             let sentenceId = $element.getElementsByClassName('annotation-id')[0].innerText;
                             let startTime = $element.getElementsByClassName('annotation-start')[0].innerText;
                             let endTime = $element.getElementsByClassName('annotation-end')[0].innerText;
-                            let text = $element.getElementsByClassName('annotation-lines')[0].innerText.trim();
+                            let text = $element.getElementsByClassName('annotation-lines')[0].value.trim();
 
                             startTime = timeStringToFloat(startTime);
                             endTime = timeStringToFloat(endTime);
@@ -544,6 +571,7 @@ const Playlist = props => {
                                         addSentenceHighlight($currentHighlighted);
                                         let { startTime: actualStartTime } = getSentenceInfo($currentHighlighted);
                                         setCursor(actualStartTime + 0.2);
+                                        props.callbacks.changeTrackMode('pause', null, ee);
                                     }, (endTime - startTime + 0.05) * 1000);
                                 }
                                 ee.emit('play', startTime, endTime);
@@ -708,6 +736,8 @@ const Playlist = props => {
                         Playlist initialization method calls
                         and calculations done here
                     */
+                    constructAnnotationsContainer();
+                    buildAnnotationHeights();
                     calcSentenceScrollEndPoints(); // init scroll points
                     localStorage.getItem('loadSavedState') === 'true' && loadEditorState(); // load prev state from localStorage
 
@@ -863,33 +893,31 @@ const Playlist = props => {
                            corresponding section on the waveform
                         */
                         $annotationTextBox.addEventListener('click', e => {
-                            ee.emit('stop');
-                            playMode = 'play';
-                            sentenceFocus = true;
+                            if (playMode === 'play') {
+                                ee.emit('stop');
 
-                            removeAllHighlights();
+                                sentenceFocus = true;
 
-                            let $currentClickedSentence = e.path[1];
-                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
-                            let cursorPosTime = getCursorPosition();
+                                removeAllHighlights();
 
-                            console.log(startTime);
+                                let $currentClickedSentence = e.path[1];
+                                let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
+                                let cursorPosTime = getCursorPosition();
 
-                            if (cursorPosTime > startTime && cursorPosTime < endTime) {
-                                startTime = cursorPosTime;
-                            } else {
-                                startTime += 0.3;
+                                if (cursorPosTime > startTime && cursorPosTime < endTime) {
+                                    startTime = cursorPosTime;
+                                } else {
+                                    startTime += 0.3;
+                                }
+
+                                scrollToSection(sentenceId);
+
+                                setTimeout(() => {
+                                    setCursor(startTime);
+                                    updateEditorState();
+                                    addSentenceHighlight($currentClickedSentence);
+                                }, 20);
                             }
-
-                            scrollToSection(sentenceId);
-
-                            console.log(startTime);
-
-                            setTimeout(() => {
-                                setCursor(startTime);
-                                updateEditorState();
-                                addSentenceHighlight($currentClickedSentence);
-                            }, 20);
                         });
                     }
 
@@ -922,10 +950,11 @@ const Playlist = props => {
                             e.preventDefault();
 
                             removeAllHighlights();
-                            const sentenceId = parseInt(e.srcElement.innerText) - 1;
-                            let $currentElement = $annotations[sentenceId];
+                            const sentenceId = parseInt(e.srcElement.innerText);
+                            let $currentElement = $annotations[sentenceId - 1];
 
                             playMode = 'pause';
+                            sentenceFocus = false;
 
                             props.callbacks.changeTrackMode('play', null, ee);
 
@@ -933,6 +962,7 @@ const Playlist = props => {
                                 let { startTime, endTime } = getSentenceInfo($currentElement);
 
                                 scrollToSentence(sentenceId);
+                                scrollToSection(sentenceId);
 
                                 setTimeout(() => {
                                     setCursor(startTime + 0.3);
