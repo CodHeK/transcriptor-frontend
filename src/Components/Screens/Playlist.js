@@ -159,13 +159,15 @@ const Playlist = props => {
 
                     const oneSecondinPx = () => {
                         unitTime = unitTimeOfMeasure();
+                        console.log(unitTime);
                         return (
                             $timeTicks &&
-                            (parseInt($timeTicks[1].style.left) - parseInt($timeTicks[0].style.left)) / unitTime
+                            (parseInt($timeTicks[1].style.left) - parseInt($timeTicks[0].style.left) + 1.0) / unitTime
                         );
                     };
 
                     let oneSecond = oneSecondinPx();
+                    console.log(oneSecond);
 
                     /* 
                         Unsubscribe to all event listeners
@@ -390,7 +392,10 @@ const Playlist = props => {
                     };
 
                     const setCursor = time => {
-                        let offset = time * oneSecond;
+                        console.log('time: ', time, ' oneSecond: ', oneSecond);
+                        let offset = parseFloat(time) * oneSecond;
+
+                        console.log('offset ', offset);
 
                         $cursor.style.left = offset.toString() + 'px';
                     };
@@ -765,7 +770,8 @@ const Playlist = props => {
                         setTimeout(() => {
                             oneSecond = oneSecondinPx();
                             updateEditorState();
-                        }, 100);
+                            console.log(oneSecond);
+                        }, 50);
                     });
 
                     $zoomOut.on('click', e => {
@@ -775,7 +781,8 @@ const Playlist = props => {
                         setTimeout(() => {
                             oneSecond = oneSecondinPx();
                             updateEditorState();
-                        }, 100);
+                            console.log(oneSecond);
+                        }, 50);
                     });
 
                     for (let $annotationTextBox of $annotationsTextBoxes) {
@@ -882,7 +889,7 @@ const Playlist = props => {
                                 if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                     startTime = cursorPosTime;
                                 } else {
-                                    startTime += 0.3;
+                                    startTime += 0.0;
                                 }
 
                                 $currentAnnotationText.blur();
@@ -924,12 +931,13 @@ const Playlist = props => {
                             if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                 startTime = cursorPosTime;
                             } else {
-                                startTime += 0.3;
+                                startTime += 0.0;
                             }
 
                             scrollToSection(sentenceId);
 
                             setTimeout(() => {
+                                console.log('st ', startTime);
                                 setCursor(startTime);
                                 updateEditorState();
                                 addSentenceHighlight($currentClickedSentence);
@@ -987,7 +995,7 @@ const Playlist = props => {
                                 scrollToSection(sentenceId);
 
                                 setTimeout(() => {
-                                    setCursor(startTime + 0.3);
+                                    setCursor(startTime + 0.0);
                                     addSentenceHighlight($currentElement);
                                 }, (endTime - startTime + 0.1) * 1000);
                             }
@@ -1222,7 +1230,7 @@ const Playlist = props => {
                                 'annotation-lines'
                             )[0];
 
-                            if (!(playMode === 'pause' && cursorPosTime - startTime > 0.3)) {
+                            if (!(playMode === 'pause' && cursorPosTime - startTime > 0.0)) {
                                 ee.emit('stop');
 
                                 props.callbacks.changeTrackMode('pause', null, ee);
@@ -1233,7 +1241,7 @@ const Playlist = props => {
                                 if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                     startTime = cursorPosTime;
                                 } else {
-                                    startTime += 0.3;
+                                    startTime += 0.0;
                                 }
 
                                 setTimeout(() => {

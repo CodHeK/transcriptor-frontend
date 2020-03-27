@@ -68,7 +68,7 @@ const RegisterForm = () => {
                     if (res.success) {
                         setRegistered(true);
                     } else {
-                        alert('Error Registering user!');
+                        alert(res.data); // show in toast instead of alert() box
                     }
                 });
             }
