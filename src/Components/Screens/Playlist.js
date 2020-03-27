@@ -563,17 +563,18 @@ const Playlist = props => {
                                 playMode = 'play';
                                 clearTimeout(setHighlighter);
                             } else {
-                                if (playMode === 'play') {
-                                    // startTime = getCursorPosition();
-                                    clearTimeout(setHighlighter);
+                                clearTimeout(setHighlighter);
 
-                                    setHighlighter = setTimeout(() => {
-                                        addSentenceHighlight($currentHighlighted);
-                                        let { startTime: actualStartTime } = getSentenceInfo($currentHighlighted);
-                                        setCursor(actualStartTime + 0.2);
-                                        props.callbacks.changeTrackMode('pause', null, ee);
-                                    }, (endTime - startTime + 0.05) * 1000);
-                                }
+                                setHighlighter = setTimeout(() => {
+                                    addSentenceHighlight($currentHighlighted);
+
+                                    let { startTime: actualStartTime } = getSentenceInfo($currentHighlighted);
+                                    setCursor(actualStartTime + 0.2);
+
+                                    props.callbacks.changeTrackMode('pause', null, ee);
+                                    playMode = 'play';
+                                }, (endTime - startTime + 0.05) * 1000);
+
                                 ee.emit('play', startTime, endTime);
                                 playMode = 'pause';
                             }
@@ -906,11 +907,12 @@ const Playlist = props => {
                            corresponding section on the waveform
                         */
                         $annotationTextBox.addEventListener('click', e => {
-                            // if (!sentenceFocus && playMode === 'play') {
+                            clearTimeout(setHighlighter);
                             ee.emit('stop');
 
                             props.callbacks.changeTrackMode('pause', null, ee);
 
+                            playMode = 'play';
                             sentenceFocus = true;
 
                             removeAllHighlights();
@@ -932,7 +934,6 @@ const Playlist = props => {
                                 updateEditorState();
                                 addSentenceHighlight($currentClickedSentence);
                             }, 20);
-                            // }
                         });
 
                         $annotationTextBox.addEventListener('blur', e => {
