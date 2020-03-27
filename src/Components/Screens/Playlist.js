@@ -906,33 +906,33 @@ const Playlist = props => {
                            corresponding section on the waveform
                         */
                         $annotationTextBox.addEventListener('click', e => {
-                            if (!sentenceFocus && playMode === 'play') {
-                                ee.emit('stop');
+                            // if (!sentenceFocus && playMode === 'play') {
+                            ee.emit('stop');
 
-                                props.callbacks.changeTrackMode('pause', null, ee);
+                            props.callbacks.changeTrackMode('pause', null, ee);
 
-                                sentenceFocus = true;
+                            sentenceFocus = true;
 
-                                removeAllHighlights();
+                            removeAllHighlights();
 
-                                let $currentClickedSentence = e.path[1];
-                                let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
-                                let cursorPosTime = getCursorPosition();
+                            let $currentClickedSentence = e.path[1];
+                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
+                            let cursorPosTime = getCursorPosition();
 
-                                if (cursorPosTime > startTime && cursorPosTime < endTime) {
-                                    startTime = cursorPosTime;
-                                } else {
-                                    startTime += 0.3;
-                                }
-
-                                scrollToSection(sentenceId);
-
-                                setTimeout(() => {
-                                    setCursor(startTime);
-                                    updateEditorState();
-                                    addSentenceHighlight($currentClickedSentence);
-                                }, 20);
+                            if (cursorPosTime > startTime && cursorPosTime < endTime) {
+                                startTime = cursorPosTime;
+                            } else {
+                                startTime += 0.3;
                             }
+
+                            scrollToSection(sentenceId);
+
+                            setTimeout(() => {
+                                setCursor(startTime);
+                                updateEditorState();
+                                addSentenceHighlight($currentClickedSentence);
+                            }, 20);
+                            // }
                         });
 
                         $annotationTextBox.addEventListener('blur', e => {
