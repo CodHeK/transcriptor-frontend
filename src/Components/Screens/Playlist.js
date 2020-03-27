@@ -309,7 +309,7 @@ const Playlist = props => {
                         for (let idx in $annotations) {
                             let id = parseInt(idx);
                             if (!isNaN(id)) {
-                                if ($annotations[id].classList.length > 1) {
+                                if (Array.from($annotations[id].classList).includes('current')) {
                                     /* 
                                         Auto scroll annotations container
                                     */
@@ -906,8 +906,10 @@ const Playlist = props => {
                            corresponding section on the waveform
                         */
                         $annotationTextBox.addEventListener('click', e => {
-                            if (playMode === 'play') {
+                            if (!sentenceFocus && playMode === 'play') {
                                 ee.emit('stop');
+
+                                props.callbacks.changeTrackMode('pause', null, ee);
 
                                 sentenceFocus = true;
 
@@ -931,6 +933,10 @@ const Playlist = props => {
                                     addSentenceHighlight($currentClickedSentence);
                                 }, 20);
                             }
+                        });
+
+                        $annotationTextBox.addEventListener('blur', e => {
+                            removeAllSectionHighlights();
                         });
                     }
 
@@ -1208,32 +1214,38 @@ const Playlist = props => {
                         if (!$currentHighlighted) $currentHighlighted = $annotations[sentenceIdOnCursor];
 
                         if ($currentHighlighted) {
-                            ee.emit('stop');
-
-                            playMode = 'play';
-                            sentenceFocus = true;
+                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
+                            let cursorPosTime = getCursorPosition();
 
                             let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
                                 'annotation-lines'
                             )[0];
-                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
 
-                            /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
-                            setTimeout(() => $currentAnnotationText.focus(), 0);
+                            if (!(playMode === 'pause' && cursorPosTime - startTime > 0.3)) {
+                                ee.emit('stop');
 
-                            let cursorPosTime = getCursorPosition();
-                            if (cursorPosTime > startTime && cursorPosTime < endTime) {
-                                startTime = cursorPosTime;
-                            } else {
-                                startTime += 0.3;
+                                props.callbacks.changeTrackMode('pause', null, ee);
+
+                                playMode = 'play';
+
+                                let cursorPosTime = getCursorPosition();
+                                if (cursorPosTime > startTime && cursorPosTime < endTime) {
+                                    startTime = cursorPosTime;
+                                } else {
+                                    startTime += 0.3;
+                                }
+
+                                setTimeout(() => {
+                                    setCursor(startTime);
+                                    addSentenceHighlight($currentHighlighted);
+                                }, 20);
                             }
 
                             scrollToSection(sentenceId);
+                            sentenceFocus = true;
 
-                            setTimeout(() => {
-                                setCursor(startTime);
-                                addSentenceHighlight($currentHighlighted);
-                            }, 20);
+                            /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
+                            setTimeout(() => $currentAnnotationText.focus(), 0);
                         }
 
                         updateEditorState();
