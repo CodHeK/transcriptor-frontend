@@ -227,7 +227,7 @@ const Editor = props => {
                 action: () => {} /* delete handled in Playlist.js */,
             },
             {
-                class: 'fas.fa-history.disable',
+                class: 'fas.fa-history',
                 title: 'Revert back',
                 action: () => {} /* Revert back to previous version of sentence */,
             },
