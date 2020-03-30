@@ -5,10 +5,12 @@ import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import '../styles.css';
 
+import dataProvider from '../dataProvider';
+
 const LoginForm = props => {
     /*
-    Defining Hooks for input fields
-  */
+        Defining Hooks for input fields
+    */
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -21,28 +23,6 @@ const LoginForm = props => {
     const styles = LoginFormStyles;
 
     const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
-
-    const logIn = async formData => {
-        const URL = `${process.env.REACT_APP_API_HOST}/api/auth/login`;
-
-        const res = await fetch(URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        });
-
-        const statusCode = res.status;
-
-        if (statusCode === 200) {
-            const data = await res.json();
-            return { data, statusCode };
-        } else {
-            return { statusCode };
-        }
-    };
 
     const authenticateUser = () => {
         // Init authentication
@@ -58,17 +38,23 @@ const LoginForm = props => {
             const formData = { email, password };
 
             // Send email and password values to the backend to authenticate
-            logIn(formData).then(res => {
-                if (res.statusCode === 200) {
-                    const token = res.data.user.token;
-                    localStorage.setItem('token', token);
+            dataProvider
+                .auth('login', {
+                    options: {
+                        data: formData,
+                    },
+                })
+                .then(res => {
+                    if (res.status !== 'error') {
+                        const token = res.data.user.token;
+                        localStorage.setItem('token', token);
 
-                    setFirstName(res.data.user.firstname);
-                    setErrorState({ email: 'correct', password: 'correct' });
-                } else {
-                    setErrorState({ ...errorState, email: 'wrong' });
-                }
-            });
+                        setFirstName(res.data.user.firstname);
+                        setErrorState({ email: 'correct', password: 'correct' });
+                    } else {
+                        setErrorState({ ...errorState, email: 'wrong' });
+                    }
+                });
         }
 
         setLoading(false);

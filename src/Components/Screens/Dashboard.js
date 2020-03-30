@@ -13,7 +13,6 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
 /* import actions */
-
 import { enableEditMode } from '../../actions/TranscriptionActions';
 import { requestSocketAuthentication } from '../../actions/SocketActions';
 
