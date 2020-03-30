@@ -284,6 +284,7 @@ const Playlist = props => {
                         /*
                             Convert the contenteditable in .annotations to textareas
                         */
+                        let idx = 0;
                         for (let $annotation of $annotations) {
                             const $contentEditAbleSpan = $annotation.getElementsByClassName('annotation-lines')[0];
                             const $annotationsActionsDiv = $annotation.getElementsByClassName('annotation-actions')[0];
@@ -296,6 +297,15 @@ const Playlist = props => {
 
                             $annotation.removeChild($contentEditAbleSpan);
                             $annotation.insertBefore($textarea, $annotationsActionsDiv);
+
+                            const $revertIcon = $annotation.getElementsByClassName('fa-history')[0];
+
+                            if (!props.notes[idx].prevText) {
+                                $revertIcon.classList.add('disable');
+                            } else if (props.notes[idx].prevText === props.notes[idx].lines) {
+                                $revertIcon.classList.add('disable');
+                            }
+                            idx++;
                         }
                     };
 

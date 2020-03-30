@@ -77,8 +77,9 @@ const Editor = props => {
                     end: `${endTime}`,
                     id: `${counter}`,
                     language: s.language,
-                    lines: s.text,
+                    lines: s.text /* `lines` key needed for library to display */,
                     sentenceId: s._id,
+                    prevText: s.prevText,
                 });
 
                 counter++;
