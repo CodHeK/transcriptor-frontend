@@ -226,6 +226,11 @@ const Editor = props => {
                 title: 'Delete sentence',
                 action: () => {} /* delete handled in Playlist.js */,
             },
+            {
+                class: 'fas.fa-history.disable',
+                title: 'Revert back',
+                action: () => {} /* Revert back to previous version of sentence */,
+            },
         ],
     };
 

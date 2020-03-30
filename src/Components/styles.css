@@ -623,8 +623,26 @@ footer {
     font-size: 20px;
 }
 
-.fa.fa-times:hover {
+.fas.fa-history {
+    display: none;
+    color: #808080;
+    padding-top: 18px;
+    padding-right: 6px;
+    font-size: 17px;
+}
+
+.fa.fa-times:hover,
+.fas.fa-history:hover {
     color: black !important;
+}
+
+.disable {
+    color: #808080;
+    cursor: not-allowed !important;
+}
+
+.disable:hover {
+    color: #808080;
 }
 
 .flash {

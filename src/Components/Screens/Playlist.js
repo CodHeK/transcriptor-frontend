@@ -113,6 +113,7 @@ const Playlist = props => {
                     let $annotations = document.getElementsByClassName('annotation'); // will change on delete
                     const $timeTicks = Array.from(document.getElementsByClassName('time'));
                     const $sentenceDeleteCrosses = $annotationsTextBoxContainer.getElementsByClassName('fa-times');
+                    const $setenceRevertIcons = $annotationsTextBoxContainer.getElementsByClassName('fa-history');
 
                     let notesCache = props.notes;
                     let prevScroll = 0;
@@ -499,6 +500,15 @@ const Playlist = props => {
                                     }
                                 }
 
+                                if (textChanged) {
+                                    /* 
+                                        Some edit has happened which means
+                                        revert back is allowed now
+                                    */
+                                    const $revertIcon = $sentenceNode.getElementsByClassName('fa-history')[0];
+                                    $revertIcon.classList.remove('disable');
+                                }
+
                                 sentences.push({
                                     sentenceId: props.notes[sentenceId]['sentenceId'],
                                     text,
@@ -738,17 +748,44 @@ const Playlist = props => {
                         return res;
                     };
 
+                    const revertSentence = async sentence_id => {
+                        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts/revert`;
+                        const token = localStorage.getItem('token');
+
+                        const res = await axios({
+                            method: 'POST',
+                            url: URL,
+                            mode: 'cors',
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                            data: {
+                                sentenceId: sentence_id,
+                            },
+                        });
+
+                        return res;
+                    };
+
                     const getEnclosingAnnotationElement = e => {
                         let $element = e.target;
 
                         if ($element.classList[0] !== 'annotation') {
-                            if ($element.classList[0] === 'fa') {
+                            if ($element.classList[0] === 'fa' || $element.classList[0] === 'fas') {
                                 $element = e.path[2];
                             } else {
                                 $element = e.path[1]; // parent which is .annotation
                             }
                         }
                         return $element;
+                    };
+
+                    const updateSentence = args => {
+                        const { $sentence, text } = args;
+
+                        const $textarea = $sentence.getElementsByClassName('annotation-lines')[0];
+
+                        $textarea.value = text;
                     };
 
                     /* 
@@ -959,6 +996,9 @@ const Playlist = props => {
 
                             const $deleteIcon = $element.getElementsByClassName('fa-times')[0];
                             $deleteIcon.style.display = 'block';
+
+                            const $revertIcon = $element.getElementsByClassName('fa-history')[0];
+                            $revertIcon.style.display = 'block';
                         });
 
                         $annotation.addEventListener('mouseout', e => {
@@ -968,6 +1008,9 @@ const Playlist = props => {
 
                             const $deleteIcon = $element.getElementsByClassName('fa-times')[0];
                             $deleteIcon.style.display = 'none';
+
+                            const $revertIcon = $element.getElementsByClassName('fa-history')[0];
+                            $revertIcon.style.display = 'none';
                         });
                     }
 
@@ -1023,6 +1066,50 @@ const Playlist = props => {
                     }
 
                     /* 
+                        Handling sentence Revert backs to 
+                        previous version
+                    */
+                    for (let $eachRevertIcon of $setenceRevertIcons) {
+                        $eachRevertIcon.addEventListener('click', e => {
+                            const $sentence = e.path[2];
+                            const { sentenceId } = getSentenceInfo($sentence);
+
+                            if (!Array.from($eachRevertIcon.classList).includes('disable')) {
+                                const sentence_id = props.notes.filter(each => each.id === sentenceId)[0].sentenceId;
+
+                                revertSentence(sentence_id).then(res => {
+                                    /* 
+                                        1. Update sentence text on UI
+                                        2. add class that disables click on revert icon
+                                        3. add .flash class for highlight on successful revert
+                                    */
+
+                                    updateSentence({
+                                        $sentence,
+                                        text: res.data.sentence.text,
+                                    });
+
+                                    $eachRevertIcon.classList.add('disable');
+                                    $sentence.classList.add('flash');
+
+                                    setTimeout(() => {
+                                        $sentence.classList.remove('flash');
+                                    }, 1500);
+                                });
+                            } else {
+                                dispatch(
+                                    releaseToast({
+                                        id: sentenceId,
+                                        content: 'No previously found edits to revert back to!',
+                                        appearance: 'warning',
+                                        autoDismissTimeout: 3000,
+                                    })
+                                );
+                            }
+                        });
+                    }
+
+                    /* 
                         Handling delete sentence
                     */
                     let undoQueue = [];
@@ -1035,7 +1122,7 @@ const Playlist = props => {
                             const { sentenceId } = getSentenceInfo($sentence);
                             const sentence_id = props.notes.filter(each => each.id === sentenceId)[0].sentenceId;
 
-                            // delete() and add toast saying ctrl + z to undo
+                            /* delete() and add toast saying ctrl + z to undo */
 
                             const $sentencesContainer = e.path[3];
 
