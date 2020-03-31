@@ -212,6 +212,7 @@ const Playlist = props => {
                     };
 
                     const addSentenceHighlight = $element => {
+                        console.log($element);
                         $element.classList.add('current');
                     };
 
@@ -734,25 +735,6 @@ const Playlist = props => {
                         }
                     };
 
-                    const revertSentence = async sentence_id => {
-                        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts/revert`;
-                        const token = localStorage.getItem('token');
-
-                        const res = await axios({
-                            method: 'POST',
-                            url: URL,
-                            mode: 'cors',
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                            data: {
-                                sentenceId: sentence_id,
-                            },
-                        });
-
-                        return res;
-                    };
-
                     const getEnclosingAnnotationElement = e => {
                         let $element = e.target;
 
@@ -912,7 +894,7 @@ const Playlist = props => {
                                 if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                     startTime = cursorPosTime;
                                 } else {
-                                    startTime += 0.0;
+                                    startTime += 0.3;
                                 }
 
                                 $currentAnnotationText.blur();
@@ -954,7 +936,7 @@ const Playlist = props => {
                             if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                 startTime = cursorPosTime;
                             } else {
-                                startTime += 0.0;
+                                startTime += 0.3;
                             }
 
                             scrollToSection(sentenceId);
@@ -1332,7 +1314,7 @@ const Playlist = props => {
                                 if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                     startTime = cursorPosTime;
                                 } else {
-                                    startTime += 0.0;
+                                    startTime += 0.3;
                                 }
 
                                 setTimeout(() => {

@@ -128,7 +128,7 @@ export default {
                         return res;
                     }
                 } catch (e) {
-                    alert("Couldn't CREATE resource!");
+                    alert("Couldn't PUT resource!");
                 }
             },
         },
