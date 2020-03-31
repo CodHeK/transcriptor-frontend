@@ -1,11 +1,7 @@
 const axios = require('axios');
 const apiUrl = `${process.env.REACT_APP_API_HOST}/api`;
-const token = localStorage.getItem('token');
 const defaultOptions = {
     mode: 'cors',
-};
-const defaultHeaders = {
-    Authorization: `Bearer ${token}`,
 };
 
 const statusOK = status => status === 200 || status === 304;
@@ -32,13 +28,13 @@ export default {
     },
     speech: {
         getList: async (resource, params) => {
-            /* resource param only for definition */
+            /* resource argument only for definition */
             try {
                 const res = await axios({
                     method: 'GET',
                     url: `${apiUrl}/speech`,
                     headers: {
-                        ...defaultHeaders,
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                         ...params.headers,
                     },
                     ...defaultOptions,
@@ -46,6 +42,7 @@ export default {
                 });
 
                 if (statusOK(res.status)) {
+                    console.log(res);
                     return res;
                 }
             } catch (e) {
@@ -58,7 +55,7 @@ export default {
                     method: 'GET',
                     url: `${apiUrl}/speech/${params.id}/${resource}`,
                     headers: {
-                        ...defaultHeaders,
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                         ...params.headers,
                     },
                     ...defaultOptions,
@@ -79,7 +76,7 @@ export default {
                     method: 'DELETE',
                     url: `${apiUrl}/speech/${params.id}/${resource}`,
                     headers: {
-                        ...defaultHeaders,
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                         ...params.headers,
                     },
                     ...defaultOptions,
@@ -100,7 +97,7 @@ export default {
                         method: 'POST',
                         url: `${apiUrl}/speech/${params.id}/transcripts/${resource}`,
                         headers: {
-                            ...defaultHeaders,
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
                             ...params.headers,
                         },
                         ...defaultOptions,
@@ -120,7 +117,7 @@ export default {
                         method: 'PUT',
                         url: `${apiUrl}/speech/${params.id}/transcripts/${resource}`,
                         headers: {
-                            ...defaultHeaders,
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
                             ...params.headers,
                         },
                         ...defaultOptions,
