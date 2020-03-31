@@ -8,10 +8,12 @@ const defaultHeaders = {
     Authorization: `Bearer ${token}`,
 };
 
+const statusOK = status => status === 200 || status === 304;
+
 export default {
-    auth: (resource, params) => {
-        return new Promise((resolve, reject) => {
-            axios({
+    auth: async (resource, params) => {
+        try {
+            const res = await axios({
                 method: 'POST',
                 url: `${apiUrl}/auth/${resource}`,
                 headers: {
@@ -19,43 +21,118 @@ export default {
                 },
                 ...defaultOptions,
                 ...params.options,
-            })
-                .then(response => {
-                    return {
-                        status: response.status,
-                        statusText: response.statusText,
-                        data: response.data,
-                    };
-                })
-                .then(({ status, statusText, data }) => {
-                    return resolve({ status, data });
-                })
-                .catch(_ => {
-                    return resolve({ status: 'error' });
-                });
-        });
+            });
+
+            if (statusOK(res.status)) {
+                return res;
+            }
+        } catch (e) {
+            return { success: false, status: 'error' };
+        }
     },
     speech: {
-        getList: params => {
-            // `${process.env.REACT_APP_API_HOST}/api/speech` (ListTranscription.js)
+        getList: async (resource, params) => {
+            /* resource param only for definition */
+            try {
+                const res = await axios({
+                    method: 'GET',
+                    url: `${apiUrl}/speech`,
+                    headers: {
+                        ...defaultHeaders,
+                        ...params.headers,
+                    },
+                    ...defaultOptions,
+                    ...params.options,
+                });
+
+                if (statusOK(res.status)) {
+                    return res;
+                }
+            } catch (e) {
+                alert("Couldn't GET resource!");
+            }
         },
-        getOne: params => {
-            // `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}` (Editor.js)
+        get: async (resource, params) => {
+            try {
+                const res = await axios({
+                    method: 'GET',
+                    url: `${apiUrl}/speech/${params.id}/${resource}`,
+                    headers: {
+                        ...defaultHeaders,
+                        ...params.headers,
+                    },
+                    ...defaultOptions,
+                    ...params.options,
+                });
+
+                if (statusOK(res.status)) {
+                    return res;
+                }
+            } catch (e) {
+                alert("Couldn't GET resource!");
+            }
         },
-        export: params => {
-            // `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/export` (Card.js)
-            // `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}/export` (Editor.js)
-        },
-        delete: (resource, params) => {
-            // `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}` (ListTranscription.js)
+        delete: async (resource, params) => {
+            // `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}` (ListTranscription.js) [MODIFY TO /delete]
+            try {
+                const res = await axios({
+                    method: 'DELETE',
+                    url: `${apiUrl}/speech/${params.id}/${resource}`,
+                    headers: {
+                        ...defaultHeaders,
+                        ...params.headers,
+                    },
+                    ...defaultOptions,
+                    ...params.options,
+                });
+
+                if (statusOK(res.status)) {
+                    return res;
+                }
+            } catch (e) {
+                alert("Couldn't DELETE resource!");
+            }
         },
         transcripts: {
-            create: (resource, params) => {
-                // `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts/revert` (Playlist.js)
-                // `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts/delete` (Playlist.js)
+            create: async (resource, params) => {
+                try {
+                    const res = await axios({
+                        method: 'POST',
+                        url: `${apiUrl}/speech/${params.id}/transcripts/${resource}`,
+                        headers: {
+                            ...defaultHeaders,
+                            ...params.headers,
+                        },
+                        ...defaultOptions,
+                        ...params.options,
+                    });
+
+                    if (statusOK(res.status)) {
+                        return res;
+                    }
+                } catch (e) {
+                    alert("Couldn't CREATE resource!");
+                }
             },
-            update: params => {
-                // `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts` (Playlist.js)
+            update: async (resource, params) => {
+                try {
+                    const res = await axios({
+                        method: 'PUT',
+                        url: `${apiUrl}/speech/${params.id}/transcripts/${resource}`,
+                        headers: {
+                            ...defaultHeaders,
+                            ...params.headers,
+                        },
+                        ...defaultOptions,
+                        ...params.options,
+                    });
+
+                    if (statusOK(res.status)) {
+                        return res;
+                    }
+                } catch (e) {
+                    alert("Couldn't CREATE resource!");
+                }
             },
         },
     },

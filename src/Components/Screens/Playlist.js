@@ -5,6 +5,7 @@ import EventEmitter from 'event-emitter';
 import hotkeys from 'hotkeys-js';
 import $ from 'jquery';
 import '../styles.css';
+import dataProvider from '../dataProvider';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { saveEventEmitter, toggleSaveMode, releaseToast } from '../../actions/TranscriptionActions';
@@ -526,18 +527,12 @@ const Playlist = props => {
                                     endTime,
                                 });
 
-                                const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts`;
-                                const token = localStorage.getItem('token');
-
-                                const res = await axios({
-                                    method: 'PUT',
-                                    url: URL,
-                                    mode: 'cors',
-                                    headers: {
-                                        Authorization: `Bearer ${token}`,
-                                    },
-                                    data: {
-                                        sentences,
+                                const res = await dataProvider.speech.transcripts.update('', {
+                                    id: props._id,
+                                    options: {
+                                        data: {
+                                            sentences,
+                                        },
                                     },
                                 });
 
@@ -676,7 +671,7 @@ const Playlist = props => {
                                 }
                             }
 
-                            let { $currSentence, sentenceId } = findSentence(cursorPos);
+                            let { $currSentence, sentenceId } = cursorPos && findSentence(cursorPos);
 
                             sentenceIdOnCursor = sentenceId;
 
@@ -737,25 +732,6 @@ const Playlist = props => {
 
                             localStorage.setItem('loadSavedState', 'false');
                         }
-                    };
-
-                    const deleteSentence = async sentence_id => {
-                        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/transcripts/delete`;
-                        const token = localStorage.getItem('token');
-
-                        const res = await axios({
-                            method: 'POST',
-                            url: URL,
-                            mode: 'cors',
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                            data: {
-                                sentences: [sentence_id],
-                            },
-                        });
-
-                        return res;
                     };
 
                     const revertSentence = async sentence_id => {
@@ -1087,25 +1063,34 @@ const Playlist = props => {
                             if (!Array.from($eachRevertIcon.classList).includes('disable')) {
                                 const sentence_id = props.notes.filter(each => each.id === sentenceId)[0].sentenceId;
 
-                                revertSentence(sentence_id).then(res => {
-                                    /* 
-                                        1. Update sentence text on UI
-                                        2. add class that disables click on revert icon
-                                        3. add .flash class for highlight on successful revert
-                                    */
+                                dataProvider.speech.transcripts
+                                    .create('revert', {
+                                        id: props._id,
+                                        options: {
+                                            data: {
+                                                sentenceId: sentence_id,
+                                            },
+                                        },
+                                    })
+                                    .then(res => {
+                                        /* 
+                                            1. Update sentence text on UI
+                                            2. add class that disables click on revert icon
+                                            3. add .flash class for highlight on successful revert
+                                        */
 
-                                    updateSentence({
-                                        $sentence,
-                                        text: res.data.sentence.text,
+                                        updateSentence({
+                                            $sentence,
+                                            text: res.data.sentence.text,
+                                        });
+
+                                        $eachRevertIcon.classList.add('disable');
+                                        $sentence.classList.add('flash');
+
+                                        setTimeout(() => {
+                                            $sentence.classList.remove('flash');
+                                        }, 1500);
                                     });
-
-                                    $eachRevertIcon.classList.add('disable');
-                                    $sentence.classList.add('flash');
-
-                                    setTimeout(() => {
-                                        $sentence.classList.remove('flash');
-                                    }, 1500);
-                                });
                             } else {
                                 dispatch(
                                     releaseToast({
@@ -1155,16 +1140,25 @@ const Playlist = props => {
                             );
 
                             let undoTimeout = setTimeout(() => {
-                                deleteSentence(sentence_id).then(res => {
-                                    if (res.data.success) {
-                                        console.log('Sentence deleted on server!');
+                                dataProvider.speech.transcripts
+                                    .create('delete', {
+                                        id: props._id,
+                                        options: {
+                                            data: {
+                                                sentences: [sentence_id],
+                                            },
+                                        },
+                                    })
+                                    .then(res => {
+                                        if (res.data.success) {
+                                            console.log('Sentence deleted on server!');
 
-                                        if (undoQueue.length > 0) {
-                                            undoQueue.shift();
-                                            undoSet.delete(sentenceId);
+                                            if (undoQueue.length > 0) {
+                                                undoQueue.shift();
+                                                undoSet.delete(sentenceId);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
                             }, UNDO_TIME);
 
                             undoQueue.push({

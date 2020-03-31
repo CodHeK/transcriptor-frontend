@@ -7,6 +7,8 @@ import { Checkbox } from 'semantic-ui-react';
 import $ from 'jquery';
 import '../styles.css';
 
+import dataProvider from '../dataProvider';
+
 import Loader from 'react-loader-spinner';
 import { ToastProvider } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
@@ -88,19 +90,12 @@ const Editor = props => {
         };
 
         if (transcriptionId !== null) {
-            const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}`;
-            const token = localStorage.getItem('token');
-
-            fetch(URL, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then(res => res.json())
-                .then(data => {
-                    const { uploadedFile, sentences } = data.speech;
+            dataProvider.speech
+                .get('', {
+                    id: transcriptionId,
+                })
+                .then(res => {
+                    const { uploadedFile, sentences } = res.data.speech;
 
                     const notes = processSentances(sentences);
 
@@ -132,27 +127,24 @@ const Editor = props => {
     };
 
     const downloadTranscript = fileInfo => {
-        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}/export`;
-        const token = localStorage.getItem('token');
-
         const time = moment(fileInfo.createdAt).format('LT');
         const date = moment(fileInfo.createdAt).format('LL');
 
-        axios({
-            url: URL,
-            method: 'GET',
-            responseType: 'blob', // important
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }).then(response => {
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `${fileInfo.originalname}_${date}_${time}.zip`); //or any other extension
-            document.body.appendChild(link);
-            link.click();
-        });
+        dataProvider.speech
+            .get('export', {
+                id: transcriptionId,
+                options: {
+                    responseType: 'blob',
+                },
+            })
+            .then(res => {
+                const url = window.URL.createObjectURL(new Blob([res.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${fileInfo.originalname}_${date}_${time}.zip`); // or any other extension
+                document.body.appendChild(link);
+                link.click();
+            });
     };
 
     const toggleAutoSave = () => {

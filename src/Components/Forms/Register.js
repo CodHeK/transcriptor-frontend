@@ -4,6 +4,8 @@ import InputError from '../Error/FormField';
 import '../styles.css';
 import tick from '../../images/tick.svg';
 
+import dataProvider from '../dataProvider';
+
 const RegisterForm = () => {
     /*
     Defining Hooks for input fields
@@ -25,21 +27,6 @@ const RegisterForm = () => {
         });
 
         const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
-
-        const register = async formData => {
-            const URL = `${process.env.REACT_APP_API_HOST}/api/auth/register`;
-
-            const res = await fetch(URL, {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            return await res.json();
-        };
 
         const authenticateUser = () => {
             // Init authentication
@@ -64,13 +51,19 @@ const RegisterForm = () => {
                 const formData = { firstname, lastname, email, password };
 
                 // Send formData to the backend to authenticate
-                register(formData).then(res => {
-                    if (res.success) {
-                        setRegistered(true);
-                    } else {
-                        alert(res.data); // show in toast instead of alert() box
-                    }
-                });
+                dataProvider
+                    .auth('register', {
+                        options: {
+                            data: formData,
+                        },
+                    })
+                    .then(res => {
+                        if (res.success) {
+                            setRegistered(true);
+                        } else {
+                            alert('Error registering user!'); // show in toast instead of alert() box
+                        }
+                    });
             }
 
             setLoading(false);

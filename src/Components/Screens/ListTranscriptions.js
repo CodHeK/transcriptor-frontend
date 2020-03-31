@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import CustomCard from '../Utils/Card';
+import dataProvider from '../dataProvider';
 
 /* import react-redux hook for getting state */
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,41 +28,25 @@ const ListTranscriptions = () => {
     const handleSubTabClick = (e, { name }) => setSubPage(name);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
         if (transcriptionId != null) {
-            const DELETE_URL = `${process.env.REACT_APP_API_HOST}/api/speech/${transcriptionId}`;
-            fetch(DELETE_URL, {
-                method: 'DELETE',
-                mode: 'cors',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data);
+            dataProvider.speech
+                .delete('', {
+                    id: transcriptionId,
+                })
+                .then(res => {
+                    console.log('Deleted transcript!');
                 });
 
             dispatch(setTranscriptionId(null));
         }
 
-        const URL = `${process.env.REACT_APP_API_HOST}/api/speech`;
-
         setTimeout(() => {
-            fetch(URL, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then(res => res.json())
-                .then(data => {
-                    const list = data.speeches;
+            dataProvider.speech.getList('transcriptions', {}).then(res => {
+                const list = res.data.speeches;
 
-                    setTranscriptionList(list);
-                    setCardLoaded(true);
-                });
+                setTranscriptionList(list);
+                setCardLoaded(true);
+            });
         }, 500);
     }, [transcriptionId]);
 
