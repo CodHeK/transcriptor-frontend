@@ -491,6 +491,8 @@ body ::-webkit-scrollbar-track {
 }
 
 .annotation-lines:focus {
+    outline-style: dashed;
+    outline-width: 2.5px;
     cursor: auto;
 }
 
@@ -568,7 +570,12 @@ body ::-webkit-scrollbar-track {
 }
 
 .playlist .annotations .current {
+    border: 1px solid black;
+}
+
+.playlist .annotations .current-selected {
     background-color: #ebf4f6;
+    transition: background-color 0.3s;
 }
 
 .playlist .annotations .current-hover {

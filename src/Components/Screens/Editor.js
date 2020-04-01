@@ -296,7 +296,7 @@ const Editor = props => {
                                         onClick={() => downloadTranscript(fileInfo)}
                                     >
                                         {/* Download Transcript */}
-                                        <i class="far fa-save"></i>
+                                        <i className="far fa-save"></i>
                                     </span>
                                 </div>
                                 <div className="btn-group right">
