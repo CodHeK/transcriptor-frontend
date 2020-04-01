@@ -574,14 +574,30 @@ body ::-webkit-scrollbar-track {
     border: 1px solid black;
 }
 
-.playlist .annotations .current-selected .current-editing {
-    background-color: transparent !important;
-    transition: background-color 0.5s;
+.playlist .annotations .current-editing {
+    animation: editmode-switch 0.3s forwards;
+}
+
+@keyframes editmode-switch {
+    0% {
+        background-color: #ebf4f6;
+    }
+    100% {
+        background-color: transparent;
+    }
 }
 
 .playlist .annotations .current-selected {
-    background-color: #ebf4f6;
-    transition: background-color 0.3s;
+    animation: sentence-switch 0.3s forwards;
+}
+
+@keyframes sentence-switch {
+    0% {
+        background-color: white;
+    }
+    100% {
+        background-color: #ebf4f6;
+    }
 }
 
 .playlist .annotations .current-hover {
