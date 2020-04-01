@@ -574,6 +574,11 @@ body ::-webkit-scrollbar-track {
     border: 1px solid black;
 }
 
+.playlist .annotations .current-selected .current-editing {
+    background-color: transparent !important;
+    transition: background-color 0.5s;
+}
+
 .playlist .annotations .current-selected {
     background-color: #ebf4f6;
     transition: background-color 0.3s;

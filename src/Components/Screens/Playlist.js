@@ -923,6 +923,8 @@ const Playlist = props => {
                                     'annotation-lines'
                                 )[0];
 
+                                $currentHighlighted.classList.remove('current-editing');
+
                                 let { startTime, endTime } = getSentenceInfo($currentHighlighted);
                                 let cursorPosTime = getCursorPosition();
 
@@ -1346,6 +1348,9 @@ const Playlist = props => {
                                 'annotation-lines'
                             )[0];
 
+                            $currentHighlighted.classList.remove('current-selected');
+                            $currentHighlighted.classList.add('current-editing');
+
                             if (!(nextPlayMode === 'pause' && cursorPosTime - startTime > 0.3)) {
                                 ee.emit('stop');
 
@@ -1362,7 +1367,6 @@ const Playlist = props => {
 
                                 setTimeout(() => {
                                     setCursor(startTime);
-                                    addSentenceHighlight($currentHighlighted);
                                 }, 20);
                             }
 
