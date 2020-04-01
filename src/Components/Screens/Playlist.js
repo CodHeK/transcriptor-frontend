@@ -972,6 +972,9 @@ const Playlist = props => {
                             let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
                             let cursorPosTime = getCursorPosition();
 
+                            $currentClickedSentence.classList.add('current-editing');
+                            $currentClickedSentence.classList.remove('current-hover');
+
                             currentHighlightedSentence = sentenceId - 1;
 
                             if (cursorPosTime > startTime && cursorPosTime < endTime) {
@@ -986,7 +989,6 @@ const Playlist = props => {
                                 console.log('st ', startTime);
                                 setCursor(startTime);
                                 updateEditorState();
-                                addSentenceHighlight($currentClickedSentence);
                             }, 20);
                         });
 
