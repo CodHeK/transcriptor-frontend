@@ -638,10 +638,6 @@ const Playlist = props => {
 
                                     console.log('START TIME : ', startTime, ' CURSOR POS : ', cursorPos);
 
-                                    // if (cursorPos > startTime && cursorPos < endTime) {
-                                    //     startTime = cursorPos; // when paused in between
-                                    // }
-
                                     startTime = Math.max(startTime, cursorPos);
 
                                     console.log('CHOSEN START TIME : ', startTime);
@@ -657,7 +653,7 @@ const Playlist = props => {
                                     nextPlayMode = 'play';
                                 }
 
-                                setTimeout(() => addSentenceHighlight($currentHighlighted), 50);
+                                // setTimeout(() => addSentenceHighlight($currentHighlighted), 50);
                             }
                         } else {
                             // play / pause in complete track
