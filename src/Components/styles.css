@@ -508,6 +508,7 @@ body ::-webkit-scrollbar-track {
     align-items: stretch;
     padding-bottom: 1em;
     border-radius: 5px;
+    height: auto;
 }
 
 .playlist .annotations .annotations-text .annotation span {

@@ -38,6 +38,12 @@ const Playlist = props => {
             ? JSON.parse(localStorage.getItem('editorState')).zoomLevel
             : 1000);
 
+    /* 
+        setInterval objects
+    */
+    let cursorUpdate = null;
+    let autoSave = null;
+
     useEffect(() => {
         let playlist = WaveformPlaylist.init(
             {
@@ -91,12 +97,6 @@ const Playlist = props => {
 
                     let ee = playlist.getEventEmitter();
                     dispatch(saveEventEmitter(ee));
-
-                    /* 
-                        setInterval objects
-                    */
-                    let cursorUpdate = null;
-                    let autoSave = null;
 
                     /* 
                         Elements & Variables
@@ -636,14 +636,23 @@ const Playlist = props => {
                                     const cursorPos = getCursorPosition();
                                     let { startTime, endTime } = getSentenceInfo($currentHighlighted);
 
-                                    if (cursorPos > startTime && cursorPos < endTime) {
-                                        startTime = cursorPos; // when paused in between
-                                    }
+                                    console.log('START TIME : ', startTime, ' CURSOR POS : ', cursorPos);
+
+                                    // if (cursorPos > startTime && cursorPos < endTime) {
+                                    //     startTime = cursorPos; // when paused in between
+                                    // }
+
+                                    startTime = Math.max(startTime, cursorPos);
+
+                                    console.log('CHOSEN START TIME : ', startTime);
 
                                     ee.emit('play', startTime, endTime);
                                     nextPlayMode = 'pause';
                                 } else {
                                     // currently track is playing
+                                    const cursorPos = getCursorPosition();
+                                    console.log('CURSOR STOPPED AT : ', cursorPos);
+
                                     ee.emit('pause');
                                     nextPlayMode = 'play';
                                 }
@@ -681,6 +690,10 @@ const Playlist = props => {
                             });
                         }
                     }, 500);
+
+                    setInterval(() => {
+                        console.log(currentHighlightedSentence, ' curr');
+                    }, 100);
 
                     cursorUpdate = setInterval(() => {
                         if (!keyBoard) {
@@ -724,7 +737,7 @@ const Playlist = props => {
                             annotationsContainerScroll: $annotationsTextBoxContainer.scrollTop,
                             cursorPos: $cursor.style.left,
                             currentHighlightedSentenceId: sentenceId,
-                            sentenceInFocus: keyBoard,
+                            inEditMode: editMode,
                             zoomLevel: zoomLevels[currZoomLevel],
                         };
                         localStorage.setItem('editorState', JSON.stringify(currEditorState));
@@ -745,11 +758,11 @@ const Playlist = props => {
                             let sentenceId = prevState.currentHighlightedSentenceId;
 
                             sentenceId && addSentenceHighlight($annotations[sentenceId - 1]);
-                            keyBoard = prevState.sentenceInFocus;
+                            editMode = prevState.inEditMode;
                             const prevZoomLevel = prevState.zoomLevel;
                             currZoomLevel = zoomLevels.indexOf(prevZoomLevel);
 
-                            if (keyBoard) {
+                            if (editMode) {
                                 let $currentAnnotationText = $annotations[sentenceId - 1].getElementsByClassName(
                                     'annotation-lines'
                                 )[0];
@@ -1122,10 +1135,6 @@ const Playlist = props => {
                         });
                     }
 
-                    setInterval(() => {
-                        console.log(currentHighlightedSentence, ' curr');
-                    }, 100);
-
                     /* 
                         Handling delete sentence
                     */
@@ -1394,6 +1403,11 @@ const Playlist = props => {
                     });
                 });
         }, 100);
+
+        return () => {
+            clearInterval(cursorUpdate);
+            clearInterval(autoSave);
+        };
     }, []);
 
     const PLaylistGhostLoader = () => {

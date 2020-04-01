@@ -123,6 +123,7 @@ const Editor = props => {
         localStorage.setItem('subpage', 'My Transcriptions');
         localStorage.setItem('loadSavedState', 'false');
 
+        $('#waveform-playlist-container').unbind();
         document.getElementById('waveform-playlist-container').remove();
     };
 
