@@ -131,8 +131,9 @@ const Playlist = props => {
                     let sentenceIdOnCursor = 0;
                     let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
                     let nextPlayMode = 'play';
-                    let keyBoard = false,
-                        editMode = false;
+                    let keyBoardMode = false,
+                        editMode = false,
+                        sentenceSectionMode = false;
 
                     let currentHighlightedSentence = -1;
 
@@ -625,47 +626,63 @@ const Playlist = props => {
                         }
                     };
 
+                    let TIMER = null;
+
                     const cueTrack = () => {
-                        if (editMode) {
-                            // play / pause inside sentence
+                        if (editMode || sentenceSectionMode) {
+                            /* 
+                                play / pause inside sentence or sentence section click
+                            */
+
                             let $currentHighlighted = getCurrentHighlightedElement();
 
                             if ($currentHighlighted) {
                                 if (nextPlayMode === 'play') {
-                                    // currently track paused
+                                    clearTimeout(TIMER);
+
+                                    /* 
+                                        currently track paused
+                                    */
                                     const cursorPos = getCursorPosition();
                                     let { startTime, endTime } = getSentenceInfo($currentHighlighted);
 
-                                    console.log('START TIME : ', startTime, ' CURSOR POS : ', cursorPos);
-
                                     startTime = Math.max(startTime, cursorPos);
 
-                                    console.log('CHOSEN START TIME : ', startTime);
+                                    TIMER = setTimeout(() => {
+                                        sentenceSectionMode = false;
+                                    }, (endTime - startTime) * 1000);
 
                                     ee.emit('play', startTime, endTime);
                                     nextPlayMode = 'pause';
                                 } else {
-                                    // currently track is playing
+                                    /* 
+                                        currently track is playing
+                                    */
                                     const cursorPos = getCursorPosition();
-                                    console.log('CURSOR STOPPED AT : ', cursorPos);
 
                                     ee.emit('pause');
                                     nextPlayMode = 'play';
-                                }
 
-                                // setTimeout(() => addSentenceHighlight($currentHighlighted), 50);
+                                    clearTimeout(TIMER);
+                                }
                             }
                         } else {
-                            // play / pause in complete track
+                            /* 
+                                play / pause in complete track
+                            */
 
                             if (nextPlayMode === 'play') {
-                                // currently track paused
+                                /* 
+                                    currently track paused
+                                */
                                 const cursorPos = getCursorPosition(); // returns time at which the cursor is.
 
                                 ee.emit('play', cursorPos);
                                 nextPlayMode = 'pause';
                             } else {
-                                // currently track is playing
+                                /* 
+                                    currently track is playing
+                                */
                                 ee.emit('pause');
                                 nextPlayMode = 'play';
                             }
@@ -685,32 +702,33 @@ const Playlist = props => {
                                 }
                             });
                         }
-                    }, 500);
+                    }, 1000);
 
-                    setInterval(() => {
-                        console.log(currentHighlightedSentence, ' curr');
-                    }, 100);
+                    // setInterval(() => {
+                    //     console.log(currentHighlightedSentence, ' curr');
+                    // }, 100);
+
+                    const scrollOnCursorLimit = cursorPos => {
+                        let relativeFirstTick = parseInt($timeTicks[0].style.left);
+                        let relativeFirstTickTime = timeStringToFloat('00:' + $timeTicks[0].innerText);
+
+                        let cursorPosFromStart = relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
+
+                        if (cursorPosFromStart >= cursorLimit) {
+                            $waveform.scrollTo({ left: prevScroll + cursorLimit, top: 0, behavior: 'smooth' });
+                        }
+                    };
 
                     cursorUpdate = setInterval(() => {
-                        if (!keyBoard) {
+                        let globalNextPlayMode = null;
+                        if (localStorage.getItem('globalNextPlayMode')) {
+                            globalNextPlayMode = localStorage.getItem('globalNextPlayMode');
+                            nextPlayMode = globalNextPlayMode;
+                        }
+                        if (nextPlayMode === 'pause') {
                             let cursorPos = getCursorPosition();
 
-                            /* 
-                                nextPlayMode denotes the next possible 
-                                state of the player. If nextPlayMode is 'pause' 
-                                it is currently playing the track.
-                            */
-                            if (nextPlayMode === 'pause') {
-                                let relativeFirstTick = parseInt($timeTicks[0].style.left);
-                                let relativeFirstTickTime = timeStringToFloat('00:' + $timeTicks[0].innerText);
-
-                                let cursorPosFromStart =
-                                    relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
-
-                                if (cursorPosFromStart >= cursorLimit) {
-                                    $waveform.scrollTo({ left: prevScroll + cursorLimit, top: 0, behavior: 'smooth' });
-                                }
-                            }
+                            scrollOnCursorLimit(cursorPos);
 
                             let { $currSentence, sentenceId } = cursorPos && findSentence(cursorPos);
 
@@ -718,7 +736,7 @@ const Playlist = props => {
                         }
 
                         localStorage.setItem('cursorPos', getCursorPosition());
-                    }, 1000);
+                    }, 500);
 
                     const updateEditorState = () => {
                         let $currentHighlighted = getCurrentHighlightedElement();
@@ -924,7 +942,7 @@ const Playlist = props => {
                                 let { startTime, endTime } = getSentenceInfo($currentHighlighted);
                                 let cursorPosTime = getCursorPosition();
 
-                                keyBoard = true;
+                                keyBoardMode = true;
                                 editMode = false;
 
                                 removeAllSectionHighlights();
@@ -959,7 +977,7 @@ const Playlist = props => {
                             props.callbacks.changeTrackMode('pause', null, ee);
 
                             nextPlayMode = 'play';
-                            keyBoard = false;
+                            keyBoardMode = false;
                             editMode = true;
 
                             removeAllHighlights();
@@ -1045,6 +1063,7 @@ const Playlist = props => {
                             currentHighlightedSentence = sentenceId - 1;
 
                             nextPlayMode = 'pause';
+                            sentenceSectionMode = true;
 
                             props.callbacks.changeTrackMode('play', null, ee);
 
@@ -1290,7 +1309,7 @@ const Playlist = props => {
 
                     hotkeys('down', (e, handler) => {
                         e.preventDefault();
-                        keyBoard = true;
+                        keyBoardMode = true;
                         editMode = false;
 
                         const { $prevSentenceNode } = moveDown();
@@ -1310,7 +1329,7 @@ const Playlist = props => {
 
                     hotkeys('up', (e, handler) => {
                         e.preventDefault();
-                        keyBoard = true;
+                        keyBoardMode = true;
                         editMode = false;
 
                         const { $prevSentenceNode } = moveUp();
@@ -1369,7 +1388,7 @@ const Playlist = props => {
                             }
 
                             scrollToSection(sentenceId);
-                            keyBoard = true;
+                            keyBoardMode = true;
 
                             /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
                             setTimeout(() => $currentAnnotationText.focus(), 0);
@@ -1381,6 +1400,7 @@ const Playlist = props => {
                     hotkeys('ctrl+p', (e, handler) => {
                         e.preventDefault();
 
+                        localStorage.removeItem('globalNextPlayMode');
                         cueTrack();
 
                         updateEditorState();

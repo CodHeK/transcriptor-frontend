@@ -170,12 +170,18 @@ const Editor = props => {
                     startTime = parseFloat(localStorage.getItem('cursorPos'));
                 }
                 setTrackMode(mode);
-                !keyBoardMode && e.emit(mode, startTime);
+                if (!keyBoardMode) {
+                    e.emit(mode, startTime);
+                    localStorage.setItem('globalNextPlayMode', 'pause');
+                }
                 break;
 
             case 'pause':
                 setTrackMode(mode);
-                !keyBoardMode && e.emit(mode);
+                if (!keyBoardMode) {
+                    e.emit(mode);
+                    localStorage.setItem('globalNextPlayMode', 'play');
+                }
                 break;
 
             case 'stop':
@@ -183,11 +189,15 @@ const Editor = props => {
                 break;
 
             case 'mute':
+                /* 
+                    Mute / un-mute by virtually clicking `mute` button
+                    from library's control panel mute button
+                    check styles.css line 765
+                */
                 $playListMuteButton = document.getElementsByClassName('btn-mute')[0];
                 $playListMuteButton.click();
 
                 setMute(true);
-                e.emit(mode, args.track);
                 break;
 
             case 'un-mute':
@@ -195,7 +205,6 @@ const Editor = props => {
                 $playListMuteButton.click();
 
                 setMute(false);
-                e.emit('mute', args.track);
                 break;
 
             default:
@@ -259,30 +268,30 @@ const Editor = props => {
                                     <span
                                         title={trackMode === 'pause' ? 'play' : 'pause'}
                                         className="btn-play-pause btn btn-default editor-controls"
+                                        onClick={() => toggleTrackModes(trackMode === 'pause' ? 'play' : 'pause')}
                                     >
                                         {trackMode === 'pause' ? (
-                                            <i className="fa fa-play" onClick={() => toggleTrackModes('play')}></i>
+                                            <i className="fa fa-play"></i>
                                         ) : (
-                                            <i className="fa fa-pause" onClick={() => toggleTrackModes('pause')}></i>
+                                            <i className="fa fa-pause"></i>
                                         )}
                                     </span>
-                                    <span title="stop" className="btn-stop btn btn-default editor-controls">
-                                        <i className="fa fa-stop" onClick={() => toggleTrackModes('stop')}></i>
+                                    <span
+                                        title="stop"
+                                        className="btn-stop btn btn-default editor-controls"
+                                        onClick={() => toggleTrackModes('stop')}
+                                    >
+                                        <i className="fa fa-stop"></i>
                                     </span>
                                     <span
                                         title={mute ? 'un-mute' : 'mute'}
                                         className="btn-toggle-mute btn btn-default editor-controls"
+                                        onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
                                     >
                                         {!mute ? (
-                                            <i
-                                                className="fa fa-volume-up"
-                                                onClick={() => toggleTrackModes('mute', { track: 'main-track' })}
-                                            ></i>
+                                            <i className="fa fa-volume-up"></i>
                                         ) : (
-                                            <i
-                                                className="fa fa-volume-mute"
-                                                onClick={() => toggleTrackModes('un-mute', { track: 'main-track' })}
-                                            ></i>
+                                            <i className="fa fa-volume-mute"></i>
                                         )}
                                     </span>
                                     <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
