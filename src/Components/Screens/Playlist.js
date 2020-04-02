@@ -276,8 +276,6 @@ const Playlist = props => {
                             annotationBoxHeights
                         );
 
-                        console.log(topSentenceId, bottomSentenceId);
-
                         scrollPoints.clear();
                         scrollPoints.add(topSentenceId);
                         scrollPoints.add(bottomSentenceId);
@@ -421,7 +419,7 @@ const Playlist = props => {
                         return null;
                     };
 
-                    const getCursorPosition = () => {
+                    const getTimeAtCursorPosition = () => {
                         let cursorPos = parseInt($cursor.style.left);
                         let stopTime = parseFloat(cursorPos / oneSecond);
 
@@ -491,86 +489,97 @@ const Playlist = props => {
                         const sentences = [];
 
                         if ($sentenceNode !== null) {
-                            let { sentenceId, text, startTime, endTime } = getSentenceInfo($sentenceNode);
+                            const info = getSentenceInfo($sentenceNode);
+                            if (info) {
+                                let { sentenceId, text, startTime, endTime } = info;
 
-                            sentenceId -= 1; // convert to zero based indexing
+                                sentenceId -= 1; // convert to zero based indexing
 
-                            const { currStartTimeChanged, currEndTimeChanged, textChanged } = diffExists(
-                                sentenceId,
-                                text,
-                                startTime,
-                                endTime
-                            );
+                                const { currStartTimeChanged, currEndTimeChanged, textChanged } = diffExists(
+                                    sentenceId,
+                                    text,
+                                    startTime,
+                                    endTime
+                                );
 
-                            if (currStartTimeChanged || currEndTimeChanged || textChanged) {
-                                dispatch(toggleSaveMode(true));
+                                if (currStartTimeChanged || currEndTimeChanged || textChanged) {
+                                    dispatch(toggleSaveMode(true));
 
-                                if (sentenceId === 0 && $annotations[sentenceId + 1] && props.notes[sentenceId + 1]) {
-                                    let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId + 1]);
-                                    sentences.push({
-                                        sentenceId: props.notes[sentenceId + 1]['sentenceId'],
-                                        text,
-                                        startTime,
-                                        endTime,
-                                    });
-                                } else if (
-                                    sentenceId === $annotations.length - 1 &&
-                                    $annotations[sentenceId - 1] &&
-                                    props.notes[sentenceId - 1]
-                                ) {
-                                    let { text, startTime, endTime } = getSentenceInfo($annotations[sentenceId - 1]);
-                                    sentences.push({
-                                        sentenceId: props.notes[sentenceId - 1]['sentenceId'],
-                                        text,
-                                        startTime,
-                                        endTime,
-                                    });
-                                } else {
-                                    if ($annotations[sentenceId + 1] && $annotations[sentenceId - 1]) {
-                                        let { sentenceId: prevId, ...prevSentenceData } = getSentenceInfo(
+                                    if (
+                                        sentenceId === 0 &&
+                                        $annotations[sentenceId + 1] &&
+                                        props.notes[sentenceId + 1]
+                                    ) {
+                                        let { text, startTime, endTime } = getSentenceInfo(
                                             $annotations[sentenceId + 1]
                                         );
                                         sentences.push({
                                             sentenceId: props.notes[sentenceId + 1]['sentenceId'],
-                                            ...prevSentenceData,
+                                            text,
+                                            startTime,
+                                            endTime,
                                         });
-
-                                        let { sentenceId: nextId, ...nextSentenceData } = getSentenceInfo(
+                                    } else if (
+                                        sentenceId === $annotations.length - 1 &&
+                                        $annotations[sentenceId - 1] &&
+                                        props.notes[sentenceId - 1]
+                                    ) {
+                                        let { text, startTime, endTime } = getSentenceInfo(
                                             $annotations[sentenceId - 1]
                                         );
                                         sentences.push({
                                             sentenceId: props.notes[sentenceId - 1]['sentenceId'],
-                                            ...nextSentenceData,
+                                            text,
+                                            startTime,
+                                            endTime,
                                         });
+                                    } else {
+                                        if ($annotations[sentenceId + 1] && $annotations[sentenceId - 1]) {
+                                            let { sentenceId: prevId, ...prevSentenceData } = getSentenceInfo(
+                                                $annotations[sentenceId + 1]
+                                            );
+                                            sentences.push({
+                                                sentenceId: props.notes[sentenceId + 1]['sentenceId'],
+                                                ...prevSentenceData,
+                                            });
+
+                                            let { sentenceId: nextId, ...nextSentenceData } = getSentenceInfo(
+                                                $annotations[sentenceId - 1]
+                                            );
+                                            sentences.push({
+                                                sentenceId: props.notes[sentenceId - 1]['sentenceId'],
+                                                ...nextSentenceData,
+                                            });
+                                        }
                                     }
-                                }
 
-                                if (textChanged) {
-                                    /* 
-                                        Some edit has happened which means
-                                        revert back is allowed now
-                                    */
-                                    const $revertIcon = $sentenceNode.getElementsByClassName('fa-history')[0];
-                                    $revertIcon.classList.remove('disable');
-                                }
+                                    if (textChanged) {
+                                        /* 
+                                            Some edit has happened which means
+                                            revert back is allowed now
+                                        */
+                                        const $revertIcon = $sentenceNode.getElementsByClassName('fa-history')[0];
+                                        $revertIcon.classList.remove('disable');
+                                    }
 
-                                sentences.push({
-                                    sentenceId: props.notes[sentenceId]['sentenceId'],
-                                    text,
-                                    startTime,
-                                    endTime,
-                                });
+                                    sentences.push({
+                                        sentenceId: props.notes[sentenceId]['sentenceId'],
+                                        text,
+                                        startTime,
+                                        endTime,
+                                    });
 
-                                const res = await dataProvider.speech.transcripts.update('', {
-                                    id: props._id,
-                                    options: {
-                                        data: {
-                                            sentences,
+                                    const res = await dataProvider.speech.transcripts.update('', {
+                                        id: props._id,
+                                        options: {
+                                            data: {
+                                                sentences,
+                                            },
                                         },
-                                    },
-                                });
+                                    });
 
-                                return res;
+                                    return res;
+                                }
                             }
                         }
                         return null;
@@ -644,7 +653,7 @@ const Playlist = props => {
                                     /* 
                                         currently track paused
                                     */
-                                    const cursorPos = getCursorPosition();
+                                    const cursorPos = getTimeAtCursorPosition();
                                     let { startTime, endTime } = getSentenceInfo($currentHighlighted);
 
                                     startTime = Math.max(startTime, cursorPos);
@@ -659,7 +668,7 @@ const Playlist = props => {
                                     /* 
                                         currently track is playing
                                     */
-                                    const cursorPos = getCursorPosition();
+                                    const cursorPos = getTimeAtCursorPosition();
 
                                     ee.emit('pause');
                                     nextPlayMode = 'play';
@@ -676,7 +685,7 @@ const Playlist = props => {
                                 /* 
                                     currently track paused
                                 */
-                                const cursorPos = getCursorPosition(); // returns time at which the cursor is.
+                                const cursorPos = getTimeAtCursorPosition(); // returns time at which the cursor is.
 
                                 ee.emit('play', cursorPos);
                                 nextPlayMode = 'pause';
@@ -727,7 +736,7 @@ const Playlist = props => {
                             nextPlayMode = globalNextPlayMode;
                         }
                         if (nextPlayMode === 'pause') {
-                            let cursorPos = getCursorPosition();
+                            let cursorPos = getTimeAtCursorPosition();
 
                             scrollOnCursorLimit(cursorPos);
 
@@ -736,7 +745,7 @@ const Playlist = props => {
                             if (sentenceId) currentHighlightedSentence = sentenceId - 1;
                         }
 
-                        localStorage.setItem('cursorPos', getCursorPosition());
+                        localStorage.setItem('cursorPos', getTimeAtCursorPosition());
                     }, 500);
 
                     const updateEditorState = () => {
@@ -811,6 +820,14 @@ const Playlist = props => {
                         $textarea.value = text;
                     };
 
+                    const updateCursorOnZoom = prevTime => {
+                        setTimeout(() => {
+                            oneSecond = oneSecondinPx();
+                            updateEditorState();
+                            setCursor(prevTime);
+                        }, 50);
+                    };
+
                     /* 
                         Playlist initialization method calls
                         and calculations done here
@@ -826,23 +843,17 @@ const Playlist = props => {
                     $zoomIn.on('click', e => {
                         ee.emit('zoomin');
                         currZoomLevel = Math.min(zoomLevels.length - 1, currZoomLevel + 1);
+                        const prevTime = getTimeAtCursorPosition();
 
-                        setTimeout(() => {
-                            oneSecond = oneSecondinPx();
-                            updateEditorState();
-                            console.log(oneSecond);
-                        }, 50);
+                        updateCursorOnZoom(prevTime);
                     });
 
                     $zoomOut.on('click', e => {
                         ee.emit('zoomout');
                         currZoomLevel = Math.max(0, currZoomLevel - 1);
+                        const prevTime = getTimeAtCursorPosition();
 
-                        setTimeout(() => {
-                            oneSecond = oneSecondinPx();
-                            updateEditorState();
-                            console.log(oneSecond);
-                        }, 50);
+                        updateCursorOnZoom(prevTime);
                     });
 
                     for (let $annotationTextBox of $annotationsTextBoxes) {
@@ -941,7 +952,7 @@ const Playlist = props => {
                                 $currentHighlighted.classList.remove('current-editing');
 
                                 let { startTime, endTime } = getSentenceInfo($currentHighlighted);
-                                let cursorPosTime = getCursorPosition();
+                                let cursorPosTime = getTimeAtCursorPosition();
 
                                 keyBoardMode = true;
                                 editMode = false;
@@ -951,7 +962,7 @@ const Playlist = props => {
                                 if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                     startTime = cursorPosTime;
                                 } else {
-                                    startTime += 0.3;
+                                    startTime += 0.1;
                                 }
 
                                 $currentAnnotationText.blur();
@@ -985,7 +996,7 @@ const Playlist = props => {
 
                             let $currentClickedSentence = e.path[1];
                             let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
-                            let cursorPosTime = getCursorPosition();
+                            let cursorPosTime = getTimeAtCursorPosition();
 
                             $currentClickedSentence.classList.add('current-editing');
                             $currentClickedSentence.classList.remove('current-hover');
@@ -995,7 +1006,7 @@ const Playlist = props => {
                             if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                 startTime = cursorPosTime;
                             } else {
-                                startTime += 0.3;
+                                startTime += 0.1;
                             }
 
                             scrollToSection(sentenceId);
@@ -1075,7 +1086,7 @@ const Playlist = props => {
                                 scrollToSection(sentenceId);
 
                                 setTimeout(() => {
-                                    setCursor(startTime + 0.3);
+                                    setCursor(startTime + 0.1);
                                     addSentenceHighlight($currentElement);
                                 }, (endTime - startTime + 0.1) * 1000);
                             }
@@ -1360,7 +1371,7 @@ const Playlist = props => {
                             editMode = true;
 
                             let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
-                            let cursorPosTime = getCursorPosition();
+                            let cursorPosTime = getTimeAtCursorPosition();
 
                             currentHighlightedSentence = sentenceId - 1;
 
@@ -1371,18 +1382,18 @@ const Playlist = props => {
                             $currentHighlighted.classList.remove('current-selected');
                             $currentHighlighted.classList.add('current-editing');
 
-                            if (!(nextPlayMode === 'pause' && cursorPosTime - startTime > 0.3)) {
+                            if (!(nextPlayMode === 'pause' && cursorPosTime - startTime > 0.1)) {
                                 ee.emit('stop');
 
                                 props.callbacks.changeTrackMode('pause', null, ee);
 
                                 nextPlayMode = 'play';
 
-                                let cursorPosTime = getCursorPosition();
+                                let cursorPosTime = getTimeAtCursorPosition();
                                 if (cursorPosTime > startTime && cursorPosTime < endTime) {
                                     startTime = cursorPosTime;
                                 } else {
-                                    startTime += 0.3;
+                                    startTime += 0.1;
                                 }
 
                                 setTimeout(() => {
