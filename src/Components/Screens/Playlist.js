@@ -320,6 +320,7 @@ const Playlist = props => {
                             $textarea.style.height = $textarea.scrollHeight + 15 + 'px';
                             $textarea.style.overflow = 'hidden';
                         }
+                        updateAnnotations();
                     };
 
                     const resizeAnnotation = $annotationTextBox => {
@@ -1187,6 +1188,7 @@ const Playlist = props => {
                             $sentenceSectionBox.style.display = 'none';
 
                             updateAnnotations();
+                            calcSentenceScrollEndPoints();
 
                             dispatch(
                                 releaseToast({
@@ -1303,6 +1305,7 @@ const Playlist = props => {
 
                                 removeToast(sentenceId);
                                 updateAnnotations();
+                                calcSentenceScrollEndPoints();
                             }
                         }
                     });
