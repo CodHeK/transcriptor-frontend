@@ -589,7 +589,7 @@ body ::-webkit-scrollbar-track {
 }
 
 .playlist .annotations .current-selected {
-    animation: sentence-switch 0.3s forwards;
+    animation: sentence-switch 0.2s forwards;
 }
 
 @keyframes sentence-switch {

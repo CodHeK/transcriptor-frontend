@@ -104,6 +104,7 @@ const Playlist = props => {
                     const $zoomOut = $('.btn-zoom-out');
                     const $zoomIn = $('.btn-zoom-in');
                     const $waveform = $('.playlist-tracks')[0];
+                    const $waveform1 = document.getElementsByClassName('playlist-tracks')[0];
                     const $annotationsTextBoxContainer = document.getElementsByClassName('annotations-text')[0];
                     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
                     const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
@@ -134,6 +135,9 @@ const Playlist = props => {
                     let keyBoardMode = false,
                         editMode = false,
                         sentenceSectionMode = false;
+
+                    let timeMap = new Map();
+                    let timeList = [];
 
                     let currentHighlightedSentence = -1;
 
@@ -172,6 +176,11 @@ const Playlist = props => {
                     };
 
                     let oneSecond = oneSecondinPx();
+
+                    for (let $tick of $timeTicks) {
+                        timeMap.set(timeStringToFloat('00:' + $tick.innerText), parseInt($tick.style.left));
+                        timeList.push(timeStringToFloat('00:' + $tick.innerText));
+                    }
 
                     /* 
                         Unsubscribe to all event listeners
@@ -433,6 +442,23 @@ const Playlist = props => {
                         cursorPos += offset;
 
                         $cursor.style.left = cursorPos.toString() + 'px';
+                    };
+
+                    const setCursor1 = time => {
+                        const delta = parseFloat(time) - parseInt(time);
+                        const offset = delta * oneSecond;
+                        const idx = lower_bound(parseInt(time), timeList);
+                        let nearestIntegerTimeTick = timeList[idx];
+
+                        if (nearestIntegerTimeTick > parseInt(time)) {
+                            nearestIntegerTimeTick = timeList[idx - 1];
+                        }
+
+                        const pos = timeMap.get(nearestIntegerTimeTick);
+
+                        // console.log(pos + offset, pos, offset, oneSecond, nearestIntegerTimeTick, delta);
+
+                        $cursor.style.left = pos + offset + 25 + 'px';
                     };
 
                     const setCursor = time => {
