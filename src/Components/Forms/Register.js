@@ -5,6 +5,7 @@ import '../styles.css';
 import tick from '../../images/tick.svg';
 
 import dataProvider from '../dataProvider';
+import { useToasts } from 'react-toast-notifications';
 
 const RegisterForm = () => {
     /*
@@ -25,6 +26,8 @@ const RegisterForm = () => {
             email: null,
             password: null,
         });
+
+        const { addToast } = useToasts();
 
         const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
@@ -62,7 +65,11 @@ const RegisterForm = () => {
                             if (res.data.success) {
                                 setRegistered(true);
                             } else {
-                                alert(res.data.message); // show in toast instead of alert() box
+                                addToast(res.data.message, {
+                                    autoDismiss: true,
+                                    appearance: 'error',
+                                    autoDismissTimeout: 3000,
+                                });
                             }
                         } else {
                             alert("Couldn't register user, please try again!");

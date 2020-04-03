@@ -3,6 +3,7 @@ import 'semantic-ui-css/semantic.min.css';
 import { Grid } from 'semantic-ui-react';
 import LoginForm from './Components/Forms/Login';
 import RegisterForm from './Components/Forms/Register';
+import { ToastProvider } from 'react-toast-notifications';
 
 const App = () => {
     const styles = AppStyles;
@@ -21,13 +22,15 @@ const App = () => {
     localStorage.clear();
 
     return (
-        <div className="App">
-            <Grid columns={3}>
-                <Grid.Column></Grid.Column>
-                <Grid.Column style={styles.FormContainer}>{Form}</Grid.Column>
-                <Grid.Column></Grid.Column>
-            </Grid>
-        </div>
+        <ToastProvider placement={'top-right'}>
+            <div className="App">
+                <Grid columns={3}>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column style={styles.FormContainer}>{Form}</Grid.Column>
+                    <Grid.Column></Grid.Column>
+                </Grid>
+            </div>
+        </ToastProvider>
     );
 };
 
