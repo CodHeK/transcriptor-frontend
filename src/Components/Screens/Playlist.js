@@ -93,7 +93,7 @@ const Playlist = props => {
                     $('.playlist-toolbar').show();
                     $('#waveform-playlist-container').show();
 
-                    setPlaylistLoaded(false);
+                    setPlaylistLoaded(true);
 
                     let ee = playlist.getEventEmitter();
                     dispatch(saveEventEmitter(ee));
