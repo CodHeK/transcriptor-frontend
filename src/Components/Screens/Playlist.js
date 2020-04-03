@@ -93,7 +93,7 @@ const Playlist = props => {
                     $('.playlist-toolbar').show();
                     $('#waveform-playlist-container').show();
 
-                    setPlaylistLoaded(true);
+                    setPlaylistLoaded(false);
 
                     let ee = playlist.getEventEmitter();
                     dispatch(saveEventEmitter(ee));
@@ -1478,42 +1478,52 @@ const Playlist = props => {
     }, []);
 
     const PLaylistGhostLoader = () => {
-        const ListGhostLoader = props => {
-            let ghostSentences = [];
+        const AnnotationGhost = props => {
+            let ghostAnnotation = [];
             for (let i = 0; i < props.count; i++) {
-                ghostSentences.push(
-                    <li className="sentence-ghost" key={i}>
-                        <Skeleton width={1000} height={50} />
+                ghostAnnotation.push(
+                    <li className="list-ghost" key={i}>
+                        <span className="row-ghost">
+                            <Skeleton width={15} height={20} />
+                        </span>
+                        <span className="row-ghost">
+                            <Skeleton width={84} height={20} />
+                        </span>
+                        <span className="row-ghost">
+                            <Skeleton width={84} height={20} />
+                        </span>
+                        <span className="row-ghost">
+                            <Skeleton width={800} height={65} />
+                        </span>
                     </li>
                 );
             }
-            return ghostSentences;
+            return ghostAnnotation;
         };
 
         return (
             <React.Fragment>
                 <div className="toolbar-ghost">
-                    <Skeleton width={400} height={35} />
+                    <Skeleton width={400} height={40} />
+                    <span className="autosave-ghost">
+                        <Skeleton width={180} height={40} />
+                    </span>
                 </div>
                 <div className="waveform-ghost">
-                    <Skeleton height={148} />
+                    <Skeleton height={130} />
                 </div>
                 <ul className="sentence-ghost-container">
-                    <ListGhostLoader count={10} />
+                    <AnnotationGhost count={10} />
                 </ul>
             </React.Fragment>
         );
     };
 
-    if (playlistLoaded) {
-        return <React.Fragment></React.Fragment>;
-    } else {
-        return (
-            <React.Fragment>
-                <PLaylistGhostLoader />
-            </React.Fragment>
-        );
+    if (!playlistLoaded) {
+        return <PLaylistGhostLoader />;
     }
+
+    return <></>;
 };
 
 export default Playlist;

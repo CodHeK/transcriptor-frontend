@@ -250,13 +250,21 @@ body ::-webkit-scrollbar-track {
     width: 100%;
 }
 
-.sentence-ghost {
+.list-ghost {
     list-style: none;
     margin-top: 1em;
     left: 0;
     margin-left: -2.8em;
 }
 
+.row-ghost {
+    margin: 0 1em 0 1em;
+}
+
+.autosave-ghost {
+    position: absolute;
+    right: 12px;
+}
 /* 
     Dashboard styles (Dasboard.js)
 */
