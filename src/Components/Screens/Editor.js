@@ -127,10 +127,21 @@ const Editor = props => {
         document.getElementById('waveform-playlist-container').remove();
     };
 
-    const downloadTranscript = fileInfo => {
+    const createLinkForDownload = (url, type) => {
         const time = moment(fileInfo.createdAt).format('LT');
         const date = moment(fileInfo.createdAt).format('LL');
 
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${fileInfo.originalname}_${date}_${time}.${type}`); // or any other extension
+        document.body.appendChild(link);
+        link.click();
+    };
+
+    const downloadTranscriptAndAudio = fileInfo => {
+        /* 
+            Downloading transcripts and audio
+        */
         dataProvider.speech
             .get('export', {
                 id: transcriptionId,
@@ -139,12 +150,17 @@ const Editor = props => {
                 },
             })
             .then(res => {
-                const url = window.URL.createObjectURL(new Blob([res.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', `${fileInfo.originalname}_${date}_${time}.zip`); // or any other extension
-                document.body.appendChild(link);
-                link.click();
+                createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
+                return true;
+            })
+            .then(res => {
+                if (res) {
+                    console.log(fileInfo, res);
+                    createLinkForDownload(
+                        `${process.env.REACT_APP_API_HOST}/${fileInfo.path}`,
+                        fileInfo.mimetype.split('/')[1]
+                    );
+                }
             });
     };
 
@@ -303,7 +319,7 @@ const Editor = props => {
                                     <span
                                         title="export audio & transcript"
                                         className="btn-download btn btn-default editor-controls"
-                                        onClick={() => downloadTranscript(fileInfo)}
+                                        onClick={() => downloadTranscriptAndAudio(fileInfo)}
                                     >
                                         {/* Download Transcript */}
                                         <i className="far fa-save"></i>

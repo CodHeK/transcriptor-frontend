@@ -42,7 +42,6 @@ export default {
                 });
 
                 if (statusOK(res.status)) {
-                    console.log(res);
                     return res;
                 }
             } catch (e) {

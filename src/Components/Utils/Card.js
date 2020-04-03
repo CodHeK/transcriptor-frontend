@@ -3,6 +3,7 @@ import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/reac
 import { Card, Dropdown } from 'semantic-ui-react';
 import ConfirmationModal from './ConfirmationModal';
 import PropTypes from 'prop-types';
+import dataProvider from '../dataProvider';
 import '../styles.css';
 
 /* import react-redux hook for dispatching actions */
@@ -78,25 +79,37 @@ const CustomCard = props => {
         }
     };
 
-    const downloadTranscript = () => {
-        const URL = `${process.env.REACT_APP_API_HOST}/api/speech/${props._id}/export`;
-        const token = localStorage.getItem('token');
+    const createLinkForDownload = (url, type) => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${props.filename}_${date}_${time}.${type}`); // or any other extension
+        document.body.appendChild(link);
+        link.click();
+    };
 
-        axios({
-            url: URL,
-            method: 'GET',
-            responseType: 'blob', // important
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }).then(response => {
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `${props.filename}_${date}_${time}.zip`); //or any other extension
-            document.body.appendChild(link);
-            link.click();
-        });
+    const downloadTranscriptAndAudio = () => {
+        /* 
+            Downloading transcripts and audio
+        */
+        dataProvider.speech
+            .get('export', {
+                id: props._id,
+                options: {
+                    responseType: 'blob',
+                },
+            })
+            .then(res => {
+                createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
+                return true;
+            })
+            .then(res => {
+                if (res) {
+                    createLinkForDownload(
+                        `${process.env.REACT_APP_API_HOST}/${props.path}`,
+                        props.mimeType.split('/')[1]
+                    );
+                }
+            });
     };
 
     const Status = props => {
@@ -141,7 +154,7 @@ const CustomCard = props => {
             if ($statusLoader) $statusLoader.style.display = 'none';
             return (
                 <React.Fragment>
-                    <i className="fas fa-download" onClick={downloadTranscript}></i>
+                    <i className="fas fa-download" onClick={downloadTranscriptAndAudio}></i>
                     <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />
                 </React.Fragment>
             );

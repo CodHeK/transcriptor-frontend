@@ -88,6 +88,7 @@ const ListTranscriptions = () => {
         props.list.map((each, key) => {
             const data = {
                 _id: each._id,
+                path: each.uploadedFile.path,
                 uploadedFileId: each.uploadedFile._id,
                 filename: each.uploadedFile.originalname,
                 createdAt: each.createdAt,
