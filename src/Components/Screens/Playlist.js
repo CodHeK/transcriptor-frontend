@@ -706,7 +706,6 @@ const Playlist = props => {
                             /* 
                                 play / pause in complete track
                             */
-
                             if (nextPlayMode === 'play') {
                                 /* 
                                     currently track paused

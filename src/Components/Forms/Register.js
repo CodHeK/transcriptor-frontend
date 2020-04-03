@@ -58,10 +58,14 @@ const RegisterForm = () => {
                         },
                     })
                     .then(res => {
-                        if (res.success) {
-                            setRegistered(true);
+                        if (res) {
+                            if (res.status !== 'error') {
+                                setRegistered(true);
+                            } else {
+                                alert(res.status); // show in toast instead of alert() box
+                            }
                         } else {
-                            alert(res.data); // show in toast instead of alert() box
+                            alert("Couldn't register user, please try again!");
                         }
                     });
             }
