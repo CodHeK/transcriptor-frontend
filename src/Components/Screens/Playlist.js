@@ -686,6 +686,7 @@ const Playlist = props => {
 
                                     TIMER = setTimeout(() => {
                                         sentenceSectionMode = false;
+                                        // setCursor(endTime);
                                     }, (endTime - startTime) * 1000);
 
                                     ee.emit('play', startTime, endTime);
@@ -1282,7 +1283,12 @@ const Playlist = props => {
                         playing from clicked point on track
                     */
                     $waveformTrack.addEventListener('click', () => {
-                        $cursor.style.left = $selectionPoint.style.left;
+                        setTimeout(() => {
+                            $cursor.style.left = $selectionPoint.style.left;
+                            // console.log('doing');
+                            // cueTrack();
+                            // nextPlayMode = 'pause';
+                        }, 10);
 
                         updateEditorState();
                     });
