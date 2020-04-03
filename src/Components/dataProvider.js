@@ -8,8 +8,8 @@ const statusOK = status => status === 200 || status === 304;
 
 export default {
     auth: async (resource, params) => {
-        try {
-            const res = await axios({
+        return new Promise((resolve, reject) => {
+            axios({
                 method: 'POST',
                 url: `${apiUrl}/auth/${resource}`,
                 headers: {
@@ -17,14 +17,14 @@ export default {
                 },
                 ...defaultOptions,
                 ...params.options,
-            });
-
-            if (statusOK(res.status)) {
-                return res;
-            }
-        } catch (e) {
-            return { success: false, status: 'error' };
-        }
+            })
+                .then(res => {
+                    return resolve(res);
+                })
+                .catch(err => {
+                    return resolve(err.response);
+                });
+        });
     },
     speech: {
         getList: async (resource, params) => {

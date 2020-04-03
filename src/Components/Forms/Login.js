@@ -45,7 +45,7 @@ const LoginForm = props => {
                     },
                 })
                 .then(res => {
-                    if (res.status !== 'error') {
+                    if (res.status === 200) {
                         const token = res.data.user.token;
                         localStorage.setItem('token', token);
 
