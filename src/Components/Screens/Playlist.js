@@ -14,6 +14,48 @@ import { useToasts } from 'react-toast-notifications';
 const WaveformPlaylist = require('waveform-playlist');
 const axios = require('axios');
 
+const PLaylistGhostLoader = () => {
+    const AnnotationGhost = props => {
+        let ghostAnnotation = [];
+        for (let i = 0; i < props.count; i++) {
+            ghostAnnotation.push(
+                <li className="list-ghost" key={i}>
+                    <span className="row-ghost">
+                        <Skeleton width={15} height={20} />
+                    </span>
+                    <span className="row-ghost">
+                        <Skeleton width={84} height={20} />
+                    </span>
+                    <span className="row-ghost">
+                        <Skeleton width={84} height={20} />
+                    </span>
+                    <span className="row-ghost">
+                        <Skeleton width={800} height={65} />
+                    </span>
+                </li>
+            );
+        }
+        return ghostAnnotation;
+    };
+
+    return (
+        <React.Fragment>
+            <div className="toolbar-ghost">
+                <Skeleton width={400} height={40} />
+                <span className="autosave-ghost">
+                    <Skeleton width={180} height={40} />
+                </span>
+            </div>
+            <div className="waveform-ghost">
+                <Skeleton height={130} />
+            </div>
+            <ul className="sentence-ghost-container">
+                <AnnotationGhost count={10} />
+            </ul>
+        </React.Fragment>
+    );
+};
+
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
 
@@ -103,7 +145,6 @@ const Playlist = props => {
                     const $zoomOut = $('.btn-zoom-out');
                     const $zoomIn = $('.btn-zoom-in');
                     const $waveform = $('.playlist-tracks')[0];
-                    const $waveform1 = document.getElementsByClassName('playlist-tracks')[0];
                     const $annotationsTextBoxContainer = document.getElementsByClassName('annotations-text')[0];
                     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
                     const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
@@ -661,7 +702,8 @@ const Playlist = props => {
                         }
                     };
 
-                    let TIMER = null;
+                    let TIMER = null,
+                        SECTION_TIMER = null;
 
                     const cueTrack = () => {
                         if (editMode || sentenceSectionMode) {
@@ -685,8 +727,8 @@ const Playlist = props => {
 
                                     TIMER = setTimeout(() => {
                                         sentenceSectionMode = false;
-                                        // setCursor(endTime);
-                                    }, (endTime - startTime) * 1000);
+                                        setCursor(startTime + 0.1);
+                                    }, (endTime - startTime + 0.1) * 1000);
 
                                     ee.emit('play', startTime, endTime);
                                     nextPlayMode = 'pause';
@@ -700,6 +742,7 @@ const Playlist = props => {
                                     nextPlayMode = 'play';
 
                                     clearTimeout(TIMER);
+                                    clearTimeout(SECTION_TIMER);
                                 }
                             }
                         } else {
@@ -1110,7 +1153,7 @@ const Playlist = props => {
                                 scrollToSentence(sentenceId);
                                 scrollToSection(sentenceId);
 
-                                setTimeout(() => {
+                                SECTION_TIMER = setTimeout(() => {
                                     setCursor(startTime + 0.1);
                                     addSentenceHighlight($currentElement);
                                 }, (endTime - startTime + 0.1) * 1000);
@@ -1475,48 +1518,6 @@ const Playlist = props => {
             clearInterval(autoSave);
         };
     }, []);
-
-    const PLaylistGhostLoader = () => {
-        const AnnotationGhost = props => {
-            let ghostAnnotation = [];
-            for (let i = 0; i < props.count; i++) {
-                ghostAnnotation.push(
-                    <li className="list-ghost" key={i}>
-                        <span className="row-ghost">
-                            <Skeleton width={15} height={20} />
-                        </span>
-                        <span className="row-ghost">
-                            <Skeleton width={84} height={20} />
-                        </span>
-                        <span className="row-ghost">
-                            <Skeleton width={84} height={20} />
-                        </span>
-                        <span className="row-ghost">
-                            <Skeleton width={800} height={65} />
-                        </span>
-                    </li>
-                );
-            }
-            return ghostAnnotation;
-        };
-
-        return (
-            <React.Fragment>
-                <div className="toolbar-ghost">
-                    <Skeleton width={400} height={40} />
-                    <span className="autosave-ghost">
-                        <Skeleton width={180} height={40} />
-                    </span>
-                </div>
-                <div className="waveform-ghost">
-                    <Skeleton height={130} />
-                </div>
-                <ul className="sentence-ghost-container">
-                    <AnnotationGhost count={10} />
-                </ul>
-            </React.Fragment>
-        );
-    };
 
     if (!playlistLoaded) {
         return <PLaylistGhostLoader />;

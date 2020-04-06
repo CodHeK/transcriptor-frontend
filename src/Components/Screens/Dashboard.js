@@ -4,7 +4,7 @@ import { Dropdown, Menu, Segment, Container } from 'semantic-ui-react';
 import ListTranscriptions from './ListTranscriptions';
 import Upload from './Upload';
 import Editor from './Editor';
-import ReSpeak from './ReSpeak';
+import ReSpeakEditor from './ReSpeakEditor';
 import logo from '../../images/ntu-logo.png';
 import PropTypes from 'prop-types';
 import '../styles.css';
@@ -94,7 +94,7 @@ const Dashboard = props => {
                 subPage = <Editor _id={editId} subPageCallback={page => setPage(page)} />;
                 break;
             case 'Re-speak':
-                subPage = <ReSpeak _id={respeakId} subPageCallback={page => setPage(page)} />;
+                subPage = <ReSpeakEditor _id={respeakId} subPageCallback={page => setPage(page)} />;
                 break;
             default:
                 return;

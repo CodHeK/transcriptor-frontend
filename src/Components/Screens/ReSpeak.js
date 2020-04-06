@@ -1,191 +1,222 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
-import Loader from 'react-loader-spinner';
-import Skeleton from 'react-loading-skeleton';
-import { ToastProvider } from 'react-toast-notifications';
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import { Label } from 'semantic-ui-react';
-import dataProvider from '../dataProvider';
+import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
+import EventEmitter from 'event-emitter';
 import $ from 'jquery';
 import '../styles.css';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { disableReSpeakMode, setTranscriptionIdForReSpeak } from '../../actions/TranscriptionActions';
+import { useDispatch } from 'react-redux';
+import { saveEventEmitter } from '../../actions/TranscriptionActions';
 
-const Empty = () => (
-    <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
-        No file selected for Re-speaking, go to 'My Transcriptions' to select a file!
-    </h3>
-);
+const WaveformPlaylist = require('waveform-playlist');
+
+const PLaylistGhostLoader = () => {
+    return (
+        <React.Fragment>
+            <div className="toolbar-ghost">
+                <Skeleton width={400} height={40} />
+                <span className="autosave-ghost">
+                    <Skeleton width={180} height={40} />
+                </span>
+            </div>
+            <div className="waveform-ghost">
+                <Skeleton height={130} />
+            </div>
+        </React.Fragment>
+    );
+};
 
 const ReSpeak = props => {
-    const [transcriptionId, setTranscriptionId] = useState(null);
-    const [transcript, setTranscript] = useState(null);
-    const [fileInfo, setFileInfo] = useState(null);
+    const [trackLoaded, setTrackLoaded] = useState(false);
 
-    let dispatch = useDispatch();
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        let _id = null;
+        let playlist = WaveformPlaylist.init(
+            {
+                container: document.getElementById('waveform-playlist-container-respeak'),
+                timescale: true,
+                state: 'cursor',
+                colors: {
+                    waveOutlineColor: 'white',
+                    timeColor: 'grey',
+                    fadeColor: 'black',
+                },
+                annotationList: {
+                    annotations: props.notes,
+                    controls: [],
+                    editable: true,
+                    isContinuousPlay: false,
+                    linkEndpoints: false,
+                },
+                seekStyle: 'line',
+                samplesPerPixel: 1000,
+                waveHeight: 100,
+                zoomLevels: [200, 300, 400, 500, 1000, 1500, 1600, 1700, 1800],
+                options: {
+                    isAutomaticScroll: false,
+                },
+                controls: {
+                    /* 
+                        Controls display is set to none,
+                        only used to click() the mute button using JS
+                    */
+                    show: true,
+                    width: 0,
+                },
+            },
+            EventEmitter()
+        );
 
-        if (localStorage.getItem('reSpeakConfig') !== null) {
-            const config = JSON.parse(localStorage.getItem('reSpeakConfig'));
+        let cursorUpdate = null;
 
-            _id = config._id;
-        } else {
-            _id = props._id;
-        }
+        setTimeout(() => {
+            playlist
+                .load([
+                    {
+                        src: `${process.env.REACT_APP_API_HOST}/${props.fileInfo.path}`,
+                        muted: false,
+                    },
+                ])
+                .then(function() {
+                    $('.playlist-toolbar').show();
+                    $('#waveform-playlist-container-respeak').show();
 
-        setTranscriptionId(_id);
-    }, [props._id]);
+                    const $annotationsContainer = document.getElementsByClassName('annotations-text')[0];
+                    $annotationsContainer.style.visibility = 'hidden';
 
-    useEffect(() => {
-        $('.playlist-toolbar').hide();
-        $('#waveform-playlist-container').hide();
+                    setTrackLoaded(true);
 
-        const processSentances = sentences => {
-            let notes = [],
-                counter = 1;
-            for (let s of sentences) {
-                let startime = s.startTime;
-                let endTime = s.endTime;
+                    let ee = playlist.getEventEmitter();
+                    dispatch(saveEventEmitter(ee));
 
-                notes.push({
-                    begin: `${startime}`,
-                    end: `${endTime}`,
-                    id: `${counter}`,
-                    language: s.language,
-                    lines: s.text /* `lines` key needed for library to display */,
-                    sentenceId: s._id,
-                    prevText: s.prevText,
+                    clearInterval(cursorUpdate);
+
+                    const $waveform = $('.playlist-tracks')[0];
+                    const $cursor = document.getElementsByClassName('cursor')[0];
+                    const $timeTicks = Array.from(document.getElementsByClassName('time'));
+                    const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
+                    const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
+                    const $waveformTrack = document.getElementsByClassName('waveform')[0];
+                    const $selectionPoint = document.getElementsByClassName('point')[0];
+
+                    let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
+                    let nextPlayMode = 'play';
+                    let prevScroll = 0;
+
+                    const timeStringToFloat = time => {
+                        let [hours, minutes, seconds] = time.split(':').map(unit => parseFloat(unit));
+
+                        let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+                        return totalSeconds;
+                    };
+
+                    const unitTimeOfMeasure = () => {
+                        return (
+                            $timeTicks &&
+                            timeStringToFloat('00:' + $timeTicks[1].innerText) -
+                                timeStringToFloat('00:' + $timeTicks[0].innerText)
+                        );
+                    };
+
+                    let unitTime = null;
+
+                    const oneSecondinPx = () => {
+                        unitTime = unitTimeOfMeasure();
+                        return (
+                            $timeTicks &&
+                            (parseInt($timeTicks[1].style.left) - parseInt($timeTicks[0].style.left) + 1.0) / unitTime
+                        );
+                    };
+
+                    let oneSecond = oneSecondinPx();
+
+                    const scrollOnCursorLimit = cursorPos => {
+                        let relativeFirstTick = parseInt($timeTicks[0].style.left);
+                        let relativeFirstTickTime = timeStringToFloat('00:' + $timeTicks[0].innerText);
+
+                        let cursorPosFromStart = relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
+
+                        if (cursorPosFromStart >= cursorLimit - 30) {
+                            $waveform.scrollTo({ left: prevScroll + cursorLimit, top: 0, behavior: 'smooth' });
+                        }
+                    };
+
+                    const getTimeAtCursorPosition = () => {
+                        let cursorPos = parseInt($cursor.style.left);
+                        let stopTime = parseFloat(cursorPos / oneSecond);
+
+                        return stopTime;
+                    };
+
+                    const addSectionHighlight = $element => {
+                        $element.classList.add('section-highlight');
+                    };
+
+                    const removeSectionHighlight = $element => {
+                        $element.classList.remove('section-highlight');
+                    };
+
+                    const removeAllSectionHighlights = () => {
+                        Array.from($sentenceSectionBoxes).map($e => removeSectionHighlight($e));
+                    };
+
+                    $waveform.addEventListener('scroll', e => {
+                        e.preventDefault();
+
+                        prevScroll = $waveform.scrollLeft;
+                    });
+
+                    cursorUpdate = setInterval(() => {
+                        let globalNextPlayMode = null;
+                        if (localStorage.getItem('globalNextPlayMode')) {
+                            globalNextPlayMode = localStorage.getItem('globalNextPlayMode');
+                            nextPlayMode = globalNextPlayMode;
+                        }
+                        if (nextPlayMode === 'pause') {
+                            let cursorPos = getTimeAtCursorPosition();
+
+                            scrollOnCursorLimit(cursorPos);
+                        }
+
+                        localStorage.setItem('cursorPos', getTimeAtCursorPosition());
+                    }, 500);
+
+                    /* 
+                        Set point on track to start
+                        playing from clicked point on track
+                    */
+                    $waveformTrack.addEventListener('click', () => {
+                        setTimeout(() => {
+                            $cursor.style.left = $selectionPoint.style.left;
+                        }, 10);
+                    });
+
+                    for (let $sectionBox of $sentenceSectionBoxes) {
+                        $sectionBox.addEventListener('click', e => {
+                            e.preventDefault();
+
+                            removeAllSectionHighlights();
+                            const sentenceId = parseInt(e.srcElement.innerText);
+                            addSectionHighlight($sectionBox);
+
+                            nextPlayMode = 'pause';
+                            props.callbacks.changeTrackMode('play', null, ee);
+                        });
+                    }
                 });
 
-                counter++;
-            }
-            return notes;
-        };
+            return () => {
+                clearInterval(cursorUpdate);
+            };
+        }, 100);
+    }, []);
 
-        if (transcriptionId !== null) {
-            dataProvider.speech
-                .get('', {
-                    id: transcriptionId,
-                })
-                .then(res => {
-                    const { uploadedFile, sentences } = res.data.speech;
+    if (!trackLoaded) {
+        return <PLaylistGhostLoader />;
+    }
 
-                    const notes = processSentances(sentences);
-
-                    setFileInfo(uploadedFile);
-                    setTranscript(notes);
-                });
-        }
-    }, [transcriptionId]);
-
-    const closeReSpeakEditor = e => {
-        /* 
-            Close all editor related modes
-            and remove items from localStorage
-        */
-        localStorage.removeItem('reSpeakConfig');
-
-        dispatch(disableReSpeakMode());
-        dispatch(setTranscriptionIdForReSpeak(null));
-
-        /* Transition back to 'My Transcriptions' page */
-        props.subPageCallback('My Transcriptions');
-        localStorage.setItem('subpage', 'My Transcriptions');
-
-        $('#waveform-playlist-container-respeak').unbind();
-        document.getElementById('waveform-playlist-container-respeak').remove();
-    };
-
-    return (
-        <ToastProvider placement={'bottom-left'}>
-            <React.Fragment>
-                {transcriptionId === null ? (
-                    <Empty />
-                ) : (
-                    <React.Fragment>
-                        {fileInfo !== null ? (
-                            <div id="playlist-info">
-                                <Label as="a" color="red" ribbon>
-                                    {fileInfo.originalname}
-                                </Label>
-                            </div>
-                        ) : (
-                            <Skeleton width={300} height={35} />
-                        )}
-                        <span className="close-editor" onClick={closeReSpeakEditor}>
-                            {!false ? (
-                                <i className="fas fa-times back"></i>
-                            ) : (
-                                <Loader type="TailSpin" color="gray" height={20} width={20} />
-                            )}
-                        </span>
-                        <div id="top-bar" className="playlist-top-bar">
-                            <div className="playlist-toolbar">
-                                <div className="btn-group"></div>
-                                <div className="btn-group">
-                                    {/* <span
-                                        title={trackMode === 'pause' ? 'play' : 'pause'}
-                                        className="btn-play-pause btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes(trackMode === 'pause' ? 'play' : 'pause')}
-                                    >
-                                        {trackMode === 'pause' ? (
-                                            <i className="fa fa-play"></i>
-                                        ) : (
-                                            <i className="fa fa-pause"></i>
-                                        )}
-                                    </span>
-                                    <span
-                                        title="stop"
-                                        className="btn-stop btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes('stop')}
-                                    >
-                                        <i className="fa fa-stop"></i>
-                                    </span>
-                                    <span
-                                        title={mute ? 'un-mute' : 'mute'}
-                                        className="btn-toggle-mute btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
-                                    >
-                                        {!mute ? (
-                                            <i className="fa fa-volume-up"></i>
-                                        ) : (
-                                            <i className="fa fa-volume-mute"></i>
-                                        )}
-                                    </span>
-                                    <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
-                                        <i className="fa fa-search-plus"></i>
-                                    </span>
-                                    <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
-                                        <i className="fa fa-search-minus"></i>
-                                    </span>
-                                    <span
-                                        title="export audio & transcript"
-                                        className="btn-download btn btn-default editor-controls"
-                                        onClick={() => downloadTranscriptAndAudio(fileInfo)}
-                                    >
-                                        <i className="far fa-save"></i>
-                                    </span> */}
-                                </div>
-                                {/* <div className="btn-group right">
-                                    <Checkbox
-                                        className="auto-save"
-                                        checked={autoSave}
-                                        toggle
-                                        label={`Autosave: ${autoSave ? 'ON' : 'OFF'}`}
-                                        onChange={toggleAutoSave}
-                                    />
-                                </div> */}
-                            </div>
-                            <div id="waveform-playlist-container-respeak"></div>
-                        </div>
-                    </React.Fragment>
-                )}
-            </React.Fragment>
-        </ToastProvider>
-    );
+    return <></>;
 };
 
 export default ReSpeak;

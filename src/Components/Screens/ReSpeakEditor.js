@@ -1,59 +1,39 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
-import InfoModal from '../Utils/InfoModal';
-import Playlist from './Playlist';
-import Skeleton from 'react-loading-skeleton';
-import { Checkbox } from 'semantic-ui-react';
-import $ from 'jquery';
-import '../styles.css';
-
-import dataProvider from '../dataProvider';
-
+import React, { useEffect, useState } from 'react';
+import ReSpeak from './ReSpeak';
 import Loader from 'react-loader-spinner';
+import Skeleton from 'react-loading-skeleton';
 import { ToastProvider } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Label } from 'semantic-ui-react';
+import dataProvider from '../dataProvider';
+import $ from 'jquery';
+import '../styles.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    disableEditMode,
-    setTranscriptionIdForEdit,
-    deleteSentence,
-    setSentenceId,
-} from '../../actions/TranscriptionActions';
-
-const moment = require('moment');
-const axios = require('axios');
+import { disableReSpeakMode, setTranscriptionIdForReSpeak } from '../../actions/TranscriptionActions';
 
 const Empty = () => (
     <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
-        No file selected into Editor, go to 'My Transcriptions' to select a file!
+        No file selected for Re-speaking, go to 'My Transcriptions' to select a file!
     </h3>
 );
 
-const Editor = props => {
+const ReSpeakEditor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
     const [transcript, setTranscript] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
     const [trackMode, setTrackMode] = useState('pause');
-    const [autoSave, setAutoSave] = useState(
-        localStorage.getItem('autoSave') ? localStorage.getItem('autoSave') === 'true' : true
-    );
     const [mute, setMute] = useState(false);
 
-    if (localStorage.getItem('autoSave') === null) {
-        localStorage.setItem('autoSave', 'true');
-    }
-
-    const { inSaveMode, sentenceId, ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
-
-    let dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const { ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     useEffect(() => {
         let _id = null;
 
-        if (localStorage.getItem('editorConfig') !== null) {
-            const config = JSON.parse(localStorage.getItem('editorConfig'));
+        if (localStorage.getItem('reSpeakConfig') !== null) {
+            const config = JSON.parse(localStorage.getItem('reSpeakConfig'));
 
             _id = config._id;
         } else {
@@ -65,7 +45,7 @@ const Editor = props => {
 
     useEffect(() => {
         $('.playlist-toolbar').hide();
-        $('#waveform-playlist-container').hide();
+        $('#waveform-playlist-container-respeak').hide();
 
         const processSentances = sentences => {
             let notes = [],
@@ -105,68 +85,22 @@ const Editor = props => {
         }
     }, [transcriptionId]);
 
-    const closeEditor = e => {
+    const closeReSpeakEditor = e => {
         /* 
             Close all editor related modes
             and remove items from localStorage
         */
-        localStorage.removeItem('editorConfig');
-        localStorage.removeItem('editorState');
-        localStorage.removeItem('autoSave');
-        localStorage.removeItem('cursorPos');
+        localStorage.removeItem('reSpeakConfig');
 
-        dispatch(disableEditMode());
-        dispatch(setTranscriptionIdForEdit(null));
+        dispatch(disableReSpeakMode());
+        dispatch(setTranscriptionIdForReSpeak(null));
 
         /* Transition back to 'My Transcriptions' page */
         props.subPageCallback('My Transcriptions');
         localStorage.setItem('subpage', 'My Transcriptions');
-        localStorage.setItem('loadSavedState', 'false');
 
-        $('#waveform-playlist-container').unbind();
-        document.getElementById('waveform-playlist-container').remove();
-    };
-
-    const createLinkForDownload = (url, type) => {
-        const time = moment(fileInfo.createdAt).format('LT');
-        const date = moment(fileInfo.createdAt).format('LL');
-
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `${fileInfo.originalname}_${date}_${time}.${type}`); // or any other extension
-        document.body.appendChild(link);
-        link.click();
-    };
-
-    const downloadTranscriptAndAudio = fileInfo => {
-        /* 
-            Downloading transcripts and audio
-        */
-        dataProvider.speech
-            .get('export', {
-                id: transcriptionId,
-                options: {
-                    responseType: 'blob',
-                },
-            })
-            .then(res => {
-                createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
-                return true;
-            })
-            .then(res => {
-                if (res) {
-                    console.log(fileInfo, res);
-                    createLinkForDownload(
-                        `${process.env.REACT_APP_API_HOST}/${fileInfo.path}`,
-                        fileInfo.mimetype.split('/')[1]
-                    );
-                }
-            });
-    };
-
-    const toggleAutoSave = () => {
-        setAutoSave(!autoSave);
-        localStorage.setItem('autoSave', !autoSave);
+        $('#waveform-playlist-container-respeak').unbind();
+        document.getElementById('waveform-playlist-container-respeak').remove();
     };
 
     const toggleTrackModes = (mode, args = null, e = null) => {
@@ -230,28 +164,15 @@ const Editor = props => {
     };
 
     /*
-        Props passed to Playlist component:
+        Props passed to ReSpeak component:
     */
-    const playlistProps = {
+    const reSpeakProps = {
         fileInfo,
         _id: transcriptionId,
         notes: transcript,
-        autoSave,
         callbacks: {
             changeTrackMode: (mode, args, e) => toggleTrackModes(mode, args, e),
         },
-        actions: [
-            {
-                class: 'fa.fa-times',
-                title: 'Delete sentence',
-                action: () => {} /* delete handled in Playlist.js */,
-            },
-            {
-                class: 'fas.fa-history',
-                title: 'Revert back',
-                action: () => {} /* Revert back to previous version of sentence */,
-            },
-        ],
     };
 
     return (
@@ -266,13 +187,12 @@ const Editor = props => {
                                 <Label as="a" color="red" ribbon>
                                     {fileInfo.originalname}
                                 </Label>
-                                <InfoModal />
                             </div>
                         ) : (
                             <Skeleton width={300} height={35} />
                         )}
-                        <span className="close-editor" onClick={closeEditor}>
-                            {!inSaveMode ? (
+                        <span className="close-editor" onClick={closeReSpeakEditor}>
+                            {!false ? (
                                 <i className="fas fa-times back"></i>
                             ) : (
                                 <Loader type="TailSpin" color="gray" height={20} width={20} />
@@ -300,7 +220,7 @@ const Editor = props => {
                                     >
                                         <i className="fa fa-stop"></i>
                                     </span>
-                                    <span
+                                    {/*<span
                                         title={mute ? 'un-mute' : 'mute'}
                                         className="btn-toggle-mute btn btn-default editor-controls"
                                         onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
@@ -322,11 +242,10 @@ const Editor = props => {
                                         className="btn-download btn btn-default editor-controls"
                                         onClick={() => downloadTranscriptAndAudio(fileInfo)}
                                     >
-                                        {/* Download Transcript */}
                                         <i className="far fa-save"></i>
-                                    </span>
+                                    </span> */}
                                 </div>
-                                <div className="btn-group right">
+                                {/* <div className="btn-group right">
                                     <Checkbox
                                         className="auto-save"
                                         checked={autoSave}
@@ -334,10 +253,10 @@ const Editor = props => {
                                         label={`Autosave: ${autoSave ? 'ON' : 'OFF'}`}
                                         onChange={toggleAutoSave}
                                     />
-                                </div>
+                                </div> */}
                             </div>
-                            <div id="waveform-playlist-container"></div>
-                            {transcript && <Playlist {...playlistProps} />}
+                            <div id="waveform-playlist-container-respeak"></div>
+                            {transcript && <ReSpeak {...reSpeakProps} />}
                         </div>
                     </React.Fragment>
                 )}
@@ -346,4 +265,4 @@ const Editor = props => {
     );
 };
 
-export default Editor;
+export default ReSpeakEditor;
