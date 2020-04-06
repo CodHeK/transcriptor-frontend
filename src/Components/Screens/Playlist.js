@@ -750,7 +750,7 @@ const Playlist = props => {
 
                         let cursorPosFromStart = relativeFirstTick + (cursorPos - relativeFirstTickTime) * oneSecond;
 
-                        if (cursorPosFromStart >= cursorLimit) {
+                        if (cursorPosFromStart >= cursorLimit - 30) {
                             $waveform.scrollTo({ left: prevScroll + cursorLimit, top: 0, behavior: 'smooth' });
                         }
                     };
