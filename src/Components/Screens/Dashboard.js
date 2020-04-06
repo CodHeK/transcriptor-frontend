@@ -4,6 +4,7 @@ import { Dropdown, Menu, Segment, Container } from 'semantic-ui-react';
 import ListTranscriptions from './ListTranscriptions';
 import Upload from './Upload';
 import Editor from './Editor';
+import ReSpeak from './ReSpeak';
 import logo from '../../images/ntu-logo.png';
 import PropTypes from 'prop-types';
 import '../styles.css';
@@ -13,7 +14,7 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
 /* import actions */
-import { enableEditMode } from '../../actions/TranscriptionActions';
+import { enableEditMode, enableReSpeakMode } from '../../actions/TranscriptionActions';
 import { requestSocketAuthentication } from '../../actions/SocketActions';
 
 const Dashboard = props => {
@@ -21,7 +22,7 @@ const Dashboard = props => {
         localStorage.getItem('subpage') === null ? 'Upload' : localStorage.getItem('subpage')
     );
 
-    const { editId, editMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { editId, editMode, respeakId, reSpeakMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let history = useHistory();
     let dispatch = useDispatch();
@@ -58,7 +59,15 @@ const Dashboard = props => {
             }
         };
 
-        if (editId !== null && !editMode) {
+        if (respeakId !== null && !reSpeakMode && !editId) {
+            dispatch(enableReSpeakMode());
+
+            localStorage.setItem('subpage', 'Re-speak');
+            localStorage.setItem('reSpeakConfig', JSON.stringify({ _id: respeakId, active: true }));
+            setPage('Re-speak');
+        }
+
+        if (editId !== null && !editMode && !respeakId) {
             dispatch(enableEditMode());
 
             /* 
@@ -84,8 +93,11 @@ const Dashboard = props => {
             case 'Editor':
                 subPage = <Editor _id={editId} subPageCallback={page => setPage(page)} />;
                 break;
+            case 'Re-speak':
+                subPage = <ReSpeak _id={respeakId} subPageCallback={page => setPage(page)} />;
+                break;
             default:
-            // subPage = <ReSpeak />
+                return;
         }
 
         return (
@@ -123,6 +135,12 @@ const Dashboard = props => {
 
                         <Menu.Item name="Re-speak" active={page === 'Re-speak'} onClick={handleTabClick}>
                             Re-speak
+                            {localStorage.getItem('reSpeakConfig') !== null &&
+                                JSON.parse(localStorage.getItem('reSpeakConfig')).active && (
+                                    <sup>
+                                        <span className="dot"></span>
+                                    </sup>
+                                )}
                         </Menu.Item>
 
                         <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>

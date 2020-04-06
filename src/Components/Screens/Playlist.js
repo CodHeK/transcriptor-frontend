@@ -12,7 +12,6 @@ import { saveEventEmitter, toggleSaveMode, releaseToast } from '../../actions/Tr
 import { useToasts } from 'react-toast-notifications';
 
 const WaveformPlaylist = require('waveform-playlist');
-const hasListeners = require('event-emitter/has-listeners');
 const axios = require('axios');
 
 const Playlist = props => {

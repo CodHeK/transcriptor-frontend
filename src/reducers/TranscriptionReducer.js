@@ -2,11 +2,13 @@ const initialState = {
     transcriptionId: null,
     editId: null,
     assignId: null,
+    respeakId: null,
     editMode: false,
     ee: null,
     inSaveMode: false,
     sentenceId: null,
     toast: null,
+    reSpeakMode: false,
 };
 
 const transcriptionReducers = (state = initialState, { type, payload }) => {
@@ -22,6 +24,15 @@ const transcriptionReducers = (state = initialState, { type, payload }) => {
             break;
         case 'SET_TRANSCRIPTION_ID_FOR_ASSIGN':
             state = { ...state, assignId: payload };
+            break;
+        case 'ENABLE_RESPEAK_MODE':
+            state = { ...state, reSpeakMode: true };
+            break;
+        case 'DISABLE_RESPEAK_MODE':
+            state = { ...state, reSpeakMode: false };
+            break;
+        case 'SET_TRANSCRIPTION_ID_FOR_RESPEAK':
+            state = { ...state, respeakId: payload };
             break;
         case 'SAVE_EVENT_EMITTER':
             state = { ...state, ee: payload };

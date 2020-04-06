@@ -5,10 +5,17 @@ export const setTranscriptionIdForEdit = _id => {
     };
 };
 
-export const setTranscriptionIdForAssign = id => {
+export const setTranscriptionIdForAssign = _id => {
     return {
         type: 'SET_TRANSCRIPTION_ID_FOR_ASSIGN',
-        payload: id,
+        payload: _id,
+    };
+};
+
+export const setTranscriptionIdForReSpeak = _id => {
+    return {
+        type: 'SET_TRANSCRIPTION_ID_FOR_RESPEAK',
+        payload: _id,
     };
 };
 
@@ -35,6 +42,18 @@ export const enableEditMode = () => {
 export const disableEditMode = () => {
     return {
         type: 'DISABLE_EDIT_MODE',
+    };
+};
+
+export const enableReSpeakMode = () => {
+    return {
+        type: 'ENABLE_RESPEAK_MODE',
+    };
+};
+
+export const disableReSpeakMode = () => {
+    return {
+        type: 'DISABLE_RESPEAK_MODE',
     };
 };
 

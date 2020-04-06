@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     setTranscriptionIdForEdit,
     setTranscriptionIdForAssign,
+    setTranscriptionIdForReSpeak,
     enableEditMode,
     disableEditMode,
     deleteTranscription,
@@ -23,7 +24,7 @@ const axios = require('axios');
 
 const CustomCard = props => {
     const [mode, setMode] = useState('choose');
-    const { editId, editMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { editId, editMode, respeakId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     const dispatch = useDispatch();
 
@@ -55,27 +56,39 @@ const CustomCard = props => {
         },
         {
             key: 2,
-            text: 'assign',
+            text: 're-speak',
             value: 2,
+        },
+        {
+            key: 3,
+            text: 'assign',
+            value: 3,
         },
     ];
 
     const ActionDispatchers = {
-        EditMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
+        editMode: enable => (enable ? dispatch(enableEditMode()) : dispatch(disableEditMode())),
         transcriptionIdForEdit: _id => dispatch(setTranscriptionIdForEdit(_id)),
         transcriptionIdForAssign: _id => dispatch(setTranscriptionIdForAssign(_id)),
+        transcriptionIdForReSpeak: _id => dispatch(setTranscriptionIdForReSpeak(_id)),
         delete: _id => dispatch(deleteTranscription(_id)),
     };
 
     const modeHandler = (e, { options, value }) => {
-        if (value === 1) {
-            let optionText = options.filter(option => option.value === value)[0].text;
-            setMode(optionText);
+        let optionText = options.filter(option => option.value === value)[0].text;
+        setMode(optionText);
 
-            ActionDispatchers.transcriptionIdForEdit(props._id);
-        } else {
-            ActionDispatchers.EditMode(false);
-            ActionDispatchers.transcriptionIdForAssign(props._id);
+        switch (value) {
+            case 1:
+                ActionDispatchers.transcriptionIdForEdit(props._id);
+                break;
+
+            case 2:
+                ActionDispatchers.transcriptionIdForReSpeak(props._id);
+                break;
+
+            default:
+                ActionDispatchers.transcriptionIdForAssign(props._id);
         }
     };
 
