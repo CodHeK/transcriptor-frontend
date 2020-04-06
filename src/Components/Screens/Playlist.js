@@ -728,6 +728,8 @@ const Playlist = props => {
                                     TIMER = setTimeout(() => {
                                         sentenceSectionMode = false;
                                         setCursor(startTime + 0.1);
+                                        props.callbacks.changeTrackMode('pause', null, ee);
+                                        nextPlayMode = 'play';
                                     }, (endTime - startTime + 0.1) * 1000);
 
                                     ee.emit('play', startTime, endTime);
@@ -1156,6 +1158,8 @@ const Playlist = props => {
                                 SECTION_TIMER = setTimeout(() => {
                                     setCursor(startTime + 0.1);
                                     addSentenceHighlight($currentElement);
+                                    props.callbacks.changeTrackMode('pause', null, ee);
+                                    nextPlayMode = 'play';
                                 }, (endTime - startTime + 0.1) * 1000);
                             }
 

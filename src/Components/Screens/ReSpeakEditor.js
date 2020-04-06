@@ -13,6 +13,8 @@ import '../styles.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { disableReSpeakMode, setTranscriptionIdForReSpeak } from '../../actions/TranscriptionActions';
 
+const moment = require('moment');
+
 const Empty = () => (
     <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
         No file selected for Re-speaking, go to 'My Transcriptions' to select a file!
@@ -91,6 +93,8 @@ const ReSpeakEditor = props => {
             and remove items from localStorage
         */
         localStorage.removeItem('reSpeakConfig');
+        localStorage.removeItem('cursorPos');
+        localStorage.removeItem('globalNextPlayMode_respeak');
 
         dispatch(disableReSpeakMode());
         dispatch(setTranscriptionIdForReSpeak(null));
@@ -101,6 +105,43 @@ const ReSpeakEditor = props => {
 
         $('#waveform-playlist-container-respeak').unbind();
         document.getElementById('waveform-playlist-container-respeak').remove();
+    };
+
+    const createLinkForDownload = (url, type) => {
+        const time = moment(fileInfo.createdAt).format('LT');
+        const date = moment(fileInfo.createdAt).format('LL');
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${fileInfo.originalname}_${date}_${time}.${type}`); // or any other extension
+        document.body.appendChild(link);
+        link.click();
+    };
+
+    const downloadTranscriptAndAudio = fileInfo => {
+        /* 
+            Downloading transcripts and audio
+        */
+        dataProvider.speech
+            .get('export', {
+                id: transcriptionId,
+                options: {
+                    responseType: 'blob',
+                },
+            })
+            .then(res => {
+                createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
+                return true;
+            })
+            .then(res => {
+                if (res) {
+                    console.log(fileInfo, res);
+                    createLinkForDownload(
+                        `${process.env.REACT_APP_API_HOST}/${fileInfo.path}`,
+                        fileInfo.mimetype.split('/')[1]
+                    );
+                }
+            });
     };
 
     const toggleTrackModes = (mode, args = null, e = null) => {
@@ -122,7 +163,7 @@ const ReSpeakEditor = props => {
                 setTrackMode(mode);
                 if (!keyBoardMode) {
                     e.emit(mode, startTime);
-                    localStorage.setItem('globalNextPlayMode', 'pause');
+                    localStorage.setItem('globalNextPlayMode_respeak', 'pause');
                 }
                 break;
 
@@ -130,7 +171,7 @@ const ReSpeakEditor = props => {
                 setTrackMode(mode);
                 if (!keyBoardMode) {
                     e.emit(mode);
-                    localStorage.setItem('globalNextPlayMode', 'play');
+                    localStorage.setItem('globalNextPlayMode_respeak', 'play');
                 }
                 break;
 
@@ -236,14 +277,14 @@ const ReSpeakEditor = props => {
                                     </span>
                                     <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
                                         <i className="fa fa-search-minus"></i>
-                                    </span>
+                                    </span>*/}
                                     <span
                                         title="export audio & transcript"
                                         className="btn-download btn btn-default editor-controls"
                                         onClick={() => downloadTranscriptAndAudio(fileInfo)}
                                     >
                                         <i className="far fa-save"></i>
-                                    </span> */}
+                                    </span>
                                 </div>
                                 {/* <div className="btn-group right">
                                     <Checkbox

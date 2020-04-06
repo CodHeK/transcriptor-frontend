@@ -23,7 +23,6 @@ import {
 } from '../../actions/TranscriptionActions';
 
 const moment = require('moment');
-const axios = require('axios');
 
 const Empty = () => (
     <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
@@ -114,6 +113,7 @@ const Editor = props => {
         localStorage.removeItem('editorState');
         localStorage.removeItem('autoSave');
         localStorage.removeItem('cursorPos');
+        localStorage.removeItem('globalNextPlayMode');
 
         dispatch(disableEditMode());
         dispatch(setTranscriptionIdForEdit(null));

@@ -168,10 +168,10 @@ const ReSpeak = props => {
                     });
 
                     cursorUpdate = setInterval(() => {
-                        let globalNextPlayMode = null;
-                        if (localStorage.getItem('globalNextPlayMode')) {
-                            globalNextPlayMode = localStorage.getItem('globalNextPlayMode');
-                            nextPlayMode = globalNextPlayMode;
+                        let globalNextPlayMode_respeak = null;
+                        if (localStorage.getItem('globalNextPlayMode_respeak')) {
+                            globalNextPlayMode_respeak = localStorage.getItem('globalNextPlayMode_respeak');
+                            nextPlayMode = globalNextPlayMode_respeak;
                         }
                         if (nextPlayMode === 'pause') {
                             let cursorPos = getTimeAtCursorPosition();
