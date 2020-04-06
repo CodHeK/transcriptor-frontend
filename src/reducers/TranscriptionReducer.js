@@ -9,6 +9,7 @@ const initialState = {
     sentenceId: null,
     toast: null,
     reSpeakMode: false,
+    sentenceIdForReSpeak: null,
 };
 
 const transcriptionReducers = (state = initialState, { type, payload }) => {
@@ -33,6 +34,9 @@ const transcriptionReducers = (state = initialState, { type, payload }) => {
             break;
         case 'SET_TRANSCRIPTION_ID_FOR_RESPEAK':
             state = { ...state, respeakId: payload };
+            break;
+        case 'ADD_SECTION_FOR_RESPEAK':
+            state = { ...state, sentenceIdForReSpeak: payload };
             break;
         case 'SAVE_EVENT_EMITTER':
             state = { ...state, ee: payload };

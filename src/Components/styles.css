@@ -21,7 +21,7 @@
         letter-spacing: 0.7px !important;
         font-family: 'Open Sans' !important;
         height: 720px !important;
-        padding-bottom: 200px !important;
+        padding-bottom: 200px;
     }
 }
 
@@ -461,7 +461,7 @@ body ::-webkit-scrollbar-track {
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;
     height: 520px;
-    padding-bottom: 200px !important;
+    padding-bottom: 200px;
 }
 
 /* Add media queries for above style here */
@@ -798,4 +798,80 @@ footer {
 .react-toast-notifications__toast.react-toast-notifications__toast--info {
     background-color: black !important;
     color: white !important;
+}
+
+/* 
+    Recorder.js css
+*/
+
+.respeak-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.sentence-container-respeak {
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    height: 30%;
+}
+
+.sentence-title {
+    font-size: 20px;
+    color: #000;
+    margin: 1em;
+}
+
+.sentence-respeak {
+    font-size: 15px;
+    margin: 0.5em 1.3em;
+    color: #000;
+}
+
+.ui.grid {
+    margin-top: -2.5rem;
+}
+
+.ui.grid .three.wide.column {
+    max-height: 380px;
+    overflow-y: scroll;
+    font-family: 'Open Sans' !important;
+}
+
+.ui.grid .three.wide.column::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+.recorder-container-respeak {
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    height: 58%;
+    margin: 1em 1.3em;
+}
+
+.sortable-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.footer-respeak {
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    height: 12%;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+}
+
+.sortable-list {
+    width: 200px;
+    height: 40px;
+    font-size: 15px;
+    margin: 0.2em;
+    border: 1px solid #888;
+    padding: 10px;
+    border-radius: 5px;
+    line-height: 1;
 }

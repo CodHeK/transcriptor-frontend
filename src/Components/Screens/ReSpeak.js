@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
+import Recorder from './Recorder';
 import $ from 'jquery';
 import '../styles.css';
 
 import { useDispatch } from 'react-redux';
-import { saveEventEmitter } from '../../actions/TranscriptionActions';
+import { saveEventEmitter, addSectionForReSpeak } from '../../actions/TranscriptionActions';
 
 const WaveformPlaylist = require('waveform-playlist');
 
@@ -81,8 +82,12 @@ const ReSpeak = props => {
                     $('.playlist-toolbar').show();
                     $('#waveform-playlist-container-respeak').show();
 
-                    const $annotationsContainer = document.getElementsByClassName('annotations-text')[0];
-                    $annotationsContainer.style.visibility = 'hidden';
+                    const $annotationContainer = document.getElementsByClassName('annotations')[0];
+                    const $annotationsTextContainer = document.getElementsByClassName('annotations-text')[0];
+
+                    $annotationContainer.removeChild($annotationsTextContainer);
+                    $annotationContainer.style.height = '40px';
+                    $annotationContainer.style.padding = '0px';
 
                     setTrackLoaded(true);
 
@@ -161,6 +166,20 @@ const ReSpeak = props => {
                         Array.from($sentenceSectionBoxes).map($e => removeSectionHighlight($e));
                     };
 
+                    const scrollToSection = sentenceId => {
+                        addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
+
+                        let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) - 20;
+
+                        $waveform.scrollTo({
+                            left: prevScroll + scrollVal,
+                            top: 0,
+                            behavior: 'smooth',
+                        });
+
+                        prevScroll += scrollVal;
+                    };
+
                     $waveform.addEventListener('scroll', e => {
                         e.preventDefault();
 
@@ -198,7 +217,9 @@ const ReSpeak = props => {
 
                             removeAllSectionHighlights();
                             const sentenceId = parseInt(e.srcElement.innerText);
-                            addSectionHighlight($sectionBox);
+                            scrollToSection(sentenceId);
+
+                            dispatch(addSectionForReSpeak(sentenceId - 1));
 
                             nextPlayMode = 'pause';
                             props.callbacks.changeTrackMode('play', null, ee);
@@ -214,9 +235,9 @@ const ReSpeak = props => {
 
     if (!trackLoaded) {
         return <PLaylistGhostLoader />;
+    } else {
+        return <Recorder data={props} />;
     }
-
-    return <></>;
 };
 
 export default ReSpeak;

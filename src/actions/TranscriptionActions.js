@@ -19,6 +19,13 @@ export const setTranscriptionIdForReSpeak = _id => {
     };
 };
 
+export const addSectionForReSpeak = sentenceId => {
+    return {
+        type: 'ADD_SECTION_FOR_RESPEAK',
+        payload: sentenceId,
+    };
+};
+
 export const saveEventEmitter = ee => {
     return {
         type: 'SAVE_EVENT_EMITTER',

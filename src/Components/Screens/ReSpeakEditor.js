@@ -162,7 +162,11 @@ const ReSpeakEditor = props => {
                 }
                 setTrackMode(mode);
                 if (!keyBoardMode) {
-                    e.emit(mode, startTime);
+                    if (!args) {
+                        e.emit(mode, startTime);
+                    } else {
+                        e.emit(mode, startTime, args.endTime); /* used to just play the section */
+                    }
                     localStorage.setItem('globalNextPlayMode_respeak', 'pause');
                 }
                 break;
