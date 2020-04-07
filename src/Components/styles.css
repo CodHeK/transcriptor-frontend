@@ -835,6 +835,7 @@ footer {
     max-height: 380px;
     overflow-y: scroll;
     font-family: 'Open Sans' !important;
+    /* scroll-behavior: smooth; */
 }
 
 .ui.grid .three.wide.column::-webkit-scrollbar {

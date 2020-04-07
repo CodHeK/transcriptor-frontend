@@ -9,7 +9,7 @@ const initialState = {
     sentenceId: null,
     toast: null,
     reSpeakMode: false,
-    sentenceIdForReSpeak: null,
+    sentenceIdForReSpeak: 0,
 };
 
 const transcriptionReducers = (state = initialState, { type, payload }) => {

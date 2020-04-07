@@ -28,6 +28,7 @@ const PLaylistGhostLoader = () => {
 
 const ReSpeak = props => {
     const [trackLoaded, setTrackLoaded] = useState(false);
+    const [sentenceForReSpeak, setSentenceForReSpeak] = useState(0);
 
     const dispatch = useDispatch();
 
@@ -223,6 +224,8 @@ const ReSpeak = props => {
 
                             nextPlayMode = 'pause';
                             props.callbacks.changeTrackMode('play', null, ee);
+
+                            // setSentenceForReSpeak(sentenceId-1);
                         });
                     }
                 });
