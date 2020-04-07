@@ -131,16 +131,6 @@ const ReSpeakEditor = props => {
             })
             .then(res => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
-                return true;
-            })
-            .then(res => {
-                if (res) {
-                    console.log(fileInfo, res);
-                    createLinkForDownload(
-                        `${process.env.REACT_APP_API_HOST}/${fileInfo.path}`,
-                        fileInfo.mimetype.split('/')[1]
-                    );
-                }
             });
     };
 

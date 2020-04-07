@@ -684,7 +684,7 @@ footer {
 }
 
 .flash {
-    background: white;
+    background-: white;
     animation: flash-animation 1.5s;
 }
 
@@ -835,7 +835,7 @@ footer {
     max-height: 380px;
     overflow-y: scroll;
     font-family: 'Open Sans' !important;
-    /* scroll-behavior: smooth; */
+    margin-top: 15px;
 }
 
 .ui.grid .three.wide.column::-webkit-scrollbar {

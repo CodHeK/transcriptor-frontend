@@ -102,7 +102,7 @@ const CustomCard = props => {
 
     const downloadTranscriptAndAudio = () => {
         /* 
-            Downloading transcripts and audio
+            Downloading transcripts and audio into  a zip
         */
         dataProvider.speech
             .get('export', {
@@ -113,15 +113,6 @@ const CustomCard = props => {
             })
             .then(res => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
-                return true;
-            })
-            .then(res => {
-                if (res) {
-                    createLinkForDownload(
-                        `${process.env.REACT_APP_API_HOST}/${props.path}`,
-                        props.mimeType.split('/')[1]
-                    );
-                }
             });
     };
 
