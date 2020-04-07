@@ -58,6 +58,7 @@ const PLaylistGhostLoader = () => {
 
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
+    const [annotationsLoaded, setAnnotationsLoaded] = useState(false);
 
     const { inSaveMode, toast } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
@@ -131,10 +132,10 @@ const Playlist = props => {
                     },
                 ])
                 .then(function() {
-                    $('.playlist-toolbar').show();
-                    $('#waveform-playlist-container').show();
-
                     setPlaylistLoaded(true);
+
+                    $('.playlist-toolbar').fadeIn(500);
+                    $('#waveform-playlist-container').fadeIn(1000);
 
                     let ee = playlist.getEventEmitter();
                     dispatch(saveEventEmitter(ee));

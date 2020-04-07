@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { Grid, Menu, Segment, Button } from 'semantic-ui-react';
 import { ReactSortable } from 'react-sortablejs';
+import SortableCard from '../Utils/SortableCard';
 import '../styles.css';
 
 const Recorder = props => {
     const [activeSentence, setActiveSentence] = useState(0);
     const [state, setState] = useState([
-        { id: 1, name: 'file_1_sentence1' },
-        { id: 2, name: 'file_1_sentence2' },
-        { id: 3, name: 'file_1_sentence3' },
-        { id: 4, name: 'file_1_sentence4' },
-        { id: 5, name: 'file_1_sentence5' },
-        { id: 6, name: 'file_1_sentence6' },
-        { id: 7, name: 'file_1_sentence7' },
-        { id: 8, name: 'file_1_sentence8' },
+        { id: 1, name: 'file_1_sentence1.wav' },
+        { id: 2, name: 'file_1_sentence2.wav' },
+        { id: 3, name: 'file_1_sentence3.wav' },
+        // { id: 4, name: 'file_1_sentence4' },
     ]);
     const { notes } = props.data;
 
@@ -42,9 +39,7 @@ const Recorder = props => {
             className="sortable-container"
         >
             {state.map(item => (
-                <div className="sortable-list" key={item.id}>
-                    {item.name}
-                </div>
+                <SortableCard data={item} />
             ))}
         </ReactSortable>
     );
@@ -60,7 +55,12 @@ const Recorder = props => {
             <Grid.Column stretched width={13}>
                 <Segment className="respeak-container">
                     <div className="sentence-container-respeak">
-                        <h1 className="sentence-title">Sentence : </h1>
+                        <h1 className="sentence-title">
+                            Sentence :
+                            <span className="sentence-times">
+                                {`(${notes[activeSentence].begin}s - ${notes[activeSentence].end}s)`}
+                            </span>
+                        </h1>
                         <div className="sentence-respeak">{notes[activeSentence].lines}</div>
                     </div>
                     <div className="recorder-container-respeak">{Sortable}</div>

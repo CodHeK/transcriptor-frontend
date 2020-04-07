@@ -80,7 +80,7 @@ const ReSpeak = props => {
                 ])
                 .then(function() {
                     $('.playlist-toolbar').show();
-                    $('#waveform-playlist-container-respeak').show();
+                    $('#waveform-playlist-container-respeak').fadeIn(1000);
 
                     const $annotationContainer = document.getElementsByClassName('annotations')[0];
                     const $annotationsTextContainer = document.getElementsByClassName('annotations-text')[0];
