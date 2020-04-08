@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import MicRecorder from 'mic-recorder-to-mp3';
 import { useToasts } from 'react-toast-notifications';
 
+// Also check : https://medium.com/@bryanjenningz/how-to-record-and-play-audio-in-javascript-faa1b2b3e49b
+
 const recorder = new MicRecorder({ bitRate: 128 });
 
 const SortableCard = ({ data: item, callbacks }) => {
     const [recording, setRecording] = useState(false);
-    const [blobURL, setBlobURL] = useState(null);
     const [blocked, setBlocked] = useState(false); // to check if browser is enabled to record audio
 
     const { addToast } = useToasts();
@@ -29,6 +30,8 @@ const SortableCard = ({ data: item, callbacks }) => {
 
     const handleDelete = () => callbacks.deleteSegment(item.id);
 
+    const playAudio = () => callbacks.playSegment(item.id);
+
     const handleRecording = () => {
         /*
             Recording === true meaning currently segment 
@@ -42,7 +45,6 @@ const SortableCard = ({ data: item, callbacks }) => {
                 .then(([buffer, blob]) => {
                     setRecording(false);
                     callbacks.saveRecording(item.id, blob);
-                    setBlobURL(URL.createObjectURL(blob));
                 })
                 .catch(e => console.log(e));
         } else {
@@ -64,11 +66,6 @@ const SortableCard = ({ data: item, callbacks }) => {
                 });
             }
         }
-    };
-
-    const playAudio = () => {
-        const audio = new Audio(blobURL);
-        audio.play();
     };
 
     return (

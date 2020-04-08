@@ -12,6 +12,10 @@ const SideSegement = props => {
         setFiles(sentenceFiles);
     }, [sentenceFiles]);
 
+    useEffect(() => {
+        console.log(files);
+    }, [files]);
+
     const addRecordSegment = () => {
         const newFile = {
             id: files.length,
@@ -33,7 +37,7 @@ const SideSegement = props => {
                     /* id is 0 indexed */
                     file.id -= 1;
                     const s_id = file.name.split('_')[0];
-                    file.name = s_id + '_' + (file.id + 1) + '.wa';
+                    file.name = s_id + '_' + (file.id + 1) + '.wav';
                 }
                 return file;
             })
@@ -51,9 +55,15 @@ const SideSegement = props => {
         );
     };
 
+    const playSegment = id => {
+        const audio = new Audio(URL.createObjectURL(files[id].blob));
+        audio.play();
+    };
+
     const callbacks = {
         deleteSegment,
         saveRecording,
+        playSegment,
     };
 
     return (
