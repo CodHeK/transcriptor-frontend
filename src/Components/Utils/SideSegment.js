@@ -5,7 +5,6 @@ import SortableCard from './SortableCard';
 import '../styles.css';
 
 const SideSegement = props => {
-    console.log(props);
     const { sentenceInfo, activeSentence, sentenceFiles } = props;
     const [files, setFiles] = useState(sentenceFiles);
 
@@ -15,14 +14,34 @@ const SideSegement = props => {
 
     const addRecordSegment = () => {
         const newFile = {
-            id: files.length + 1,
+            id: files.length,
             name: `${sentenceInfo.sentenceId}_${files.length + 1}.wav`,
         };
 
         setFiles(files => [...files, newFile]);
     };
 
-    // const cards = files.map((item, key) => <SortableCard key={key} data={item} />);
+    const deleteSegment = id => {
+        setFiles(files => files.filter(file => file.id !== id));
+
+        /* Rename the ids */
+
+        setFiles(files =>
+            files.map(file => {
+                if (file.id > id - 1) {
+                    /* id is 0 indexed */
+                    file.id -= 1;
+                    const s_id = file.name.split('_')[0];
+                    file.name = s_id + '_' + (file.id + 1) + '.wav';
+                }
+                return file;
+            })
+        );
+    };
+
+    const callbacks = {
+        deleteSegment,
+    };
 
     return (
         <Segment className="respeak-container">
@@ -46,7 +65,7 @@ const SideSegement = props => {
                         className="sortable-container"
                     >
                         {files.map((item, key) => (
-                            <SortableCard key={key} data={item} />
+                            <SortableCard key={key} data={item} callbacks={callbacks} />
                         ))}
                     </ReactSortable>
                 )}
