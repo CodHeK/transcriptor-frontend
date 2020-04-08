@@ -56,7 +56,8 @@ const SideSegement = props => {
     };
 
     const playSegment = id => {
-        const audio = new Audio(URL.createObjectURL(files[id].blob));
+        const file = files.filter(file => file.id === id)[0];
+        const audio = new Audio(URL.createObjectURL(file.blob));
         audio.play();
     };
 
