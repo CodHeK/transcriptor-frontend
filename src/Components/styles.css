@@ -937,6 +937,10 @@ footer {
     padding-left: 1px;
 }
 
+.fa-microphone.recording {
+    color: rgba(255, 0, 0, 0.5);
+}
+
 .fa-volume-up {
     font-size: 20px;
 }

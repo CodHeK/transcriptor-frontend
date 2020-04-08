@@ -16,6 +16,7 @@ const SideSegement = props => {
         const newFile = {
             id: files.length,
             name: `${sentenceInfo.sentenceId}_${files.length + 1}.wav`,
+            blob: null,
         };
 
         setFiles(files => [...files, newFile]);
@@ -32,7 +33,18 @@ const SideSegement = props => {
                     /* id is 0 indexed */
                     file.id -= 1;
                     const s_id = file.name.split('_')[0];
-                    file.name = s_id + '_' + (file.id + 1) + '.wav';
+                    file.name = s_id + '_' + (file.id + 1) + '.wa';
+                }
+                return file;
+            })
+        );
+    };
+
+    const saveRecording = (id, blob) => {
+        setFiles(files =>
+            files.map(file => {
+                if (file.id === id) {
+                    file.blob = blob;
                 }
                 return file;
             })
@@ -41,6 +53,7 @@ const SideSegement = props => {
 
     const callbacks = {
         deleteSegment,
+        saveRecording,
     };
 
     return (
