@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
-import Recorder from './Recorder';
+import Recorder from '../Utils/Recorder';
 import $ from 'jquery';
 import '../styles.css';
 

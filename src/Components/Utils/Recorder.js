@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Grid, Menu, Segment, Button } from 'semantic-ui-react';
-import { ReactSortable } from 'react-sortablejs';
-import SortableCard from '../Utils/SortableCard';
+import SideSegment from './SideSegment';
 import $ from 'jquery';
 import '../styles.css';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const Recorder = props => {
+    const { notes } = props.data;
     const [activeSentence, setActiveSentence] = useState(0);
     const [prevScroll, setPrevScroll] = useState(0);
+    const [allFiles, setAllFiles] = useState(notes.map(_ => []));
 
     const { sentenceIdForReSpeak } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
@@ -17,17 +18,9 @@ const Recorder = props => {
         setActiveSentence(sentenceIdForReSpeak);
         if (document.readyState === 'complete') {
             const $e = document.getElementById(`menu-item-${sentenceIdForReSpeak}`);
-            console.log($e.classList);
-            $e.scrollIntoView();
+            $e && $e.scrollIntoView();
         }
     }, [sentenceIdForReSpeak]);
-
-    const [state, setState] = useState([
-        { id: 1, name: 'file_1_sentence1.wav' },
-        { id: 2, name: 'file_1_sentence2.wav' },
-        { id: 3, name: 'file_1_sentence3.wav' },
-    ]);
-    const { notes } = props.data;
 
     const $waveform = $('.playlist-tracks')[0];
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
@@ -61,7 +54,7 @@ const Recorder = props => {
             behavior: 'smooth',
         });
 
-        setPrevScroll(prevScroll + scrollVal);
+        setPrevScroll(prevScroll => prevScroll + scrollVal);
     };
 
     const handleSentenceClick = (_, { name }) => {
@@ -85,24 +78,6 @@ const Recorder = props => {
         );
     });
 
-    const Sortable = notes.map((_, key) => {
-        return (
-            <ReactSortable
-                list={state}
-                animation={200}
-                delayOnTouchStart={true}
-                delay={2}
-                setList={setState}
-                className="sortable-container"
-                key={key}
-            >
-                {state.map(item => (
-                    <SortableCard data={item} />
-                ))}
-            </ReactSortable>
-        );
-    });
-
     return (
         <Grid>
             <Grid.Column width={3}>
@@ -112,27 +87,11 @@ const Recorder = props => {
             </Grid.Column>
 
             <Grid.Column stretched width={13}>
-                <Segment className="respeak-container">
-                    <div className="sentence-container-respeak">
-                        <h1 className="sentence-title">
-                            Sentence :
-                            <span className="sentence-times">
-                                {`(${notes[activeSentence].begin.slice(0, 5)}s - ${notes[activeSentence].end.slice(
-                                    0,
-                                    5
-                                )}s)`}
-                            </span>
-                        </h1>
-                        <div className="sentence-respeak">{notes[activeSentence].lines}</div>
-                    </div>
-                    <div className="recorder-container-respeak">{Sortable[activeSentence]}</div>
-                    <div className="footer-respeak">
-                        <Button>Submit</Button>
-                        <Button>
-                            <i class="fas fa-plus"></i>
-                        </Button>
-                    </div>
-                </Segment>
+                <SideSegment
+                    activeSentence={activeSentence}
+                    sentenceInfo={notes[activeSentence]}
+                    sentenceFiles={allFiles[activeSentence]}
+                />
             </Grid.Column>
         </Grid>
     );

@@ -1,17 +1,18 @@
 import React from 'react';
 
 const SortableCard = ({ data: item }) => {
+    console.log('running sortable card!');
     return (
         <div className="sortable-list" key={item.id}>
             <div className="sortable-filename">{item.name}</div>
             <div className="sortable-listen-icon">
-                <i class="fas fa-volume-up"></i>
+                <i className="fas fa-volume-up"></i>
             </div>
             <div className="sortable-record-icon">
-                <i class="fas fa-microphone"></i>
+                <i className="fas fa-microphone"></i>
             </div>
             <div className="sortable-delete-icon">
-                <i class="fas fa-times"></i>
+                <i className="fas fa-times"></i>
             </div>
         </div>
     );
