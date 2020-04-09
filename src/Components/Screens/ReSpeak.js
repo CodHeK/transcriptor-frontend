@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
 import Recorder from '../Utils/Recorder';
+import { ReSpeakLoader } from '../Utils/Loader';
 import $ from 'jquery';
 import '../styles.css';
 
@@ -9,44 +10,6 @@ import { useDispatch } from 'react-redux';
 import { saveEventEmitter, addSectionForReSpeak } from '../../actions/TranscriptionActions';
 
 const WaveformPlaylist = require('waveform-playlist');
-
-const PLaylistGhostLoader = () => {
-    const MenuGhost = () => {
-        const menuGhost = [];
-        for (let i = 1; i <= 7; i++) {
-            menuGhost.push(
-                <li className="menu-item-ghost">
-                    <Skeleton width={182} height={41} />
-                </li>
-            );
-        }
-        return menuGhost;
-    };
-
-    return (
-        <React.Fragment>
-            <div className="toolbar-ghost">
-                <Skeleton width={200} height={40} />
-                <span className="autosave-ghost">
-                    <Skeleton width={180} height={40} />
-                </span>
-            </div>
-            <div className="waveform-ghost">
-                <Skeleton height={130} />
-            </div>
-            <div className="recorder-ghost">
-                <div className="menu-ghost">
-                    <ul>
-                        <MenuGhost />
-                    </ul>
-                </div>
-                <div className="side-segment-ghost">
-                    <Skeleton height={367} width={880} />
-                </div>
-            </div>
-        </React.Fragment>
-    );
-};
 
 const ReSpeak = props => {
     const [trackLoaded, setTrackLoaded] = useState(false);
@@ -256,7 +219,7 @@ const ReSpeak = props => {
     }, []);
 
     if (!trackLoaded) {
-        return <PLaylistGhostLoader />;
+        return <ReSpeakLoader />;
     } else {
         return <Recorder data={props} />;
     }

@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
 import hotkeys from 'hotkeys-js';
 import $ from 'jquery';
 import '../styles.css';
+import { EditorLoader } from '../Utils/Loader';
 import dataProvider from '../dataProvider';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,48 +13,6 @@ import { useToasts } from 'react-toast-notifications';
 
 const WaveformPlaylist = require('waveform-playlist');
 const axios = require('axios');
-
-const PLaylistGhostLoader = () => {
-    const AnnotationGhost = props => {
-        let ghostAnnotation = [];
-        for (let i = 0; i < props.count; i++) {
-            ghostAnnotation.push(
-                <li className="list-ghost" key={i}>
-                    <span className="row-ghost">
-                        <Skeleton width={15} height={20} />
-                    </span>
-                    <span className="row-ghost">
-                        <Skeleton width={84} height={20} />
-                    </span>
-                    <span className="row-ghost">
-                        <Skeleton width={84} height={20} />
-                    </span>
-                    <span className="row-ghost">
-                        <Skeleton width={800} height={65} />
-                    </span>
-                </li>
-            );
-        }
-        return ghostAnnotation;
-    };
-
-    return (
-        <React.Fragment>
-            <div className="toolbar-ghost">
-                <Skeleton width={400} height={40} />
-                <span className="autosave-ghost">
-                    <Skeleton width={180} height={40} />
-                </span>
-            </div>
-            <div className="waveform-ghost">
-                <Skeleton height={130} />
-            </div>
-            <ul className="sentence-ghost-container">
-                <AnnotationGhost count={10} />
-            </ul>
-        </React.Fragment>
-    );
-};
 
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
@@ -1525,7 +1483,7 @@ const Playlist = props => {
     }, []);
 
     if (!playlistLoaded) {
-        return <PLaylistGhostLoader />;
+        return <EditorLoader />;
     }
 
     return <></>;

@@ -67,13 +67,48 @@ const SideSegement = props => {
         playSegment,
     };
 
+    const stringTimeFormat = (h, m, s) => {
+        let time = '';
+
+        if (h > 0) time += h.toString() + 'h ';
+
+        if (m > 0) time += m.toString() + 'm ';
+
+        if (s > 0) time += s.toString() + 's';
+
+        return time;
+    };
+
+    const timeFormat = time => {
+        /* 
+            Inputs time in seconds format to h/m/s
+            
+            Ex: 337.2s -> 5m 37.2s
+                3601.4s -> 1h 1.4s
+        */
+        time = parseFloat(time);
+
+        let h = 0,
+            m = 0,
+            s = 0;
+        h = parseInt(time / 3600);
+        time = time - h * 3600;
+        m = parseInt(time / 60);
+        time = time - m * 60;
+        s = Math.round(time * 10) / 10;
+
+        return stringTimeFormat(h, m, s);
+    };
+
     return (
         <Segment className="respeak-container">
             <div className="sentence-container-respeak">
                 <h1 className="sentence-title">
                     Sentence :
                     <span className="sentence-times">
-                        {`(${sentenceInfo.begin.slice(0, 5)}s - ${sentenceInfo.end.slice(0, 5)}s)`}
+                        {`(${timeFormat(sentenceInfo.begin.slice(0, 5))} - ${timeFormat(
+                            sentenceInfo.end.slice(0, 5)
+                        )})`}
                     </span>
                 </h1>
                 <div className="sentence-respeak">{sentenceInfo.lines}</div>

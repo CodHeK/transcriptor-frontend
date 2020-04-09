@@ -103,7 +103,7 @@ const ListTranscriptions = () => {
     const GhostLoader = () => {
         let elems = [];
         for (let i = 0; i < 6; i++) {
-            const data = null;
+            const data = null; // denoting it is a loader
             elems.push(<CustomCard key={i} data={data} />);
         }
         return elems;
