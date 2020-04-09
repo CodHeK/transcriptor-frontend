@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Segment, Button } from 'semantic-ui-react';
 import { ReactSortable } from 'react-sortablejs';
 import SortableCard from './SortableCard';
+import { useToasts } from 'react-toast-notifications';
 import '../styles.css';
 
 const SideSegement = props => {
     const { sentenceInfo, activeSentence, sentenceFiles } = props;
     const [files, setFiles] = useState(sentenceFiles);
+
+    const { addToast } = useToasts();
 
     useEffect(() => {
         setFiles(sentenceFiles);
@@ -20,6 +23,7 @@ const SideSegement = props => {
         const newFile = {
             id: files.length,
             name: `${sentenceInfo.sentenceId}_${files.length + 1}.wav`,
+            displayName: `segment_${files.length + 1}.wav`,
             blob: null,
         };
 
@@ -57,14 +61,34 @@ const SideSegement = props => {
 
     const playSegment = id => {
         const file = files.filter(file => file.id === id)[0];
-        const audio = new Audio(URL.createObjectURL(file.blob));
-        audio.play();
+        if (file.blob) {
+            const audio = new Audio(URL.createObjectURL(file.blob));
+            audio.play();
+        } else {
+            addToast("Segment isin't recorded yet!", {
+                autoDismiss: true,
+                appearance: 'error',
+                autoDismissTimeout: 3000,
+            });
+        }
+    };
+
+    const changeDisplayName = (id, newName) => {
+        setFiles(files =>
+            files.map(file => {
+                if (file.id === id) {
+                    file.displayName = newName;
+                }
+                return file;
+            })
+        );
     };
 
     const callbacks = {
         deleteSegment,
         saveRecording,
         playSegment,
+        changeDisplayName,
     };
 
     const stringTimeFormat = (h, m, s) => {
@@ -95,7 +119,7 @@ const SideSegement = props => {
         time = time - h * 3600;
         m = parseInt(time / 60);
         time = time - m * 60;
-        s = Math.round(time * 10) / 10;
+        s = Math.round(time * 10) / 10; // converting to one decimal place
 
         return stringTimeFormat(h, m, s);
     };
@@ -106,9 +130,8 @@ const SideSegement = props => {
                 <h1 className="sentence-title">
                     Sentence :
                     <span className="sentence-times">
-                        {`(${timeFormat(sentenceInfo.begin.slice(0, 5))} - ${timeFormat(
-                            sentenceInfo.end.slice(0, 5)
-                        )})`}
+                        {`(${timeFormat(sentenceInfo.begin.slice(0, 5))}
+                          - ${timeFormat(sentenceInfo.end.slice(0, 5))})`}
                     </span>
                 </h1>
                 <div className="sentence-respeak">{sentenceInfo.lines}</div>
