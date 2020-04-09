@@ -11,6 +11,7 @@ const Recorder = props => {
     const [activeSentence, setActiveSentence] = useState(0);
     const [prevScroll, setPrevScroll] = useState(0);
     const [allFiles, setAllFiles] = useState(notes.map(_ => []));
+    const [sentenceDone, setSentenceDone] = useState(new Set());
 
     const { sentenceIdForReSpeak } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
@@ -74,9 +75,19 @@ const Recorder = props => {
                 active={activeSentence === parseInt(sentence.id) - 1}
                 onClick={handleSentenceClick}
                 id={`menu-item-${sentence.id - 1}`}
+                className={sentenceDone.has(parseInt(sentence.id) - 1) ? 'done' : ''}
             />
         );
     });
+
+    const sentenceSubmitted = id => {
+        setSentenceDone(sentenceDone => sentenceDone.add(id));
+        setActiveSentence(activeSentence => (activeSentence + 1) % notes.length);
+    };
+
+    const callbacks = {
+        sentenceSubmitted,
+    };
 
     return (
         <Grid>
@@ -91,6 +102,7 @@ const Recorder = props => {
                     activeSentence={activeSentence}
                     sentenceInfo={notes[activeSentence]}
                     sentenceFiles={allFiles[activeSentence]}
+                    callbacks={callbacks}
                 />
             </Grid.Column>
         </Grid>

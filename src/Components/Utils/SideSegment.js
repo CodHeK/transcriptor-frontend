@@ -124,6 +124,19 @@ const SideSegement = props => {
         return stringTimeFormat(h, m, s);
     };
 
+    const handleSubmit = () => {
+        if (files.length > 0) {
+            // make a post request to server sending the files.
+            props.callbacks.sentenceSubmitted(activeSentence);
+        } else {
+            addToast('No files recorded for this sentence!', {
+                autoDismiss: true,
+                appearance: 'error',
+                autoDismissTimeout: 3000,
+            });
+        }
+    };
+
     return (
         <Segment className="respeak-container">
             <div className="sentence-container-respeak">
@@ -153,7 +166,7 @@ const SideSegement = props => {
                 )}
             </div>
             <div className="footer-respeak">
-                <Button>Submit</Button>
+                <Button onClick={handleSubmit}>Submit</Button>
                 <Button onClick={addRecordSegment}>
                     <i className="fas fa-plus"></i>
                 </Button>
