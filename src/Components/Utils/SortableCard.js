@@ -12,9 +12,9 @@ const SortableCard = ({ data: item, callbacks }) => {
 
     useEffect(() => {
         // https://stackoverflow.com/questions/18552336/prevent-contenteditable-adding-div-on-enter-chrome
-        $('span[contenteditable=true]').keydown(function(e) {
+        $(`#${item.id}`).keydown(function(e) {
             if (e.keyCode === 13) {
-                document.execCommand('insertHTML', false, '<br>');
+                document.execCommand('insertHTML', false, '');
 
                 callbacks.changeDisplayName(item.id, this.innerText);
 
@@ -23,6 +23,10 @@ const SortableCard = ({ data: item, callbacks }) => {
                 return false;
             }
         });
+
+        return () => {
+            $(`#${item.id}`).unbind();
+        };
     }, []);
 
     const { addToast } = useToasts();
@@ -60,7 +64,7 @@ const SortableCard = ({ data: item, callbacks }) => {
     return (
         <div className="sortable-list" key={item.id}>
             <div className="sortable-filename">
-                <span contenteditable="true" className="sortable-display-name">
+                <span contenteditable="true" id={item.id} className="sortable-display-name">
                     {item.displayName}
                 </span>
             </div>
