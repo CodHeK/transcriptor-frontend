@@ -9,6 +9,7 @@ const recorder = new MicRecorder({ bitRate: 128 });
 
 const SortableCard = ({ data: item, callbacks }) => {
     const [recording, setRecording] = useState(false);
+    const { addToast } = useToasts();
 
     useEffect(() => {
         // https://stackoverflow.com/questions/18552336/prevent-contenteditable-adding-div-on-enter-chrome
@@ -28,8 +29,6 @@ const SortableCard = ({ data: item, callbacks }) => {
             $(`#${item.id}`).unbind();
         };
     }, []);
-
-    const { addToast } = useToasts();
 
     const handleDelete = () => callbacks.deleteSegment(item.id);
 

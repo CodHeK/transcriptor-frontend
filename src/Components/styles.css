@@ -801,6 +801,23 @@ footer {
 }
 
 /* 
+    ReSpeakEditor.js css
+*/
+.submit-btn-respeak {
+    margin: 0px 1px !important;
+    border: 1px solid black !important;
+    box-sizing: border-box;
+    border-radius: 10px !important;
+    font-size: 15px;
+    background-color: #fff !important;
+    transition: all 0.5s;
+}
+
+.submit-btn-respeak:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 
     Recorder.js css
 */
 

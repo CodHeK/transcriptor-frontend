@@ -1,19 +1,44 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Grid, Menu, Segment, Button } from 'semantic-ui-react';
 import SideSegment from './SideSegment';
+import localforage from 'localforage';
 import $ from 'jquery';
 import '../styles.css';
 
 import { useSelector } from 'react-redux';
 
+// for storing audio segments before submit in re-speak editor
+localforage.config({
+    driver: localforage.INDEXEDDB,
+    name: 'respeak-audio-segments',
+});
+
 const Recorder = props => {
     const { notes } = props.data;
     const [activeSentence, setActiveSentence] = useState(0);
     const [prevScroll, setPrevScroll] = useState(0);
-    const [allFiles, setAllFiles] = useState(notes.map(_ => []));
     const [sentenceDone, setSentenceDone] = useState(new Set());
+    const [allFiles, setAllFiles] = useState(null);
 
     const { sentenceIdForReSpeak } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+
+    console.log('printing allfiles ', allFiles);
+
+    useEffect(() => {
+        localforage.getItem('allFiles', (err, res) => {
+            console.log(res);
+            if (!res) {
+                const init = notes.map(_ => []);
+                console.log('init, ', init);
+                setAllFiles(init);
+                localforage.setItem('allFiles', init);
+            } else {
+                localforage.getItem('allFiles', (err, res) => {
+                    setAllFiles(res);
+                });
+            }
+        });
+    }, []);
 
     useEffect(() => {
         setActiveSentence(sentenceIdForReSpeak);
@@ -22,6 +47,17 @@ const Recorder = props => {
             $e && $e.scrollIntoView();
         }
     }, [sentenceIdForReSpeak]);
+
+    useEffect(() => {
+        /* 
+            Sync storage when switching between sentences.
+        */
+        localforage.getItem('allFiles', (err, res) => {
+            if (res) {
+                setAllFiles(res);
+            }
+        });
+    }, [activeSentence]);
 
     const $waveform = $('.playlist-tracks')[0];
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
@@ -88,13 +124,13 @@ const Recorder = props => {
         );
     });
 
-    const sentenceSubmitted = id => {
+    const sentenceSaved = id => {
         setSentenceDone(sentenceDone => new Set(sentenceDone).add(id));
         setActiveSentence(activeSentence => (activeSentence + 1) % notes.length);
     };
 
     const callbacks = {
-        sentenceSubmitted,
+        sentenceSaved,
     };
 
     return (
@@ -106,12 +142,14 @@ const Recorder = props => {
             </Grid.Column>
 
             <Grid.Column stretched width={13}>
-                <SideSegment
-                    activeSentence={activeSentence}
-                    sentenceInfo={notes[activeSentence]}
-                    sentenceFiles={allFiles[activeSentence]}
-                    callbacks={callbacks}
-                />
+                {allFiles && (
+                    <SideSegment
+                        activeSentence={activeSentence}
+                        sentenceInfo={notes[activeSentence]}
+                        sentenceFiles={allFiles[activeSentence]}
+                        callbacks={callbacks}
+                    />
+                )}
             </Grid.Column>
         </Grid>
     );

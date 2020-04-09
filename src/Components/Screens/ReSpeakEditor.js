@@ -5,8 +5,9 @@ import Loader from 'react-loader-spinner';
 import Skeleton from 'react-loading-skeleton';
 import { ToastProvider } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import { Label } from 'semantic-ui-react';
+import { Label, Button } from 'semantic-ui-react';
 import dataProvider from '../dataProvider';
+import localforage from 'localforage';
 import $ from 'jquery';
 import '../styles.css';
 
@@ -95,6 +96,8 @@ const ReSpeakEditor = props => {
         localStorage.removeItem('reSpeakConfig');
         localStorage.removeItem('cursorPos');
         localStorage.removeItem('globalNextPlayMode_respeak');
+
+        localforage.clear();
 
         dispatch(disableReSpeakMode());
         dispatch(setTranscriptionIdForReSpeak(null));
@@ -227,11 +230,7 @@ const ReSpeakEditor = props => {
                             <Skeleton width={300} height={35} />
                         )}
                         <span className="close-editor" onClick={closeReSpeakEditor}>
-                            {!false ? (
-                                <i className="fas fa-times back"></i>
-                            ) : (
-                                <Loader type="TailSpin" color="gray" height={20} width={20} />
-                            )}
+                            <i className="fas fa-times back"></i>
                         </span>
                         <div id="top-bar" className="playlist-top-bar">
                             <div className="playlist-toolbar">
@@ -280,15 +279,9 @@ const ReSpeakEditor = props => {
                                         <i className="far fa-save"></i>
                                     </span>
                                 </div>
-                                {/* <div className="btn-group right">
-                                    <Checkbox
-                                        className="auto-save"
-                                        checked={autoSave}
-                                        toggle
-                                        label={`Autosave: ${autoSave ? 'ON' : 'OFF'}`}
-                                        onChange={toggleAutoSave}
-                                    />
-                                </div> */}
+                                <div className="btn-group right">
+                                    <Button className="submit-btn-respeak">Submit</Button>
+                                </div>
                             </div>
                             <div id="waveform-playlist-container-respeak"></div>
                             {transcript && <ReSpeak {...reSpeakProps} />}

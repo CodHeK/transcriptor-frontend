@@ -3,10 +3,13 @@ import { Segment, Button } from 'semantic-ui-react';
 import { ReactSortable } from 'react-sortablejs';
 import SortableCard from './SortableCard';
 import { useToasts } from 'react-toast-notifications';
+import localforage from 'localforage';
 import '../styles.css';
 
 const SideSegement = props => {
     const { sentenceInfo, activeSentence, sentenceFiles } = props;
+    console.log(activeSentence, sentenceFiles);
+
     const [files, setFiles] = useState(sentenceFiles);
 
     const { addToast } = useToasts();
@@ -16,7 +19,16 @@ const SideSegement = props => {
     }, [sentenceFiles]);
 
     useEffect(() => {
-        console.log(files);
+        // update in the indexedDB storage
+        localforage.getItem('allFiles', (err, res) => {
+            if (res) {
+                const allFiles = res;
+
+                allFiles[activeSentence] = files;
+
+                localforage.setItem('allFiles', allFiles);
+            }
+        });
     }, [files]);
 
     const addRecordSegment = () => {
@@ -125,10 +137,10 @@ const SideSegement = props => {
         return stringTimeFormat(h, m, s);
     };
 
-    const handleSubmit = () => {
+    const handleSave = () => {
         if (files.length > 0) {
             // make a post request to server sending the files.
-            props.callbacks.sentenceSubmitted(activeSentence);
+            props.callbacks.sentenceSaved(activeSentence);
         } else {
             addToast('No files recorded for this sentence!', {
                 autoDismiss: true,
@@ -167,7 +179,7 @@ const SideSegement = props => {
                 )}
             </div>
             <div className="footer-respeak">
-                <Button onClick={handleSubmit}>Submit</Button>
+                <Button onClick={handleSave}>Save</Button>
                 <Button onClick={addRecordSegment}>
                     <i className="fas fa-plus"></i>
                 </Button>
