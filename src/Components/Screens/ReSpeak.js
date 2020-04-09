@@ -11,16 +11,38 @@ import { saveEventEmitter, addSectionForReSpeak } from '../../actions/Transcript
 const WaveformPlaylist = require('waveform-playlist');
 
 const PLaylistGhostLoader = () => {
+    const MenuGhost = () => {
+        const menuGhost = [];
+        for (let i = 1; i <= 7; i++) {
+            menuGhost.push(
+                <li className="menu-item-ghost">
+                    <Skeleton width={182} height={41} />
+                </li>
+            );
+        }
+        return menuGhost;
+    };
+
     return (
         <React.Fragment>
             <div className="toolbar-ghost">
-                <Skeleton width={400} height={40} />
+                <Skeleton width={200} height={40} />
                 <span className="autosave-ghost">
                     <Skeleton width={180} height={40} />
                 </span>
             </div>
             <div className="waveform-ghost">
                 <Skeleton height={130} />
+            </div>
+            <div className="recorder-ghost">
+                <div className="menu-ghost">
+                    <ul>
+                        <MenuGhost />
+                    </ul>
+                </div>
+                <div className="side-segment-ghost">
+                    <Skeleton height={367} width={880} />
+                </div>
             </div>
         </React.Fragment>
     );

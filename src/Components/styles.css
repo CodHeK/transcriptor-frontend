@@ -959,3 +959,30 @@ footer {
     font-family: 'Open Sans' !important;
     font-weight: 400;
 }
+
+/* 
+    Re-speak ghost css
+*/
+.recorder-ghost {
+    display: flex;
+    flex-direction: row;
+}
+
+.menu-ghost {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    margin-left: -40px;
+    margin-top: 20px;
+    height: 500px;
+}
+
+.menu-item-ghost {
+    list-style: none;
+    margin-top: 10px;
+}
+
+.side-segment-ghost {
+    width: 80%;
+    margin: 30px 40px;
+}
