@@ -64,6 +64,14 @@ const Recorder = props => {
         const sentenceId = parseInt(name.split(' ')[1]) - 1;
         setActiveSentence(sentenceId);
 
+        if (sentenceDone.has(sentenceId)) {
+            // revisiting a submitted sentence
+            const copySet = new Set(sentenceDone);
+            copySet.delete(sentenceId);
+
+            setSentenceDone(copySet);
+        }
+
         scrollToSection(sentenceId + 1);
     };
 
@@ -81,7 +89,7 @@ const Recorder = props => {
     });
 
     const sentenceSubmitted = id => {
-        setSentenceDone(sentenceDone => sentenceDone.add(id));
+        setSentenceDone(sentenceDone => new Set(sentenceDone).add(id));
         setActiveSentence(activeSentence => (activeSentence + 1) % notes.length);
     };
 

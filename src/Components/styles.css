@@ -813,6 +813,7 @@ footer {
     width: 100%;
     font-family: 'Open Sans' !important;
     height: 30%;
+    overflow-y: scroll;
 }
 
 .sentence-title {
@@ -854,6 +855,7 @@ footer {
     font-family: 'Open Sans' !important;
     height: 58%;
     margin: 1em 1.3em;
+    position: relative;
 }
 
 .sortable-container {
