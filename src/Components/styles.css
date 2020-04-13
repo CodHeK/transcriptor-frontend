@@ -831,6 +831,8 @@ footer {
     font-size: 12px;
     letter-spacing: 0.7px;
     padding: 0 5px;
+    background-color: black;
+    color: white;
 }
 
 .animate {
@@ -852,7 +854,7 @@ footer {
 .pop-up-pointer {
     width: 1px;
     height: 50%;
-    border: 1px solid black;
+    background-color: black;
 }
 
 /* 
