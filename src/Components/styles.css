@@ -323,6 +323,11 @@ body ::-webkit-scrollbar-track {
 
 .playlist .cursor {
     background: black;
+    cursor: pointer !important;
+}
+
+.playlist .cursor:hover {
+    color: #39ff14 !important;
 }
 
 .playlist .wp-fade {
@@ -331,7 +336,7 @@ body ::-webkit-scrollbar-track {
 
 .playlist .state-cursor,
 .playlist .state-select {
-    cursor: text;
+    cursor: pointer !important;
 }
 
 .playlist .state-fadein {
@@ -801,6 +806,56 @@ footer {
 }
 
 /* 
+    ReSpeak.js css
+*/
+
+.pop-up-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 58px;
+    width: auto;
+    height: 60px;
+    position: fixed;
+    z-index: 10;
+}
+
+.pop-up-time-display {
+    min-width: 70%;
+    width: auto;
+    height: 33.33%;
+    border: 1px solid black;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.7px;
+    padding: 0 5px;
+}
+
+.animate {
+    animation: bam 0.3s forwards;
+}
+
+@keyframes bam {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 50%;
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+.pop-up-pointer {
+    width: 1px;
+    height: 50%;
+    border: 1px solid black;
+}
+
+/* 
     ReSpeakEditor.js css
 */
 .submit-btn-respeak {
@@ -814,7 +869,7 @@ footer {
 }
 
 .submit-btn-respeak:hover {
-    background-color: rgba(0, 0, 0, 0.1) !important;
+    background-color: rgba(0, 0, 0, 0.1) !importantw;
 }
 
 /* 

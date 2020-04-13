@@ -22,14 +22,10 @@ const Recorder = props => {
 
     const { sentenceIdForReSpeak } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
-    console.log('printing allfiles ', allFiles);
-
     useEffect(() => {
         localforage.getItem('allFiles', (err, res) => {
-            console.log(res);
             if (!res) {
                 const init = notes.map(_ => []);
-                console.log('init, ', init);
                 setAllFiles(init);
                 localforage.setItem('allFiles', init);
             } else {
@@ -83,6 +79,7 @@ const Recorder = props => {
     const scrollToSection = sentenceId => {
         addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
 
+        // minus 20 for a little margin from the left
         let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) - 20;
 
         $waveform.scrollTo({

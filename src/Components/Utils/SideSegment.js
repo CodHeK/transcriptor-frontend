@@ -8,8 +8,6 @@ import '../styles.css';
 
 const SideSegement = props => {
     const { sentenceInfo, activeSentence, sentenceFiles } = props;
-    console.log(activeSentence, sentenceFiles);
-
     const [files, setFiles] = useState(sentenceFiles);
 
     const { addToast } = useToasts();
@@ -34,8 +32,8 @@ const SideSegement = props => {
     const addRecordSegment = () => {
         const newFile = {
             id: files.length,
-            name: `${sentenceInfo.sentenceId}_${files.length + 1}.wav`,
-            displayName: `segment_${files.length + 1}.wav`,
+            name: `${sentenceInfo.sentenceId}_${files.length + 1}.mp3`,
+            displayName: `segment_${files.length + 1}.mp3`,
             blob: null,
         };
 
@@ -53,7 +51,7 @@ const SideSegement = props => {
                     /* id is 0 indexed */
                     file.id -= 1;
                     const s_id = file.name.split('_')[0];
-                    file.name = s_id + '_' + (file.id + 1) + '.wav';
+                    file.name = s_id + '_' + (file.id + 1) + '.mp3';
                 }
                 return file;
             })
@@ -111,7 +109,7 @@ const SideSegement = props => {
 
         if (m > 0) time += m.toString() + 'm ';
 
-        if (s > 0) time += s.toString() + 's';
+        if (s >= 0) time += s.toString() + 's';
 
         return time;
     };
@@ -139,7 +137,6 @@ const SideSegement = props => {
 
     const handleSave = () => {
         if (files.length > 0) {
-            // make a post request to server sending the files.
             props.callbacks.sentenceSaved(activeSentence);
         } else {
             addToast('No files recorded for this sentence!', {
