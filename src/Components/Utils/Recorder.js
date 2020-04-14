@@ -56,6 +56,8 @@ const Recorder = props => {
         });
     }, [activeSentence]);
 
+    useEffect(() => console.log(sentenceDone), [sentenceDone]);
+
     const $waveform = $('.playlist-tracks')[0];
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
 
@@ -106,6 +108,7 @@ const Recorder = props => {
     };
 
     const addSentenceToEdit = id => {
+        console.log('to edit : ', id);
         removeSentenceFromDone(id);
         setSentenceInEdit(sentenceInEdit => new Set(sentenceInEdit).add(id));
     };
@@ -128,6 +131,23 @@ const Recorder = props => {
         scrollToSection(sentenceId + 1);
     };
 
+    const getStatus = id => {
+        if (sentenceDone.size === 0 && sentenceInEdit.size === 0) {
+            /*
+                after reload or when page is opened for the first time
+                use indexedDB for cached status
+            */
+            if (allFiles) {
+                if (allFiles[id].status === 'saved') return 'done';
+                else if (allFiles[id].status === 'in-edit') return 'in-edit';
+            }
+        } else {
+            if (sentenceDone.has(id)) return 'done';
+            else if (sentenceInEdit.has(id)) return 'in-edit';
+        }
+        return '';
+    };
+
     const SideSentenceMenu = notes.map(sentence => {
         const sentenceId = parseInt(sentence.id);
         const sentenceIndex = sentenceId - 1;
@@ -138,14 +158,7 @@ const Recorder = props => {
                 active={activeSentence === sentenceIndex}
                 onClick={handleSentenceClick}
                 id={`menu-item-${sentenceIndex}`}
-                className={
-                    sentenceDone.has(sentenceIndex) || (allFiles && allFiles[sentenceIndex].status === 'saved')
-                        ? 'done'
-                        : sentenceInEdit.has(sentenceIndex) ||
-                          (allFiles && allFiles[sentenceIndex].status === 'in-edit')
-                        ? 'in-edit'
-                        : ''
-                }
+                className={getStatus(sentenceIndex)}
             />
         );
     });

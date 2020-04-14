@@ -44,8 +44,8 @@ const SideSegement = props => {
         };
 
         setFiles(files => [...files, newFile]);
-        props.callbacks.addSentenceToEdit(activeSentence);
         setStatus('in-edit');
+        props.callbacks.addSentenceToEdit(activeSentence);
     };
 
     const deleteSegment = id => {
@@ -66,8 +66,8 @@ const SideSegement = props => {
         );
 
         if (files.length > 1) {
-            props.callbacks.addSentenceToEdit(activeSentence);
             setStatus('in-edit');
+            props.callbacks.addSentenceToEdit(activeSentence);
         }
     };
 
