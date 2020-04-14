@@ -4,6 +4,7 @@ import ReSpeak from './ReSpeak';
 import Loader from 'react-loader-spinner';
 import Skeleton from 'react-loading-skeleton';
 import { ToastProvider } from 'react-toast-notifications';
+import { useToasts } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Label, Button } from 'semantic-ui-react';
 import dataProvider from '../dataProvider';
@@ -30,6 +31,8 @@ const ReSpeakEditor = props => {
     const [mute, setMute] = useState(false);
 
     const dispatch = useDispatch();
+    const { addToast } = useToasts();
+
     const { ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     useEffect(() => {
@@ -201,6 +204,25 @@ const ReSpeakEditor = props => {
         }
     };
 
+    const notify = (message, type) => {
+        addToast(message, {
+            autoDismiss: true,
+            appearance: type,
+            autoDismissTimeout: 3000,
+        });
+    };
+
+    const checkEmpty = allFiles => {
+        let isEmpty = true;
+        for (let file of allFiles) {
+            if (file.length > 0) {
+                isEmpty = false;
+                break;
+            }
+        }
+        return isEmpty;
+    };
+
     const handleSubmit = () => {
         /*
             allFiles in localforage indexedDB
@@ -209,9 +231,16 @@ const ReSpeakEditor = props => {
             if (res) {
                 const allFiles = res;
 
-                /* 
-                    POST request to the server here!
-                */
+                if (!checkEmpty(allFiles)) {
+                    /* 
+                        POST request to the server here!
+                    */
+                    notify('All files submitted successfully!', 'success');
+                } else {
+                    notify('No files recorded to submit!', 'error');
+                }
+            } else {
+                notify('No files recorded to submit!', 'error');
             }
         });
     };
@@ -229,84 +258,82 @@ const ReSpeakEditor = props => {
     };
 
     return (
-        <ToastProvider placement={'bottom-left'}>
-            <React.Fragment>
-                {transcriptionId === null ? (
-                    <Empty />
-                ) : (
-                    <React.Fragment>
-                        {fileInfo !== null ? (
-                            <div id="playlist-info">
-                                <Label as="a" color="red" ribbon>
-                                    {fileInfo.originalname}
-                                </Label>
-                            </div>
-                        ) : (
-                            <Skeleton width={300} height={35} />
-                        )}
-                        <span className="close-editor" onClick={closeReSpeakEditor}>
-                            <i className="fas fa-times back"></i>
-                        </span>
-                        <div id="top-bar" className="playlist-top-bar">
-                            <div className="playlist-toolbar">
-                                <div className="btn-group"></div>
-                                <div className="btn-group">
-                                    <span
-                                        title={trackMode === 'pause' ? 'play' : 'pause'}
-                                        className="btn-play-pause btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes(trackMode === 'pause' ? 'play' : 'pause')}
-                                    >
-                                        {trackMode === 'pause' ? (
-                                            <i className="fa fa-play"></i>
-                                        ) : (
-                                            <i className="fa fa-pause"></i>
-                                        )}
-                                    </span>
-                                    <span
-                                        title="stop"
-                                        className="btn-stop btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes('stop')}
-                                    >
-                                        <i className="fa fa-stop"></i>
-                                    </span>
-                                    {/*<span
-                                        title={mute ? 'un-mute' : 'mute'}
-                                        className="btn-toggle-mute btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
-                                    >
-                                        {!mute ? (
-                                            <i className="fa fa-volume-up"></i>
-                                        ) : (
-                                            <i className="fa fa-volume-mute"></i>
-                                        )}
-                                    </span>
-                                    <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
-                                        <i className="fa fa-search-plus"></i>
-                                    </span>
-                                    <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
-                                        <i className="fa fa-search-minus"></i>
-                                    </span>*/}
-                                    <span
-                                        title="export audio & transcript"
-                                        className="btn-download btn btn-default editor-controls"
-                                        onClick={() => downloadTranscriptAndAudio(fileInfo)}
-                                    >
-                                        <i className="far fa-save"></i>
-                                    </span>
-                                </div>
-                                <div className="btn-group right">
-                                    <Button className="submit-btn-respeak" onClick={handleSubmit}>
-                                        Submit
-                                    </Button>
-                                </div>
-                            </div>
-                            <div id="waveform-playlist-container-respeak"></div>
-                            {transcript && <ReSpeak {...reSpeakProps} />}
+        <React.Fragment>
+            {transcriptionId === null ? (
+                <Empty />
+            ) : (
+                <React.Fragment>
+                    {fileInfo !== null ? (
+                        <div id="playlist-info">
+                            <Label as="a" color="red" ribbon>
+                                {fileInfo.originalname}
+                            </Label>
                         </div>
-                    </React.Fragment>
-                )}
-            </React.Fragment>
-        </ToastProvider>
+                    ) : (
+                        <Skeleton width={300} height={35} />
+                    )}
+                    <span className="close-editor" onClick={closeReSpeakEditor}>
+                        <i className="fas fa-times back"></i>
+                    </span>
+                    <div id="top-bar" className="playlist-top-bar">
+                        <div className="playlist-toolbar">
+                            <div className="btn-group"></div>
+                            <div className="btn-group">
+                                <span
+                                    title={trackMode === 'pause' ? 'play' : 'pause'}
+                                    className="btn-play-pause btn btn-default editor-controls"
+                                    onClick={() => toggleTrackModes(trackMode === 'pause' ? 'play' : 'pause')}
+                                >
+                                    {trackMode === 'pause' ? (
+                                        <i className="fa fa-play"></i>
+                                    ) : (
+                                        <i className="fa fa-pause"></i>
+                                    )}
+                                </span>
+                                <span
+                                    title="stop"
+                                    className="btn-stop btn btn-default editor-controls"
+                                    onClick={() => toggleTrackModes('stop')}
+                                >
+                                    <i className="fa fa-stop"></i>
+                                </span>
+                                {/*<span
+                                    title={mute ? 'un-mute' : 'mute'}
+                                    className="btn-toggle-mute btn btn-default editor-controls"
+                                    onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
+                                >
+                                    {!mute ? (
+                                        <i className="fa fa-volume-up"></i>
+                                    ) : (
+                                        <i className="fa fa-volume-mute"></i>
+                                    )}
+                                </span>
+                                <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
+                                    <i className="fa fa-search-plus"></i>
+                                </span>
+                                <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
+                                    <i className="fa fa-search-minus"></i>
+                                </span>*/}
+                                <span
+                                    title="export audio & transcript"
+                                    className="btn-download btn btn-default editor-controls"
+                                    onClick={() => downloadTranscriptAndAudio(fileInfo)}
+                                >
+                                    <i className="far fa-save"></i>
+                                </span>
+                            </div>
+                            <div className="btn-group right">
+                                <Button className="submit-btn-respeak" onClick={handleSubmit}>
+                                    Submit
+                                </Button>
+                            </div>
+                        </div>
+                        <div id="waveform-playlist-container-respeak"></div>
+                        {transcript && <ReSpeak {...reSpeakProps} />}
+                    </div>
+                </React.Fragment>
+            )}
+        </React.Fragment>
     );
 };
 

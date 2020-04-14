@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 import { Dropdown, Menu, Segment, Container } from 'semantic-ui-react';
 import ListTranscriptions from './ListTranscriptions';
+import { ToastProvider } from 'react-toast-notifications';
 import Upload from './Upload';
 import Editor from './Editor';
 import ReSpeakEditor from './ReSpeakEditor';
@@ -101,72 +102,78 @@ const Dashboard = props => {
         }
 
         return (
-            <React.Fragment>
-                {localStorage.getItem('token') === null && (
-                    <Redirect
-                        to={{
-                            pathname: '/login',
-                            state: 'token-not-matching',
-                        }}
-                    />
-                )}
+            <ToastProvider placement={'bottom-left'}>
+                <React.Fragment>
+                    {localStorage.getItem('token') === null && (
+                        <Redirect
+                            to={{
+                                pathname: '/login',
+                                state: 'token-not-matching',
+                            }}
+                        />
+                    )}
 
-                <Segment style={{ boxShadow: 'none', border: '0' }}>
-                    <Menu stackable secondary>
-                        <Menu.Item>
-                            <img src={logo} alt="ntu-logo" style={{ width: '123px' }} />
-                        </Menu.Item>
-                        <Menu.Item
-                            name="Upload"
-                            active={page === 'Upload'}
-                            onClick={handleTabClick}
-                            style={{ marginLeft: '2em' }}
-                        >
-                            Upload
-                        </Menu.Item>
+                    <Segment style={{ boxShadow: 'none', border: '0' }}>
+                        <Menu stackable secondary>
+                            <Menu.Item>
+                                <img src={logo} alt="ntu-logo" style={{ width: '123px' }} />
+                            </Menu.Item>
+                            <Menu.Item
+                                name="Upload"
+                                active={page === 'Upload'}
+                                onClick={handleTabClick}
+                                style={{ marginLeft: '2em' }}
+                            >
+                                Upload
+                            </Menu.Item>
 
-                        <Menu.Item
-                            name="My Transcriptions"
-                            active={page === 'My Transcriptions'}
-                            onClick={handleTabClick}
-                        >
-                            My Transcriptions
-                        </Menu.Item>
+                            <Menu.Item
+                                name="My Transcriptions"
+                                active={page === 'My Transcriptions'}
+                                onClick={handleTabClick}
+                            >
+                                My Transcriptions
+                            </Menu.Item>
 
-                        <Menu.Item name="Re-speak" active={page === 'Re-speak'} onClick={handleTabClick}>
-                            Re-speak
-                            {localStorage.getItem('reSpeakConfig') !== null &&
-                                JSON.parse(localStorage.getItem('reSpeakConfig')).active && (
-                                    <sup>
-                                        <span className="dot"></span>
-                                    </sup>
-                                )}
-                        </Menu.Item>
+                            <Menu.Item name="Re-speak" active={page === 'Re-speak'} onClick={handleTabClick}>
+                                Re-speak
+                                {localStorage.getItem('reSpeakConfig') !== null &&
+                                    JSON.parse(localStorage.getItem('reSpeakConfig')).active && (
+                                        <sup>
+                                            <span className="dot"></span>
+                                        </sup>
+                                    )}
+                            </Menu.Item>
 
-                        <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
-                            Editor
-                            {localStorage.getItem('editorConfig') !== null &&
-                                JSON.parse(localStorage.getItem('editorConfig')).active && (
-                                    <sup>
-                                        <span className="dot"></span>
-                                    </sup>
-                                )}
-                        </Menu.Item>
+                            <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
+                                Editor
+                                {localStorage.getItem('editorConfig') !== null &&
+                                    JSON.parse(localStorage.getItem('editorConfig')).active && (
+                                        <sup>
+                                            <span className="dot"></span>
+                                        </sup>
+                                    )}
+                            </Menu.Item>
 
-                        <Menu.Menu position="right">
-                            <Dropdown text={firstname} className="active link item" style={{ marginRight: '2.5vw' }}>
-                                <Dropdown.Menu>
-                                    <Dropdown.Item name="logout" onClick={handleTabClick}>
-                                        LOG OUT
-                                    </Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </Menu.Menu>
-                    </Menu>
-                </Segment>
+                            <Menu.Menu position="right">
+                                <Dropdown
+                                    text={firstname}
+                                    className="active link item"
+                                    style={{ marginRight: '2.5vw' }}
+                                >
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item name="logout" onClick={handleTabClick}>
+                                            LOG OUT
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Menu.Menu>
+                        </Menu>
+                    </Segment>
 
-                <Container id="main-container">{subPage}</Container>
-            </React.Fragment>
+                    <Container id="main-container">{subPage}</Container>
+                </React.Fragment>
+            </ToastProvider>
         );
     } else {
         return (

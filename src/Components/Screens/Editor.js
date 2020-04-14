@@ -10,7 +10,6 @@ import '../styles.css';
 import dataProvider from '../dataProvider';
 
 import Loader from 'react-loader-spinner';
-import { ToastProvider } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Label } from 'semantic-ui-react';
 
@@ -245,94 +244,92 @@ const Editor = props => {
     };
 
     return (
-        <ToastProvider placement={'bottom-left'}>
-            <React.Fragment>
-                {transcriptionId === null ? (
-                    <Empty />
-                ) : (
-                    <React.Fragment>
-                        {fileInfo !== null ? (
-                            <div id="playlist-info">
-                                <Label as="a" color="red" ribbon>
-                                    {fileInfo.originalname}
-                                </Label>
-                                <InfoModal />
-                            </div>
-                        ) : (
-                            <Skeleton width={300} height={35} />
-                        )}
-                        <span className="close-editor" onClick={closeEditor}>
-                            {!inSaveMode ? (
-                                <i className="fas fa-times back"></i>
-                            ) : (
-                                <Loader type="TailSpin" color="gray" height={20} width={20} />
-                            )}
-                        </span>
-                        <div id="top-bar" className="playlist-top-bar">
-                            <div className="playlist-toolbar">
-                                <div className="btn-group"></div>
-                                <div className="btn-group">
-                                    <span
-                                        title={trackMode === 'pause' ? 'play' : 'pause'}
-                                        className="btn-play-pause btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes(trackMode === 'pause' ? 'play' : 'pause')}
-                                    >
-                                        {trackMode === 'pause' ? (
-                                            <i className="fa fa-play"></i>
-                                        ) : (
-                                            <i className="fa fa-pause"></i>
-                                        )}
-                                    </span>
-                                    <span
-                                        title="stop"
-                                        className="btn-stop btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes('stop')}
-                                    >
-                                        <i className="fa fa-stop"></i>
-                                    </span>
-                                    <span
-                                        title={mute ? 'un-mute' : 'mute'}
-                                        className="btn-toggle-mute btn btn-default editor-controls"
-                                        onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
-                                    >
-                                        {!mute ? (
-                                            <i className="fa fa-volume-up"></i>
-                                        ) : (
-                                            <i className="fa fa-volume-mute"></i>
-                                        )}
-                                    </span>
-                                    <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
-                                        <i className="fa fa-search-plus"></i>
-                                    </span>
-                                    <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
-                                        <i className="fa fa-search-minus"></i>
-                                    </span>
-                                    <span
-                                        title="export audio & transcript"
-                                        className="btn-download btn btn-default editor-controls"
-                                        onClick={() => downloadTranscriptAndAudio(fileInfo)}
-                                    >
-                                        {/* Download Transcript */}
-                                        <i className="far fa-save"></i>
-                                    </span>
-                                </div>
-                                <div className="btn-group right">
-                                    <Checkbox
-                                        className="auto-save"
-                                        checked={autoSave}
-                                        toggle
-                                        label={`Autosave: ${autoSave ? 'ON' : 'OFF'}`}
-                                        onChange={toggleAutoSave}
-                                    />
-                                </div>
-                            </div>
-                            <div id="waveform-playlist-container"></div>
-                            {transcript && <Playlist {...playlistProps} />}
+        <React.Fragment>
+            {transcriptionId === null ? (
+                <Empty />
+            ) : (
+                <React.Fragment>
+                    {fileInfo !== null ? (
+                        <div id="playlist-info">
+                            <Label as="a" color="red" ribbon>
+                                {fileInfo.originalname}
+                            </Label>
+                            <InfoModal />
                         </div>
-                    </React.Fragment>
-                )}
-            </React.Fragment>
-        </ToastProvider>
+                    ) : (
+                        <Skeleton width={300} height={35} />
+                    )}
+                    <span className="close-editor" onClick={closeEditor}>
+                        {!inSaveMode ? (
+                            <i className="fas fa-times back"></i>
+                        ) : (
+                            <Loader type="TailSpin" color="gray" height={20} width={20} />
+                        )}
+                    </span>
+                    <div id="top-bar" className="playlist-top-bar">
+                        <div className="playlist-toolbar">
+                            <div className="btn-group"></div>
+                            <div className="btn-group">
+                                <span
+                                    title={trackMode === 'pause' ? 'play' : 'pause'}
+                                    className="btn-play-pause btn btn-default editor-controls"
+                                    onClick={() => toggleTrackModes(trackMode === 'pause' ? 'play' : 'pause')}
+                                >
+                                    {trackMode === 'pause' ? (
+                                        <i className="fa fa-play"></i>
+                                    ) : (
+                                        <i className="fa fa-pause"></i>
+                                    )}
+                                </span>
+                                <span
+                                    title="stop"
+                                    className="btn-stop btn btn-default editor-controls"
+                                    onClick={() => toggleTrackModes('stop')}
+                                >
+                                    <i className="fa fa-stop"></i>
+                                </span>
+                                <span
+                                    title={mute ? 'un-mute' : 'mute'}
+                                    className="btn-toggle-mute btn btn-default editor-controls"
+                                    onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
+                                >
+                                    {!mute ? (
+                                        <i className="fa fa-volume-up"></i>
+                                    ) : (
+                                        <i className="fa fa-volume-mute"></i>
+                                    )}
+                                </span>
+                                <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
+                                    <i className="fa fa-search-plus"></i>
+                                </span>
+                                <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
+                                    <i className="fa fa-search-minus"></i>
+                                </span>
+                                <span
+                                    title="export audio & transcript"
+                                    className="btn-download btn btn-default editor-controls"
+                                    onClick={() => downloadTranscriptAndAudio(fileInfo)}
+                                >
+                                    {/* Download Transcript */}
+                                    <i className="far fa-save"></i>
+                                </span>
+                            </div>
+                            <div className="btn-group right">
+                                <Checkbox
+                                    className="auto-save"
+                                    checked={autoSave}
+                                    toggle
+                                    label={`Autosave: ${autoSave ? 'ON' : 'OFF'}`}
+                                    onChange={toggleAutoSave}
+                                />
+                            </div>
+                        </div>
+                        <div id="waveform-playlist-container"></div>
+                        {transcript && <Playlist {...playlistProps} />}
+                    </div>
+                </React.Fragment>
+            )}
+        </React.Fragment>
     );
 };
 
