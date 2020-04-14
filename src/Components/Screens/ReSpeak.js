@@ -234,7 +234,7 @@ const ReSpeak = props => {
 
                         const popUpStyles = `
                             .pop-up-container {
-                                top: ${top - 55}px;
+                                top: ${top - 60}px;
                                 left: ${left - 28}px;
                             }
                         `;

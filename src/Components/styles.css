@@ -845,16 +845,18 @@ footer {
     }
     50% {
         opacity: 50%;
+        /* transform: translateY(5px); */
     }
     100% {
         opacity: 100%;
+        transform: translateY(5px);
     }
 }
 
 .pop-up-pointer {
     width: 1px;
     height: 50%;
-    background-color: black;
+    background-color: #000;
 }
 
 /* 

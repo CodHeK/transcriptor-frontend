@@ -137,6 +137,7 @@ const Playlist = props => {
 
                     let timeMap = new Map();
                     let timeList = [];
+                    let popUpInDisplay = false;
 
                     let currentHighlightedSentence = -1;
 
@@ -729,6 +730,102 @@ const Playlist = props => {
                         props.callbacks.changeTrackMode(nextPlayMode === 'play' ? 'pause' : 'play', null, ee);
                     };
 
+                    const buildElement = (type, className, id, styles = '', textContent = '') => {
+                        const $e = document.createElement(type);
+                        const $style = document.createElement('style');
+
+                        if (id) $e.id = id;
+                        if (className) $e.className = className;
+                        if (textContent) $e.innerHTML = textContent;
+
+                        $style.innerHTML = styles;
+
+                        document.body.appendChild($style);
+
+                        return $e;
+                    };
+
+                    const stringTimeFormat = (h, m, s) => {
+                        let time = '';
+
+                        if (h > 0) time += h.toString() + 'h ';
+
+                        if (m > 0) time += m.toString() + 'm ';
+
+                        if (s >= 0) time += s.toString() + 's';
+
+                        return time;
+                    };
+
+                    const timeFormat = time => {
+                        /* 
+                            Inputs time in seconds format to h/m/s
+                            
+                            Ex: 337.2s -> 5m 37.2s
+                                3601.4s -> 1h 1.4s
+                        */
+                        time = parseFloat(time);
+
+                        let h = 0,
+                            m = 0,
+                            s = 0;
+                        h = parseInt(time / 3600);
+                        time = time - h * 3600;
+                        m = parseInt(time / 60);
+                        time = time - m * 60;
+                        s = Math.round(time * 10) / 10; // converting to one decimal place
+
+                        return stringTimeFormat(h, m, s);
+                    };
+
+                    const adjustLeft = () => {
+                        /* 
+                            Adjust the left of the pop-up based on dynamic width
+                        */
+                        const $popUp = document.getElementsByClassName('pop-up-container')[0];
+                        const styles = getComputedStyle($popUp);
+
+                        $popUp.style.left = parseFloat(styles.left) - parseFloat($popUp.clientWidth / 2) + 29 + 'px';
+                    };
+
+                    const showTimePopUp = () => {
+                        const cursorPos = getTimeAtCursorPosition();
+                        const { left, top } = $cursor.getBoundingClientRect();
+                        const $playlistContainer = document.getElementById('waveform-playlist-container');
+                        const $playlist = document.getElementsByClassName('playlist')[0];
+
+                        const time = timeFormat(cursorPos);
+
+                        const popUpStyles = `
+                            .pop-up-container {
+                                top: ${top - 60}px;
+                                left: ${left - 28}px;
+                            }
+                        `;
+
+                        const $popUp = buildElement('div', 'pop-up-container', null, popUpStyles);
+                        const $timeDisplay = buildElement('div', 'pop-up-time-display animate', null, null, time);
+                        const $pointer = buildElement('div', 'pop-up-pointer animate');
+
+                        $popUp.appendChild($timeDisplay);
+                        $popUp.appendChild($pointer);
+
+                        $playlistContainer.insertBefore($popUp, $playlist);
+
+                        popUpInDisplay = true;
+
+                        adjustLeft();
+                    };
+
+                    const removeTimePopUp = () => {
+                        const $playlistContainer = document.getElementById('waveform-playlist-container');
+                        const $popUp = document.getElementsByClassName('pop-up-container')[0];
+
+                        $playlistContainer.removeChild($popUp);
+
+                        popUpInDisplay = false;
+                    };
+
                     autoSave = setInterval(() => {
                         let $currentHighlighted = getCurrentHighlightedElement();
                         const autoSaveMode = localStorage.getItem('autoSave');
@@ -760,18 +857,26 @@ const Playlist = props => {
 
                     cursorUpdate = setInterval(() => {
                         let globalNextPlayMode = null;
+                        let cursorPos = getTimeAtCursorPosition();
+
                         if (localStorage.getItem('globalNextPlayMode')) {
                             globalNextPlayMode = localStorage.getItem('globalNextPlayMode');
                             nextPlayMode = globalNextPlayMode;
                         }
                         if (nextPlayMode === 'pause') {
-                            let cursorPos = getTimeAtCursorPosition();
-
+                            // currently playing
                             scrollOnCursorLimit(cursorPos);
 
                             let { $currSentence, sentenceId } = cursorPos && findSentence(cursorPos);
 
                             if (sentenceId) currentHighlightedSentence = sentenceId - 1;
+
+                            if (popUpInDisplay) {
+                                removeTimePopUp();
+                            }
+                        } else {
+                            // currently paused
+                            !popUpInDisplay && cursorPos !== 0 && showTimePopUp();
                         }
 
                         localStorage.setItem('cursorPos', getTimeAtCursorPosition());
@@ -1281,6 +1386,10 @@ const Playlist = props => {
                         prevScroll = $waveform.scrollLeft;
 
                         updateEditorState();
+
+                        if (popUpInDisplay) {
+                            removeTimePopUp();
+                        }
                     });
 
                     /* 
@@ -1290,9 +1399,9 @@ const Playlist = props => {
                     $waveformTrack.addEventListener('click', () => {
                         setTimeout(() => {
                             $cursor.style.left = $selectionPoint.style.left;
-                            // console.log('doing');
-                            // cueTrack();
-                            // nextPlayMode = 'pause';
+
+                            popUpInDisplay && removeTimePopUp();
+                            !popUpInDisplay && showTimePopUp();
                         }, 10);
 
                         updateEditorState();
