@@ -201,6 +201,21 @@ const ReSpeakEditor = props => {
         }
     };
 
+    const handleSubmit = () => {
+        /*
+            allFiles in localforage indexedDB
+        */
+        localforage.getItem('allFiles', (err, res) => {
+            if (res) {
+                const allFiles = res;
+
+                /* 
+                    POST request to the server here!
+                */
+            }
+        });
+    };
+
     /*
         Props passed to ReSpeak component:
     */
@@ -280,7 +295,9 @@ const ReSpeakEditor = props => {
                                     </span>
                                 </div>
                                 <div className="btn-group right">
-                                    <Button className="submit-btn-respeak">Submit</Button>
+                                    <Button className="submit-btn-respeak" onClick={handleSubmit}>
+                                        Submit
+                                    </Button>
                                 </div>
                             </div>
                             <div id="waveform-playlist-container-respeak"></div>

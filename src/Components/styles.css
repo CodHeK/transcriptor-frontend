@@ -970,7 +970,7 @@ footer {
     padding: 5px;
     line-height: 1;
     cursor: text;
-    outline-width: 0.5px;
+    outline-width: 0px;
 }
 
 .sortable-filename {

@@ -84,7 +84,6 @@ const SideSegement = props => {
     };
 
     const changeDisplayName = (id, newName) => {
-        console.log(id, newName);
         setFiles(files =>
             files.map(file => {
                 if (file.id === id) {
