@@ -926,6 +926,12 @@ footer {
     right: 15px;
 }
 
+.ui.grid .three.wide.column .item.in-edit::after {
+    content: '🖍';
+    position: absolute;
+    right: 15px;
+}
+
 .recorder-container-respeak {
     width: 100%;
     font-family: 'Open Sans' !important;

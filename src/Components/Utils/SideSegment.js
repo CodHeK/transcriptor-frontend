@@ -7,8 +7,9 @@ import localforage from 'localforage';
 import '../styles.css';
 
 const SideSegement = props => {
-    const { sentenceInfo, activeSentence, sentenceFiles } = props;
+    const { sentenceInfo, activeSentence, sentenceFiles, sentenceStatus } = props;
     const [files, setFiles] = useState(sentenceFiles);
+    const [status, setStatus] = useState(sentenceStatus);
 
     const { addToast } = useToasts();
 
@@ -22,12 +23,16 @@ const SideSegement = props => {
             if (res) {
                 const allFiles = res;
 
-                allFiles[activeSentence] = files;
+                allFiles[activeSentence] = { status, files };
 
                 localforage.setItem('allFiles', allFiles);
             }
         });
-    }, [files]);
+
+        if (files.length === 0) {
+            props.callbacks.nullifySentence(activeSentence);
+        }
+    }, [files, status]);
 
     const addRecordSegment = () => {
         const newFile = {
@@ -38,6 +43,8 @@ const SideSegement = props => {
         };
 
         setFiles(files => [...files, newFile]);
+        props.callbacks.addSentenceToEdit(activeSentence);
+        setStatus('in-edit');
     };
 
     const deleteSegment = id => {
@@ -56,9 +63,14 @@ const SideSegement = props => {
                 return file;
             })
         );
+
+        if (files.length > 1) {
+            props.callbacks.addSentenceToEdit(activeSentence);
+            setStatus('in-edit');
+        }
     };
 
-    const saveRecording = (id, blob) => {
+    const saveSegment = (id, blob) => {
         setFiles(files =>
             files.map(file => {
                 if (file.id === id) {
@@ -96,7 +108,7 @@ const SideSegement = props => {
 
     const callbacks = {
         deleteSegment,
-        saveRecording,
+        saveSegment,
         playSegment,
         changeDisplayName,
     };
@@ -136,6 +148,7 @@ const SideSegement = props => {
 
     const handleSave = () => {
         if (files.length > 0) {
+            setStatus('saved');
             props.callbacks.sentenceSaved(activeSentence);
         } else {
             addToast('No files recorded for this sentence!', {

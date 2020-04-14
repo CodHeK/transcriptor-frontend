@@ -18,6 +18,7 @@ const Recorder = props => {
     const [activeSentence, setActiveSentence] = useState(0);
     const [prevScroll, setPrevScroll] = useState(0);
     const [sentenceDone, setSentenceDone] = useState(new Set());
+    const [sentenceInEdit, setSentenceInEdit] = useState(new Set());
     const [allFiles, setAllFiles] = useState(null);
 
     const { sentenceIdForReSpeak } = useSelector(state => ({ ...state.TRANSCRIPTION }));
@@ -25,7 +26,7 @@ const Recorder = props => {
     useEffect(() => {
         localforage.getItem('allFiles', (err, res) => {
             if (!res) {
-                const init = notes.map(_ => []);
+                const init = notes.map(_ => ({ status: null, files: [] }));
                 setAllFiles(init);
                 localforage.setItem('allFiles', init);
             } else {
@@ -91,43 +92,80 @@ const Recorder = props => {
         setPrevScroll(prevScroll => prevScroll + scrollVal);
     };
 
+    const addSentenceToDone = id => {
+        setSentenceDone(sentenceDone => new Set(sentenceDone).add(id));
+    };
+
+    const removeSentenceFromDone = id => {
+        if (sentenceDone.has(id)) {
+            const copySet = new Set(sentenceDone);
+            copySet.delete(id);
+
+            setSentenceDone(copySet);
+        }
+    };
+
+    const addSentenceToEdit = id => {
+        removeSentenceFromDone(id);
+        setSentenceInEdit(sentenceInEdit => new Set(sentenceInEdit).add(id));
+    };
+
+    const removeSentenceFromEdit = id => {
+        if (sentenceInEdit.has(id)) {
+            const copySet = new Set(sentenceInEdit);
+            copySet.delete(id);
+
+            setSentenceInEdit(copySet);
+        }
+    };
+
     const handleSentenceClick = (_, { name }) => {
         removeAllSectionHighlights();
 
         const sentenceId = parseInt(name.split(' ')[1]) - 1;
         setActiveSentence(sentenceId);
 
-        if (sentenceDone.has(sentenceId)) {
-            // revisiting a submitted sentence
-            const copySet = new Set(sentenceDone);
-            copySet.delete(sentenceId);
-
-            setSentenceDone(copySet);
-        }
-
         scrollToSection(sentenceId + 1);
     };
 
     const SideSentenceMenu = notes.map(sentence => {
+        const sentenceId = parseInt(sentence.id);
+        const sentenceIndex = sentenceId - 1;
         return (
             <Menu.Item
-                key={sentence.id}
-                name={`Sentence ${sentence.id}`}
-                active={activeSentence === parseInt(sentence.id) - 1}
+                key={sentenceIndex}
+                name={`Sentence ${sentenceId}`}
+                active={activeSentence === sentenceIndex}
                 onClick={handleSentenceClick}
-                id={`menu-item-${sentence.id - 1}`}
-                className={sentenceDone.has(parseInt(sentence.id) - 1) ? 'done' : ''}
+                id={`menu-item-${sentenceIndex}`}
+                className={
+                    sentenceDone.has(sentenceIndex) || (allFiles && allFiles[sentenceIndex].status === 'saved')
+                        ? 'done'
+                        : sentenceInEdit.has(sentenceIndex) ||
+                          (allFiles && allFiles[sentenceIndex].status === 'in-edit')
+                        ? 'in-edit'
+                        : ''
+                }
             />
         );
     });
 
     const sentenceSaved = id => {
-        setSentenceDone(sentenceDone => new Set(sentenceDone).add(id));
-        setActiveSentence(activeSentence => (activeSentence + 1) % notes.length);
+        // remove from edit set and push into saved set
+        removeSentenceFromEdit(id);
+        addSentenceToDone(id);
+        // setActiveSentence(activeSentence => (activeSentence + 1) % notes.length);
+    };
+
+    const nullifySentence = id => {
+        removeSentenceFromDone(id);
+        removeSentenceFromEdit(id);
     };
 
     const callbacks = {
         sentenceSaved,
+        addSentenceToEdit,
+        nullifySentence,
     };
 
     return (
@@ -143,7 +181,8 @@ const Recorder = props => {
                     <SideSegment
                         activeSentence={activeSentence}
                         sentenceInfo={notes[activeSentence]}
-                        sentenceFiles={allFiles[activeSentence]}
+                        sentenceFiles={allFiles[activeSentence].files}
+                        sentenceStatus={allFiles[activeSentence].status}
                         callbacks={callbacks}
                     />
                 )}

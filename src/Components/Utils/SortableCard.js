@@ -37,7 +37,7 @@ const SortableCard = ({ data: item, callbacks }) => {
                 .getMp3()
                 .then(([buffer, blob]) => {
                     setRecording(false);
-                    callbacks.saveRecording(item.id, blob);
+                    callbacks.saveSegment(item.id, blob);
                 })
                 .catch(e => console.log(e));
         } else {
