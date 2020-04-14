@@ -15,7 +15,8 @@ const SideSegement = props => {
 
     useEffect(() => {
         setFiles(sentenceFiles);
-    }, [sentenceFiles]);
+        setStatus(sentenceStatus);
+    }, [sentenceFiles, sentenceStatus]);
 
     useEffect(() => {
         // update in the indexedDB storage
