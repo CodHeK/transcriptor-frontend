@@ -108,7 +108,6 @@ const Recorder = props => {
     };
 
     const addSentenceToEdit = id => {
-        console.log('to edit : ', id);
         removeSentenceFromDone(id);
         setSentenceInEdit(sentenceInEdit => new Set(sentenceInEdit).add(id));
     };
@@ -132,7 +131,7 @@ const Recorder = props => {
     };
 
     const getStatus = id => {
-        if (sentenceDone.size === 0 && sentenceInEdit.size === 0) {
+        if (!localStorage.getItem('once-loaded')) {
             /*
                 after reload or when page is opened for the first time
                 use indexedDB for cached status
@@ -141,6 +140,8 @@ const Recorder = props => {
                 if (allFiles[id].status === 'saved') return 'done';
                 else if (allFiles[id].status === 'in-edit') return 'in-edit';
             }
+
+            localStorage.setItem('once-loaded', 'true');
         } else {
             if (sentenceDone.has(id)) return 'done';
             else if (sentenceInEdit.has(id)) return 'in-edit';
@@ -171,6 +172,7 @@ const Recorder = props => {
     };
 
     const nullifySentence = id => {
+        console.log('nullify, ', id);
         removeSentenceFromDone(id);
         removeSentenceFromEdit(id);
     };

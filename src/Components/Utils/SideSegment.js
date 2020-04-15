@@ -30,7 +30,8 @@ const SideSegement = props => {
             }
         });
 
-        if (files.length === 0) {
+        console.log('before nullify : ', status, activeSentence, files);
+        if (status && files.length === 0) {
             props.callbacks.nullifySentence(activeSentence);
         }
     }, [files, status]);

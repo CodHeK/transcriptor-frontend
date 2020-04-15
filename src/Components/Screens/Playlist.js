@@ -791,14 +791,14 @@ const Playlist = props => {
                     const showTimePopUp = () => {
                         const cursorPos = getTimeAtCursorPosition();
                         const { left, top } = $cursor.getBoundingClientRect();
-                        const $playlistContainer = document.getElementById('waveform-playlist-container');
+                        const $playlistContainer = document.getElementById('waveform-playlist-container-respeak');
                         const $playlist = document.getElementsByClassName('playlist')[0];
 
                         const time = timeFormat(cursorPos);
 
                         const popUpStyles = `
                             .pop-up-container {
-                                top: ${top - 60}px;
+                                top: ${window.scrollY > 250 ? 0 : top - 60}px;
                                 left: ${left - 28}px;
                             }
                         `;
@@ -808,7 +808,8 @@ const Playlist = props => {
                         const $pointer = buildElement('div', 'pop-up-pointer animate');
 
                         $popUp.appendChild($timeDisplay);
-                        $popUp.appendChild($pointer);
+
+                        window.scrollY <= 250 && $popUp.appendChild($pointer);
 
                         $playlistContainer.insertBefore($popUp, $playlist);
 
@@ -825,6 +826,20 @@ const Playlist = props => {
 
                         popUpInDisplay = false;
                     };
+
+                    let SCROLL_TIMER = null;
+                    window.addEventListener('scroll', e => {
+                        e.preventDefault();
+
+                        clearTimeout(SCROLL_TIMER);
+
+                        SCROLL_TIMER = setTimeout(() => {
+                            if (popUpInDisplay) {
+                                removeTimePopUp();
+                                showTimePopUp();
+                            }
+                        }, 200);
+                    });
 
                     autoSave = setInterval(() => {
                         let $currentHighlighted = getCurrentHighlightedElement();
