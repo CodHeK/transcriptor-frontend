@@ -35,6 +35,10 @@ const Recorder = props => {
                 });
             }
         });
+
+        window.addEventListener('unload', _ => {
+            localStorage.removeItem('once-loaded');
+        });
     }, []);
 
     useEffect(() => {
@@ -55,8 +59,6 @@ const Recorder = props => {
             }
         });
     }, [activeSentence]);
-
-    useEffect(() => console.log(sentenceDone), [sentenceDone]);
 
     const $waveform = $('.playlist-tracks')[0];
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
@@ -139,9 +141,27 @@ const Recorder = props => {
             if (allFiles) {
                 if (allFiles[id].status === 'saved') return 'done';
                 else if (allFiles[id].status === 'in-edit') return 'in-edit';
-            }
 
-            localStorage.setItem('once-loaded', 'true');
+                if (id === allFiles.length - 1) {
+                    // update cached statuses to state
+
+                    const doneList = [],
+                        editList = [];
+
+                    for (let idx in allFiles) {
+                        if (allFiles[idx].status === 'saved') {
+                            doneList.push(parseInt(idx));
+                        } else if (allFiles[idx].status === 'in-edit') {
+                            editList.push(parseInt(idx));
+                        }
+                    }
+
+                    doneList.length > 0 && setSentenceDone(new Set(doneList));
+                    editList.length > 0 && setSentenceInEdit(new Set(editList));
+
+                    localStorage.setItem('once-loaded', 'true');
+                }
+            }
         } else {
             if (sentenceDone.has(id)) return 'done';
             else if (sentenceInEdit.has(id)) return 'in-edit';
@@ -149,20 +169,24 @@ const Recorder = props => {
         return '';
     };
 
-    const SideSentenceMenu = notes.map(sentence => {
-        const sentenceId = parseInt(sentence.id);
-        const sentenceIndex = sentenceId - 1;
-        return (
-            <Menu.Item
-                key={sentenceIndex}
-                name={`Sentence ${sentenceId}`}
-                active={activeSentence === sentenceIndex}
-                onClick={handleSentenceClick}
-                id={`menu-item-${sentenceIndex}`}
-                className={getStatus(sentenceIndex)}
-            />
-        );
-    });
+    const SideSentenceMenu = allFiles ? (
+        notes.map(sentence => {
+            const sentenceId = parseInt(sentence.id);
+            const sentenceIndex = sentenceId - 1;
+            return (
+                <Menu.Item
+                    key={sentenceIndex}
+                    name={`Sentence ${sentenceId}`}
+                    active={activeSentence === sentenceIndex}
+                    onClick={handleSentenceClick}
+                    id={`menu-item-${sentenceIndex}`}
+                    className={getStatus(sentenceIndex)}
+                />
+            );
+        })
+    ) : (
+        <p>Loading ... </p>
+    );
 
     const sentenceSaved = id => {
         // remove from edit set and push into saved set
@@ -172,7 +196,6 @@ const Recorder = props => {
     };
 
     const nullifySentence = id => {
-        console.log('nullify, ', id);
         removeSentenceFromDone(id);
         removeSentenceFromEdit(id);
     };

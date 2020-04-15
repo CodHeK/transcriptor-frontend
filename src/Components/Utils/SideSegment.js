@@ -24,13 +24,15 @@ const SideSegement = props => {
             if (res) {
                 const allFiles = res;
 
-                allFiles[activeSentence] = { status, files };
+                allFiles[activeSentence] = {
+                    status: files.length > 0 ? status : null,
+                    files,
+                };
 
                 localforage.setItem('allFiles', allFiles);
             }
         });
 
-        console.log('before nullify : ', status, activeSentence, files);
         if (status && files.length === 0) {
             props.callbacks.nullifySentence(activeSentence);
         }

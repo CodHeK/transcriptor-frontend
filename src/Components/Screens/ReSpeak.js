@@ -263,23 +263,31 @@ const ReSpeak = props => {
                         popUpInDisplay = false;
                     };
 
+                    let WAVEFORM_SCROLL_TIMER = null;
                     $waveform.addEventListener('scroll', e => {
                         e.preventDefault();
 
                         prevScroll = $waveform.scrollLeft;
 
-                        if (popUpInDisplay) {
-                            removeTimePopUp();
-                        }
+                        // popUpInDisplay && removeTimePopUp();
+
+                        // clearTimeout(WAVEFORM_SCROLL_TIMER);
+
+                        // WAVEFORM_SCROLL_TIMER = setTimeout(() => {
+                        //     if (popUpInDisplay) {
+                        //         removeTimePopUp();
+                        //         showTimePopUp();
+                        //     }
+                        // }, 200);
                     });
 
-                    let SCROLL_TIMER = null;
+                    let WINDOW_SCROLL_TIMER = null;
                     window.addEventListener('scroll', e => {
                         e.preventDefault();
 
-                        clearTimeout(SCROLL_TIMER);
+                        clearTimeout(WINDOW_SCROLL_TIMER);
 
-                        SCROLL_TIMER = setTimeout(() => {
+                        WINDOW_SCROLL_TIMER = setTimeout(() => {
                             if (popUpInDisplay) {
                                 removeTimePopUp();
                                 showTimePopUp();
