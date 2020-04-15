@@ -791,7 +791,7 @@ const Playlist = props => {
                     const showTimePopUp = () => {
                         const cursorPos = getTimeAtCursorPosition();
                         const { left, top } = $cursor.getBoundingClientRect();
-                        const $playlistContainer = document.getElementById('waveform-playlist-container-respeak');
+                        const $playlistContainer = document.getElementById('waveform-playlist-container');
                         const $playlist = document.getElementsByClassName('playlist')[0];
 
                         const time = timeFormat(cursorPos);

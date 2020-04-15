@@ -36,6 +36,10 @@ const Recorder = props => {
             }
         });
 
+        /* 
+            Detecting page refresh, so once re-freshed
+            `once-loaded` needs to removed from localStorage 
+        */
         window.addEventListener('unload', _ => {
             localStorage.removeItem('once-loaded');
         });
