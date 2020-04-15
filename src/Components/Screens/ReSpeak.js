@@ -258,7 +258,7 @@ const ReSpeak = props => {
                         const $playlistContainer = document.getElementById('waveform-playlist-container-respeak');
                         const $popUp = document.getElementsByClassName('pop-up-container')[0];
 
-                        $playlistContainer.removeChild($popUp);
+                        $popUp && $playlistContainer.removeChild($popUp);
 
                         popUpInDisplay = false;
                     };
@@ -269,16 +269,16 @@ const ReSpeak = props => {
 
                         prevScroll = $waveform.scrollLeft;
 
-                        // popUpInDisplay && removeTimePopUp();
+                        popUpInDisplay && removeTimePopUp();
 
-                        // clearTimeout(WAVEFORM_SCROLL_TIMER);
+                        clearTimeout(WAVEFORM_SCROLL_TIMER);
 
-                        // WAVEFORM_SCROLL_TIMER = setTimeout(() => {
-                        //     if (popUpInDisplay) {
-                        //         removeTimePopUp();
-                        //         showTimePopUp();
-                        //     }
-                        // }, 200);
+                        WAVEFORM_SCROLL_TIMER = setTimeout(() => {
+                            if (popUpInDisplay) {
+                                removeTimePopUp();
+                                showTimePopUp();
+                            }
+                        }, 200);
                     });
 
                     let WINDOW_SCROLL_TIMER = null;

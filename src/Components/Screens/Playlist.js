@@ -822,18 +822,18 @@ const Playlist = props => {
                         const $playlistContainer = document.getElementById('waveform-playlist-container');
                         const $popUp = document.getElementsByClassName('pop-up-container')[0];
 
-                        $playlistContainer.removeChild($popUp);
+                        $popUp && $playlistContainer.removeChild($popUp);
 
                         popUpInDisplay = false;
                     };
 
-                    let SCROLL_TIMER = null;
+                    let WINDOW_SCROLL_TIMER = null;
                     window.addEventListener('scroll', e => {
                         e.preventDefault();
 
-                        clearTimeout(SCROLL_TIMER);
+                        clearTimeout(WINDOW_SCROLL_TIMER);
 
-                        SCROLL_TIMER = setTimeout(() => {
+                        WINDOW_SCROLL_TIMER = setTimeout(() => {
                             if (popUpInDisplay) {
                                 removeTimePopUp();
                                 showTimePopUp();
@@ -854,10 +854,6 @@ const Playlist = props => {
                             });
                         }
                     }, 1000);
-
-                    // setInterval(() => {
-                    //     console.log(currentHighlightedSentence, ' curr');
-                    // }, 100);
 
                     const scrollOnCursorLimit = cursorPos => {
                         let relativeFirstTick = parseInt($timeTicks[0].style.left);
@@ -1395,16 +1391,22 @@ const Playlist = props => {
                         });
                     }
 
+                    let WAVEFORM_SCROLL_TIMER = null;
                     $waveform.addEventListener('scroll', e => {
                         e.preventDefault();
 
                         prevScroll = $waveform.scrollLeft;
 
-                        updateEditorState();
+                        popUpInDisplay && removeTimePopUp();
 
-                        if (popUpInDisplay) {
-                            removeTimePopUp();
-                        }
+                        clearTimeout(WAVEFORM_SCROLL_TIMER);
+
+                        WAVEFORM_SCROLL_TIMER = setTimeout(() => {
+                            if (popUpInDisplay) {
+                                removeTimePopUp();
+                                showTimePopUp();
+                            }
+                        }, 200);
                     });
 
                     /* 
