@@ -836,19 +836,20 @@ footer {
 }
 
 .animate {
-    -webkit-animation: bam 0.3s ease-in forwards;
-    -moz-animation: bam 0.3s ease-in forwards;
+    -webkit-animation: pop-up-timer-animation 0.1s ease-in-out forwards;
+    -moz-animation: pop-up-timer-animation 0.1s ease-in-out forwards;
 }
 
-@keyframes bam {
+@keyframes pop-up-timer-animation {
     0% {
-        opacity: 0%;
+        /* -webkit-transform: translateY(1.25px);
+        -moz-transform: translateY(1.25px);  */
     }
     50% {
-        opacity: 50%;
+        -webkit-transform: translateY(2.5px);
+        -moz-transform: translateY(2.5px);
     }
     100% {
-        opacity: 100%;
         -webkit-transform: translateY(5px);
         -moz-transform: translateY(5px);
     }

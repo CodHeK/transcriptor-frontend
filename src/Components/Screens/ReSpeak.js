@@ -234,7 +234,7 @@ const ReSpeak = props => {
 
                         const popUpStyles = `
                             .pop-up-container {
-                                top: ${top - 60}px;
+                                top: ${window.scrollY > 250 ? 0 : top - 60}px;
                                 left: ${left - 28}px;
                             }
                         `;
@@ -244,7 +244,8 @@ const ReSpeak = props => {
                         const $pointer = buildElement('div', 'pop-up-pointer animate');
 
                         $popUp.appendChild($timeDisplay);
-                        $popUp.appendChild($pointer);
+
+                        window.scrollY <= 250 && $popUp.appendChild($pointer);
 
                         $playlistContainer.insertBefore($popUp, $playlist);
 
@@ -270,6 +271,20 @@ const ReSpeak = props => {
                         if (popUpInDisplay) {
                             removeTimePopUp();
                         }
+                    });
+
+                    let SCROLL_TIMER = null;
+                    window.addEventListener('scroll', e => {
+                        e.preventDefault();
+
+                        clearTimeout(SCROLL_TIMER);
+
+                        SCROLL_TIMER = setTimeout(() => {
+                            if (popUpInDisplay) {
+                                removeTimePopUp();
+                                showTimePopUp();
+                            }
+                        }, 200);
                     });
 
                     cursorUpdate = setInterval(() => {
