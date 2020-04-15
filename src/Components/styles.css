@@ -836,20 +836,21 @@ footer {
 }
 
 .animate {
-    animation: bam 0.3s forwards;
+    -webkit-animation: bam 0.3s ease-in forwards;
+    -moz-animation: bam 0.3s ease-in forwards;
 }
 
 @keyframes bam {
     0% {
-        opacity: 0;
+        opacity: 0%;
     }
     50% {
         opacity: 50%;
-        /* transform: translateY(5px); */
     }
     100% {
         opacity: 100%;
-        transform: translateY(5px);
+        -webkit-transform: translateY(5px);
+        -moz-transform: translateY(5px);
     }
 }
 
