@@ -44,6 +44,19 @@ const Playlist = props => {
     let cursorUpdate = null;
     let autoSave = null;
 
+    const cleanUp = () => {
+        hotkeys.unbind('ctrl+p');
+        hotkeys.unbind('ctrl+z');
+        hotkeys.unbind('up');
+        hotkeys.unbind('down');
+        hotkeys.unbind('enter');
+        hotkeys.unbind('ctrl+r');
+        hotkeys.unbind('command+r');
+        hotkeys.unbind('tab');
+        clearInterval(cursorUpdate);
+        clearInterval(autoSave);
+    };
+
     useEffect(() => {
         let playlist = WaveformPlaylist.init(
             {
@@ -80,8 +93,6 @@ const Playlist = props => {
             },
             EventEmitter()
         );
-
-        let cleanUp = null;
 
         setTimeout(() => {
             playlist
@@ -186,28 +197,9 @@ const Playlist = props => {
 
                     /* 
                         Unsubscribe to all event listeners
+                        for case when page is refreshed
                     */
-                    $waveform.removeEventListener('scroll', () => console.log('rmd'));
-                    $annotationsTextBoxContainer.removeEventListener('click', () => console.log('rmd'));
-                    Array.from($annotationsTextBoxes).map($annotationsTextBox => {
-                        $annotationsTextBox.removeEventListener('keydown', () => console.log('rmd'));
-                        $annotationsTextBox.removeEventListener('click', () => console.log('rmd'));
-                    });
-                    Array.from($sentenceSectionBoxes).map($sentenceBox => {
-                        $sentenceBox.removeEventListener('click', () => console.log('rmd'));
-                    });
-                    hotkeys.unbind('ctrl+p');
-                    hotkeys.unbind('ctrl+z');
-                    hotkeys.unbind('up');
-                    hotkeys.unbind('down');
-                    hotkeys.unbind('enter');
-                    hotkeys.unbind('ctrl+r');
-                    hotkeys.unbind('command+r');
-                    hotkeys.unbind('tab');
-                    clearInterval(cursorUpdate);
-                    clearInterval(autoSave);
-
-                    // cleanUp();
+                    cleanUp();
 
                     /* 
                         Utility functions
@@ -1450,7 +1442,7 @@ const Playlist = props => {
                     /* 
                         Define keyboard shortcuts
                     */
-                    hotkeys('ctrl+z', (e, handler) => {
+                    hotkeys('ctrl+z', (e, _) => {
                         e.preventDefault();
 
                         if (undoQueue.length > 0) {
@@ -1500,7 +1492,7 @@ const Playlist = props => {
                         }
                     });
 
-                    hotkeys('down', (e, handler) => {
+                    hotkeys('down', (e, _) => {
                         e.preventDefault();
                         keyBoardMode = true;
                         editMode = false;
@@ -1520,7 +1512,7 @@ const Playlist = props => {
                         updateEditorState();
                     });
 
-                    hotkeys('up', (e, handler) => {
+                    hotkeys('up', (e, _) => {
                         e.preventDefault();
                         keyBoardMode = true;
                         editMode = false;
@@ -1540,7 +1532,7 @@ const Playlist = props => {
                         updateEditorState();
                     });
 
-                    hotkeys('enter', (e, handler) => {
+                    hotkeys('enter', (e, _) => {
                         e.preventDefault();
                         let $currentHighlighted = getCurrentHighlightedElement();
 
@@ -1590,7 +1582,7 @@ const Playlist = props => {
                         updateEditorState();
                     });
 
-                    hotkeys('ctrl+p', (e, handler) => {
+                    hotkeys('ctrl+p', (e, _) => {
                         e.preventDefault();
 
                         localStorage.removeItem('globalNextPlayMode');
@@ -1599,7 +1591,7 @@ const Playlist = props => {
                         updateEditorState();
                     });
 
-                    hotkeys('tab', (e, handler) => {
+                    hotkeys('tab', (e, _) => {
                         e.preventDefault();
                         console.log('pressed tab!');
                     });
@@ -1607,12 +1599,12 @@ const Playlist = props => {
                     /* 
                         Block refresh commands of the browser 
                     */
-                    hotkeys('command+r', (e, handler) => {
+                    hotkeys('command+r', (e, _) => {
                         e.preventDefault();
                         console.log('refreshed');
                     });
 
-                    hotkeys('ctrl+r', (e, handler) => {
+                    hotkeys('ctrl+r', (e, _) => {
                         e.preventDefault();
                         console.log('refreshed');
                     });
@@ -1620,10 +1612,9 @@ const Playlist = props => {
         }, 100);
 
         return () => {
-            console.log('CLEAN UP');
+            console.log('CLEAN UP ON UN-MOUNT');
 
-            clearInterval(autoSave);
-            clearInterval(cursorUpdate);
+            cleanUp();
         };
     }, []);
 
