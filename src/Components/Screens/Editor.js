@@ -108,6 +108,9 @@ const Editor = props => {
             Close all editor related modes
             and remove items from localStorage
         */
+        $('#waveform-playlist-container').unbind();
+        document.getElementById('waveform-playlist-container').remove();
+
         localStorage.removeItem('editorConfig');
         localStorage.removeItem('editorState');
         localStorage.removeItem('autoSave');
@@ -121,9 +124,6 @@ const Editor = props => {
         props.subPageCallback('My Transcriptions');
         localStorage.setItem('subpage', 'My Transcriptions');
         localStorage.setItem('loadSavedState', 'false');
-
-        $('#waveform-playlist-container').unbind();
-        document.getElementById('waveform-playlist-container').remove();
     };
 
     const createLinkForDownload = (url, type) => {

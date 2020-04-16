@@ -38,7 +38,7 @@ const CustomCard = props => {
         localStorage.getItem('editorConfig') !== null &&
         JSON.parse(localStorage.getItem('editorConfig'))._id === props._id;
 
-    const isDisabled = () => {
+    const isEditorOpen = () => {
         return (
             (localStorage.getItem('editorConfig') !== null &&
                 JSON.parse(localStorage.getItem('editorConfig'))._id === props._id) ||
@@ -51,12 +51,13 @@ const CustomCard = props => {
             key: 1,
             text: 'edit',
             value: 1,
-            disabled: isDisabled(),
+            disabled: isEditorOpen(),
         },
         {
             key: 2,
             text: 're-speak',
             value: 2,
+            disabled: isEditorOpen(),
         },
         {
             key: 3,

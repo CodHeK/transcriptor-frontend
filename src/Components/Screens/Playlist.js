@@ -81,6 +81,8 @@ const Playlist = props => {
             EventEmitter()
         );
 
+        let cleanUp = null;
+
         setTimeout(() => {
             playlist
                 .load([
@@ -194,12 +196,18 @@ const Playlist = props => {
                     Array.from($sentenceSectionBoxes).map($sentenceBox => {
                         $sentenceBox.removeEventListener('click', () => console.log('rmd'));
                     });
-                    hotkeys.unbind('down');
-                    hotkeys.unbind('up');
-                    hotkeys.unbind('enter');
                     hotkeys.unbind('ctrl+p');
-                    clearInterval(autoSave);
+                    hotkeys.unbind('ctrl+z');
+                    hotkeys.unbind('up');
+                    hotkeys.unbind('down');
+                    hotkeys.unbind('enter');
+                    hotkeys.unbind('ctrl+r');
+                    hotkeys.unbind('command+r');
+                    hotkeys.unbind('tab');
                     clearInterval(cursorUpdate);
+                    clearInterval(autoSave);
+
+                    // cleanUp();
 
                     /* 
                         Utility functions
@@ -219,11 +227,11 @@ const Playlist = props => {
                     };
 
                     const removeSentenceHighlight = $element => {
-                        $element.classList.remove('current-selected');
+                        $element && $element.classList.remove('current-selected');
                     };
 
                     const addSentenceHighlight = $element => {
-                        $element.classList.add('current-selected');
+                        $element && $element.classList.add('current-selected');
                     };
 
                     const removeAllSentenceHighlights = () => {
@@ -231,11 +239,11 @@ const Playlist = props => {
                     };
 
                     const addSectionHighlight = $element => {
-                        $element.classList.add('section-highlight');
+                        $element && $element.classList.add('section-highlight');
                     };
 
                     const removeSectionHighlight = $element => {
-                        $element.classList.remove('section-highlight');
+                        $element && $element.classList.remove('section-highlight');
                     };
 
                     const removeAllSectionHighlights = () => {
@@ -419,6 +427,8 @@ const Playlist = props => {
                             let startTime = $element.getElementsByClassName('annotation-start')[0].innerText;
                             let endTime = $element.getElementsByClassName('annotation-end')[0].innerText;
                             let text = $element.getElementsByClassName('annotation-lines')[0].value.trim();
+
+                            // if(text) text = text.value.trim();
 
                             startTime = timeStringToFloat(startTime);
                             endTime = timeStringToFloat(endTime);
@@ -815,6 +825,8 @@ const Playlist = props => {
 
                         popUpInDisplay = true;
 
+                        updateEditorState();
+
                         adjustLeft();
                     };
 
@@ -825,6 +837,8 @@ const Playlist = props => {
                         $popUp && $playlistContainer.removeChild($popUp);
 
                         popUpInDisplay = false;
+
+                        updateEditorState();
                     };
 
                     let WINDOW_SCROLL_TIMER = null;
@@ -908,6 +922,7 @@ const Playlist = props => {
                             currentHighlightedSentenceId: sentenceId,
                             inEditMode: editMode,
                             zoomLevel: zoomLevels[currZoomLevel],
+                            popUpInDisplay,
                         };
                         localStorage.setItem('editorState', JSON.stringify(currEditorState));
                     };
@@ -931,7 +946,9 @@ const Playlist = props => {
                             const prevZoomLevel = prevState.zoomLevel;
                             currZoomLevel = zoomLevels.indexOf(prevZoomLevel);
 
-                            if (editMode) {
+                            popUpInDisplay = prevState.popUpInDisplay;
+
+                            if (editMode && $annotations[sentenceId - 1]) {
                                 let $currentAnnotationText = $annotations[sentenceId - 1].getElementsByClassName(
                                     'annotation-lines'
                                 )[0];
@@ -1603,8 +1620,10 @@ const Playlist = props => {
         }, 100);
 
         return () => {
-            clearInterval(cursorUpdate);
+            console.log('CLEAN UP');
+
             clearInterval(autoSave);
+            clearInterval(cursorUpdate);
         };
     }, []);
 
