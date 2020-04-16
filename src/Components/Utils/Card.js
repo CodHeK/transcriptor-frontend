@@ -20,7 +20,6 @@ import {
 } from '../../actions/TranscriptionActions';
 
 const moment = require('moment');
-const axios = require('axios');
 
 const CustomCard = props => {
     const [mode, setMode] = useState('choose');
@@ -88,7 +87,7 @@ const CustomCard = props => {
                 break;
 
             default:
-                ActionDispatchers.transcriptionIdForAssign(props._id);
+                ActionDispatchers.transcriptionIdForAssign(props._id); // not implemented yet!
         }
     };
 

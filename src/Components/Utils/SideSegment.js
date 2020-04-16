@@ -85,10 +85,42 @@ const SideSegement = props => {
         );
     };
 
-    const playSegment = id => {
+    const playSegment = (id, elem) => {
         const file = files.filter(file => file.id === id)[0];
         if (file.blob) {
             const audio = new Audio(URL.createObjectURL(file.blob));
+            audio.onloadedmetadata = () => {
+                const duration = audio.duration * 1000;
+
+                if (Array.from(elem.classList).includes('sortable-listen-icon')) {
+                    /* 
+                        As the play event listener is `sortable-listen-icon` div (SortableCard.js)
+                        which is parent to the icon `fa-volume-up`
+                    */
+                    elem = elem.childNodes[0];
+                }
+
+                const volumeDown = setInterval(() => {
+                    elem.classList.remove('fa-volume-up');
+                    elem.classList.add('fa-volume-down');
+                    elem.classList.add('playing');
+                }, 750);
+
+                const volumeUp = setInterval(() => {
+                    elem.classList.remove('fa-volume-down');
+                    elem.classList.add('fa-volume-up');
+                    elem.classList.add('playing');
+                }, 1000);
+
+                setTimeout(() => {
+                    clearInterval(volumeDown);
+                    clearInterval(volumeUp);
+
+                    elem.classList.remove('fa-volume-down');
+                    elem.classList.add('fa-volume-up');
+                    elem.classList.remove('playing');
+                }, duration);
+            };
             audio.play();
         } else {
             addToast("Segment isin't recorded yet!", {

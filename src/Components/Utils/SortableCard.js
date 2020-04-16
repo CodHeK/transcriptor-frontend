@@ -23,7 +23,7 @@ const SortableCard = ({ data: item, callbacks }) => {
 
     const handleDelete = () => callbacks.deleteSegment(item.id);
 
-    const playAudio = () => callbacks.playSegment(item.id);
+    const playAudio = e => callbacks.playSegment(item.id, e.target);
 
     const handleRecording = () => {
         /*
