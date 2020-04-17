@@ -108,7 +108,6 @@ const Editor = props => {
             Close all editor related modes
             and remove items from localStorage
         */
-        $('#waveform-playlist-container').unbind();
         document.getElementById('waveform-playlist-container').remove();
 
         localStorage.removeItem('editorConfig');
