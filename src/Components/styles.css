@@ -888,8 +888,8 @@ footer {
 .sentence-container-respeak {
     width: 100%;
     font-family: 'Open Sans' !important;
-    height: 30%;
-    overflow-y: scroll;
+    height: auto;
+    /* overflow-y: scroll; */
 }
 
 .sentence-title {
@@ -935,7 +935,7 @@ footer {
 .recorder-container-respeak {
     width: 100%;
     font-family: 'Open Sans' !important;
-    height: 58%;
+    height: auto;
     margin: 1em 1.3em;
     position: relative;
 }
@@ -945,15 +945,19 @@ footer {
     flex-direction: row;
     flex-wrap: wrap;
     width: 100%;
+    margin-bottom: 60px;
 }
 
 .footer-respeak {
     width: 100%;
     font-family: 'Open Sans' !important;
-    height: 12%;
+    height: auto;
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-start;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
 }
 
 .sortable-list {

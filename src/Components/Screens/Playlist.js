@@ -794,43 +794,49 @@ const Playlist = props => {
                         const cursorPos = getTimeAtCursorPosition();
                         const { left, top } = $cursor.getBoundingClientRect();
                         const $playlistContainer = document.getElementById('waveform-playlist-container');
-                        const $playlist = document.getElementsByClassName('playlist')[0];
 
-                        const time = timeFormat(cursorPos);
+                        if ($playlistContainer) {
+                            const $playlist = document.getElementsByClassName('playlist')[0];
 
-                        const popUpStyles = `
-                            .pop-up-container {
-                                top: ${window.scrollY > 250 ? 0 : top - 60}px;
-                                left: ${left - 28}px;
-                            }
-                        `;
+                            const time = timeFormat(cursorPos);
 
-                        const $popUp = buildElement('div', 'pop-up-container', null, popUpStyles);
-                        const $timeDisplay = buildElement('div', 'pop-up-time-display animate', null, null, time);
-                        const $pointer = buildElement('div', 'pop-up-pointer animate');
+                            const popUpStyles = `
+                                .pop-up-container {
+                                    top: ${window.scrollY > 250 ? 0 : top - 60}px;
+                                    left: ${left - 28}px;
+                                }
+                            `;
 
-                        $popUp.appendChild($timeDisplay);
+                            const $popUp = buildElement('div', 'pop-up-container', null, popUpStyles);
+                            const $timeDisplay = buildElement('div', 'pop-up-time-display animate', null, null, time);
+                            const $pointer = buildElement('div', 'pop-up-pointer animate');
 
-                        window.scrollY <= 250 && $popUp.appendChild($pointer);
+                            $popUp.appendChild($timeDisplay);
 
-                        $playlistContainer.insertBefore($popUp, $playlist);
+                            window.scrollY <= 250 && $popUp.appendChild($pointer);
 
-                        popUpInDisplay = true;
+                            $playlistContainer.insertBefore($popUp, $playlist);
 
-                        updateEditorState();
+                            popUpInDisplay = true;
 
-                        adjustLeft();
+                            updateEditorState();
+
+                            adjustLeft();
+                        }
                     };
 
                     const removeTimePopUp = () => {
                         const $playlistContainer = document.getElementById('waveform-playlist-container');
-                        const $popUp = document.getElementsByClassName('pop-up-container')[0];
 
-                        $popUp && $playlistContainer.removeChild($popUp);
+                        if ($playlistContainer) {
+                            const $popUp = document.getElementsByClassName('pop-up-container')[0];
 
-                        popUpInDisplay = false;
+                            $playlistContainer.removeChild($popUp);
 
-                        updateEditorState();
+                            popUpInDisplay = false;
+
+                            updateEditorState();
+                        }
                     };
 
                     let WINDOW_SCROLL_TIMER = null;

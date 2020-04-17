@@ -100,6 +100,7 @@ const ReSpeakEditor = props => {
         localStorage.removeItem('cursorPos');
         localStorage.removeItem('once-loaded');
         localStorage.removeItem('globalNextPlayMode_respeak');
+        localStorage.removeItem('popUpInDisplay');
 
         localforage.clear();
 
