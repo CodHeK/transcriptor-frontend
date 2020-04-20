@@ -617,11 +617,12 @@ const Playlist = props => {
                         addSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
 
                         let scrollVal = parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) - 20;
+                        const LIMIT = 8000; // 8000px
 
                         $waveform.scrollTo({
                             left: prevScroll + scrollVal,
                             top: 0,
-                            behavior: 'smooth',
+                            behavior: Math.abs(scrollVal) > LIMIT ? 'auto' : 'smooth',
                         });
 
                         prevScroll += scrollVal;
@@ -1445,6 +1446,22 @@ const Playlist = props => {
                         calcSentenceScrollEndPoints();
 
                         updateEditorState();
+                    });
+
+                    const $stopBtn = document.getElementsByClassName('btn-stop')[0];
+                    $stopBtn.addEventListener('click', _ => {
+                        removeTimePopUp();
+
+                        $waveform.scrollTo({
+                            left: 0,
+                            top: 0,
+                        });
+
+                        $annotationsTextBoxContainer.scrollTo({
+                            left: 0,
+                            top: 0,
+                            behavior: 'smooth',
+                        });
                     });
 
                     /* 
