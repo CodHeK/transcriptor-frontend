@@ -12,6 +12,8 @@ const SideSegement = props => {
     const [status, setStatus] = useState(sentenceStatus);
 
     const { addToast } = useToasts();
+    let volumeDown = null,
+        volumeUp = null;
 
     useEffect(() => {
         setFiles(sentenceFiles);
@@ -41,6 +43,17 @@ const SideSegement = props => {
         }
     }, [files, status]);
 
+    const notify = (message, type) => {
+        /* 
+            type: error | warning | success
+        */
+        addToast(message, {
+            autoDismiss: true,
+            appearance: type,
+            autoDismissTimeout: 3000,
+        });
+    };
+
     const addRecordSegment = () => {
         const newFile = {
             id: files.length,
@@ -55,25 +68,35 @@ const SideSegement = props => {
     };
 
     const deleteSegment = id => {
-        setFiles(files => files.filter(file => file.id !== id));
+        const currId = localStorage.getItem('currently_playing');
 
-        /* Rename the ids */
+        if (currId === id.toString()) {
+            /* 
+                Trying to delete the currently playing segment
+                will not allow to delete until playback stops
+            */
+            notify('Cannot delete currently playing segment.', 'error');
+        } else {
+            /* delete  */
+            setFiles(files => files.filter(file => file.id !== id));
 
-        setFiles(files =>
-            files.map(file => {
-                if (file.id > id - 1) {
-                    /* id is 0 indexed */
-                    file.id -= 1;
-                    const s_id = file.name.split('_')[0];
-                    file.name = s_id + '_' + (file.id + 1) + '.mp3';
-                }
-                return file;
-            })
-        );
+            /* Rename the ids */
+            setFiles(files =>
+                files.map(file => {
+                    if (file.id > id - 1) {
+                        /* id is 0 indexed */
+                        file.id -= 1;
+                        const s_id = file.name.split('_')[0];
+                        file.name = s_id + '_' + (file.id + 1) + '.mp3';
+                    }
+                    return file;
+                })
+            );
 
-        if (files.length > 1) {
-            setStatus('in-edit');
-            props.callbacks.addSentenceToEdit(activeSentence);
+            if (files.length > 1) {
+                setStatus('in-edit');
+                props.callbacks.addSentenceToEdit(activeSentence);
+            }
         }
     };
 
@@ -91,7 +114,10 @@ const SideSegement = props => {
     const playSegment = (id, elem) => {
         const file = files.filter(file => file.id === id)[0];
         if (file.blob) {
+            localStorage.setItem('global_play_audio_flag', 'true');
+
             const audio = new Audio(URL.createObjectURL(file.blob));
+
             audio.onloadedmetadata = () => {
                 const duration = audio.duration * 1000;
 
@@ -103,13 +129,13 @@ const SideSegement = props => {
                     elem = elem.childNodes[0];
                 }
 
-                const volumeDown = setInterval(() => {
+                volumeDown = setInterval(() => {
                     elem.classList.remove('fa-volume-up');
                     elem.classList.add('fa-volume-down');
                     elem.classList.add('playing');
                 }, 750);
 
-                const volumeUp = setInterval(() => {
+                volumeUp = setInterval(() => {
                     elem.classList.remove('fa-volume-down');
                     elem.classList.add('fa-volume-up');
                     elem.classList.add('playing');
@@ -124,15 +150,12 @@ const SideSegement = props => {
                     elem.classList.remove('playing');
 
                     localStorage.removeItem('global_play_audio_flag');
+                    localStorage.removeItem('currently_playing');
                 }, duration);
             };
             audio.play();
         } else {
-            addToast("Segment isin't recorded yet!", {
-                autoDismiss: true,
-                appearance: 'error',
-                autoDismissTimeout: 3000,
-            });
+            notify("Segment isin't recorded yet!", 'error');
         }
     };
 
@@ -192,11 +215,7 @@ const SideSegement = props => {
             setStatus('saved');
             props.callbacks.sentenceSaved(activeSentence);
         } else {
-            addToast('No files recorded for this sentence!', {
-                autoDismiss: true,
-                appearance: 'error',
-                autoDismissTimeout: 3000,
-            });
+            notify('No files recorded for this sentence!', 'error');
         }
     };
 

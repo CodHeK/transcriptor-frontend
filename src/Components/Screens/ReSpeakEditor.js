@@ -103,6 +103,7 @@ const ReSpeakEditor = props => {
         localStorage.removeItem('popUpInDisplay');
         localStorage.removeItem('global_recording_flag');
         localStorage.removeItem('global_play_audio_flag');
+        localStorage.removeItem('currently_playing');
 
         localforage.clear();
 

@@ -86,7 +86,7 @@ const SortableCard = ({ data: item, callbacks }) => {
 
     const playAudio = e => {
         if (!getGlobalFlagStatus('recording') && !getGlobalFlagStatus('play_audio')) {
-            setGlobalFlag('play_audio');
+            localStorage.setItem('currently_playing', item.id);
             callbacks.playSegment(item.id, e.target);
         } else {
             if (getGlobalFlagStatus('recording')) {
