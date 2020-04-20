@@ -21,33 +21,99 @@ const SortableCard = ({ data: item, callbacks }) => {
         };
     }, []);
 
-    const handleDelete = () => callbacks.deleteSegment(item.id);
+    const setGlobalFlag = type => {
+        /* 
+            type : recording | play_audio
 
-    const playAudio = e => callbacks.playSegment(item.id, e.target);
+            Acts as mutex lock for recording and listening 
+            only one segement at the same time.
+        */
+        localStorage.setItem(`global_${type}_flag`, 'true');
+    };
+
+    const unSetGlobalFlag = type => {
+        /* 
+            type : recording | play_audio
+        */
+        localStorage.removeItem(`global_${type}_flag`);
+    };
+
+    const getGlobalFlagStatus = type => {
+        if (localStorage.getItem(`global_${type}_flag`)) return true;
+
+        return false;
+    };
+
+    const notify = (message, type) => {
+        /* 
+            type: error | warning | success
+        */
+        addToast(message, {
+            autoDismiss: true,
+            appearance: type,
+            autoDismissTimeout: 3000,
+        });
+    };
+
+    const startRecording = () => {
+        recorder
+            .start()
+            .then(() => {
+                setRecording(true);
+                setGlobalFlag('recording');
+            })
+            .catch(e => console.error(e));
+    };
+
+    const stopRecording = () => {
+        recorder
+            .stop()
+            .getMp3()
+            .then(([buffer, blob]) => {
+                setRecording(false);
+                unSetGlobalFlag('recording');
+                callbacks.saveSegment(item.id, blob);
+            })
+            .catch(e => console.log(e));
+    };
+
+    const handleDelete = () => {
+        if (recording) {
+            stopRecording();
+        }
+        callbacks.deleteSegment(item.id);
+    };
+
+    const playAudio = e => {
+        if (!getGlobalFlagStatus('recording') && !getGlobalFlagStatus('play_audio')) {
+            setGlobalFlag('play_audio');
+            callbacks.playSegment(item.id, e.target);
+        } else {
+            if (getGlobalFlagStatus('recording')) {
+                notify('Cannot play and record at the same time!', 'error');
+            } else if (getGlobalFlagStatus('play_audio')) {
+                notify('Cannot play two segments at the same time!', 'error');
+            }
+        }
+    };
 
     const handleRecording = () => {
         /*
             Recording === true meaning currently segment 
             is being recorded
         */
-        if (recording) {
-            // stop recording
-            recorder
-                .stop()
-                .getMp3()
-                .then(([buffer, blob]) => {
-                    setRecording(false);
-                    callbacks.saveSegment(item.id, blob);
-                })
-                .catch(e => console.log(e));
+        if (!recording) {
+            if (!getGlobalFlagStatus('recording') && !getGlobalFlagStatus('play_audio')) {
+                startRecording();
+            } else {
+                if (getGlobalFlagStatus('recording')) {
+                    notify('Cannot record two segments at the same time!', 'error');
+                } else if (getGlobalFlagStatus('play_audio')) {
+                    notify('Cannot record when segment is playing!', 'error');
+                }
+            }
         } else {
-            // start recording
-            recorder
-                .start()
-                .then(() => {
-                    setRecording(true);
-                })
-                .catch(e => console.error(e));
+            stopRecording();
         }
     };
 

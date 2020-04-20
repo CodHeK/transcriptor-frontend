@@ -35,6 +35,9 @@ const SideSegement = props => {
 
         if (status && files.length === 0) {
             props.callbacks.nullifySentence(activeSentence);
+
+            localStorage.removeItem('global_recording_flag');
+            localStorage.removeItem('global_play_audio_flag');
         }
     }, [files, status]);
 
@@ -119,6 +122,8 @@ const SideSegement = props => {
                     elem.classList.remove('fa-volume-down');
                     elem.classList.add('fa-volume-up');
                     elem.classList.remove('playing');
+
+                    localStorage.removeItem('global_play_audio_flag');
                 }, duration);
             };
             audio.play();

@@ -101,6 +101,8 @@ const ReSpeakEditor = props => {
         localStorage.removeItem('once-loaded');
         localStorage.removeItem('globalNextPlayMode_respeak');
         localStorage.removeItem('popUpInDisplay');
+        localStorage.removeItem('global_recording_flag');
+        localStorage.removeItem('global_play_audio_flag');
 
         localforage.clear();
 
@@ -207,6 +209,9 @@ const ReSpeakEditor = props => {
     };
 
     const notify = (message, type) => {
+        /* 
+            type: error | warning | success
+        */
         addToast(message, {
             autoDismiss: true,
             appearance: type,
