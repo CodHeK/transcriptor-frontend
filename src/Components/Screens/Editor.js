@@ -115,6 +115,7 @@ const Editor = props => {
         localStorage.removeItem('autoSave');
         localStorage.removeItem('cursorPos');
         localStorage.removeItem('globalNextPlayMode');
+        localStorage.removeItem('loadSavedState');
 
         dispatch(disableEditMode());
         dispatch(setTranscriptionIdForEdit(null));
@@ -122,7 +123,6 @@ const Editor = props => {
         /* Transition back to 'My Transcriptions' page */
         props.subPageCallback('My Transcriptions');
         localStorage.setItem('subpage', 'My Transcriptions');
-        localStorage.setItem('loadSavedState', 'false');
     };
 
     const createLinkForDownload = (url, type) => {

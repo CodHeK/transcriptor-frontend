@@ -668,6 +668,8 @@ const Playlist = props => {
                         SECTION_TIMER = null;
 
                     const cueTrack = () => {
+                        localStorage.removeItem('globalNextPlayMode');
+
                         if (editMode || sentenceSectionMode) {
                             /* 
                                 play / pause inside sentence or sentence section click
@@ -1591,7 +1593,6 @@ const Playlist = props => {
                     hotkeys('ctrl+p', (e, _) => {
                         e.preventDefault();
 
-                        localStorage.removeItem('globalNextPlayMode');
                         cueTrack();
 
                         updateEditorState();
