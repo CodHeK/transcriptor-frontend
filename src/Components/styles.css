@@ -1078,7 +1078,7 @@ footer {
     height: 20px;
     font-size: 12px;
     left: -2px;
-    top: -20px;
+    top: -25px;
     border: 2px solid white;
     padding: 3.5px 12px;
     border-radius: 2px;
@@ -1089,6 +1089,20 @@ footer {
     border-top: 2px dashed #888;
     border-left: 2px dashed #888;
     border-right: 2px dashed #888;
+    animation: timeDrop 0.3s forwards;
+}
+
+@keyframes timeDrop {
+    0% {
+        display: none;
+    }
+    50% {
+        transform: translateY(0px);
+    }
+    100% {
+        display: block;
+        transform: translateY(5px);
+    }
 }
 
 /* 
