@@ -960,16 +960,21 @@ footer {
     right: 10px;
 }
 
+/* 
+    SortableCard.js css
+*/
+
 .sortable-list {
     width: 390px;
     height: 60px;
-    margin: 0.5em 0.5em;
+    margin: 1em 0.5em;
     border: 2px dashed #888;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 2px;
     line-height: 1;
     display: flex;
     flex-direction: row;
+    position: relative;
 }
 
 .sortable-list:hover {
@@ -1065,6 +1070,25 @@ footer {
     letter-spacing: 1px;
     font-family: 'Open Sans' !important;
     font-weight: 400;
+}
+
+.time-label {
+    position: absolute;
+    width: auto;
+    height: 20px;
+    font-size: 12px;
+    left: -2px;
+    top: -20px;
+    border: 2px solid white;
+    padding: 3.5px 12px;
+    border-radius: 2px;
+    font-weight: normal;
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    z-index: 20;
+    border-top: 2px dashed #888;
+    border-left: 2px dashed #888;
+    border-right: 2px dashed #888;
 }
 
 /* 

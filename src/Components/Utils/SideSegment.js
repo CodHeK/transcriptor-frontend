@@ -60,6 +60,7 @@ const SideSegement = props => {
             name: `${sentenceInfo.sentenceId}_${files.length + 1}.mp3`,
             displayName: `segment_${files.length + 1}.mp3`,
             blob: null,
+            duration: null,
         };
 
         setFiles(files => [...files, newFile]);
@@ -105,6 +106,10 @@ const SideSegement = props => {
             files.map(file => {
                 if (file.id === id) {
                     file.blob = blob;
+                    const audio = new Audio(URL.createObjectURL(blob));
+                    audio.onloadedmetadata = () => {
+                        file.duration = audio.duration;
+                    };
                 }
                 return file;
             })
