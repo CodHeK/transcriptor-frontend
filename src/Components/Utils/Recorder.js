@@ -189,7 +189,7 @@ const Recorder = props => {
             );
         })
     ) : (
-        <p>Loading ... </p>
+        <></>
     );
 
     const sentenceSaved = id => {

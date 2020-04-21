@@ -54,6 +54,13 @@ const Dashboard = props => {
                             localStorage.setItem('loadSavedState', 'true');
                         }
                     }
+                } else if (name === 'Re-speak') {
+                    if (localStorage.getItem('reSpeakConfig')) {
+                        const inReSpeakMode = JSON.parse(localStorage.getItem('reSpeakConfig'));
+                        if (inReSpeakMode.active) {
+                            localStorage.setItem('loadSavedState_ReSpeak', 'true');
+                        }
+                    }
                 }
                 localStorage.setItem('subpage', name);
                 setPage(name);

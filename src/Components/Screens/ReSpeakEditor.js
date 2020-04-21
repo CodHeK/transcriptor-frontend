@@ -99,6 +99,7 @@ const ReSpeakEditor = props => {
         localStorage.removeItem('reSpeakConfig');
         localStorage.removeItem('cursorPos');
         localStorage.removeItem('once-loaded');
+        localStorage.removeItem('reSpeakEditorState');
         localStorage.removeItem('globalNextPlayMode_respeak');
         localStorage.removeItem('popUpInDisplay');
         localStorage.removeItem('global_recording_flag');
@@ -147,12 +148,12 @@ const ReSpeakEditor = props => {
 
     const toggleTrackModes = (mode, args = null, e = null) => {
         let $playListMuteButton = null,
-            keyBoardMode = true;
+            fromReSpeakEditor = true;
 
         if (!e) {
             // if no event emitter passed
             e = ee;
-            keyBoardMode = false;
+            fromReSpeakEditor = false;
         }
 
         switch (mode) {
@@ -162,7 +163,7 @@ const ReSpeakEditor = props => {
                     startTime = parseFloat(localStorage.getItem('cursorPos'));
                 }
                 setTrackMode(mode);
-                if (!keyBoardMode) {
+                if (!fromReSpeakEditor) {
                     if (!args) {
                         e.emit(mode, startTime);
                     } else {
@@ -174,7 +175,7 @@ const ReSpeakEditor = props => {
 
             case 'pause':
                 setTrackMode(mode);
-                if (!keyBoardMode) {
+                if (!fromReSpeakEditor) {
                     e.emit(mode);
                     localStorage.setItem('globalNextPlayMode_respeak', 'play');
                 }
@@ -305,7 +306,7 @@ const ReSpeakEditor = props => {
                                 >
                                     <i className="fa fa-stop"></i>
                                 </span>
-                                {/*<span
+                                <span
                                     title={mute ? 'un-mute' : 'mute'}
                                     className="btn-toggle-mute btn btn-default editor-controls"
                                     onClick={() => toggleTrackModes(!mute ? 'mute' : 'un-mute')}
@@ -316,7 +317,7 @@ const ReSpeakEditor = props => {
                                         <i className="fa fa-volume-mute"></i>
                                     )}
                                 </span>
-                                <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
+                                {/*<span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
                                     <i className="fa fa-search-plus"></i>
                                 </span>
                                 <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">

@@ -88,6 +88,8 @@ const ReSpeak = props => {
                     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
                     const $waveformTrack = document.getElementsByClassName('waveform')[0];
                     const $selectionPoint = document.getElementsByClassName('point')[0];
+                    const $stopBtn = document.getElementsByClassName('btn-stop')[0];
+                    const $sentenceMenu = document.querySelector('.three.wide.column');
 
                     let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
                     let nextPlayMode = 'play';
@@ -121,6 +123,42 @@ const ReSpeak = props => {
                     };
 
                     let oneSecond = oneSecondinPx();
+
+                    const updateEditorState = (args = null) => {
+                        let currEditorState = {
+                            waveFormScroll: $waveform.scrollLeft,
+                            cursorPos: $cursor.style.left,
+                            popUpInDisplay,
+                        };
+
+                        if (args) currEditorState = { ...currEditorState, ...args };
+                        else {
+                            const prevState = JSON.parse(localStorage.getItem('reSpeakEditorState'));
+                            if (prevState && 'activeSentence' in prevState) {
+                                currEditorState = { ...currEditorState, activeSentence: prevState.activeSentence };
+                            }
+                        }
+
+                        localStorage.setItem('reSpeakEditorState', JSON.stringify(currEditorState));
+                    };
+
+                    const loadEditorState = () => {
+                        let prevState = JSON.parse(localStorage.getItem('reSpeakEditorState'));
+
+                        console.log(prevState);
+
+                        if (prevState) {
+                            $waveform.scrollTo({ left: prevState.waveFormScroll, top: 0 });
+
+                            dispatch(addSectionForReSpeak(prevState.activeSentence));
+
+                            $cursor.style.left = prevState.cursorPos;
+
+                            popUpInDisplay = prevState.popUpInDisplay;
+                        }
+
+                        localStorage.setItem('loadSavedState_ReSpeak', 'false');
+                    };
 
                     const scrollOnCursorLimit = cursorPos => {
                         let relativeFirstTick = parseInt($timeTicks[0].style.left);
@@ -256,6 +294,8 @@ const ReSpeak = props => {
                             localStorage.setItem('popUpInDisplay', popUpInDisplay);
 
                             adjustLeft();
+
+                            updateEditorState();
                         }
                     };
 
@@ -270,8 +310,14 @@ const ReSpeak = props => {
                             popUpInDisplay = false;
 
                             localStorage.setItem('popUpInDisplay', popUpInDisplay);
+
+                            updateEditorState();
                         }
                     };
+
+                    /* 
+                        Event Listeners
+                    */
 
                     window.addEventListener('unload', _ => {
                         popUpInDisplay = localStorage.getItem('popUpInDisplay') === 'true' ? true : false;
@@ -286,6 +332,8 @@ const ReSpeak = props => {
                         popUpInDisplay && removeTimePopUp();
 
                         clearTimeout(WAVEFORM_SCROLL_TIMER);
+
+                        updateEditorState();
 
                         WAVEFORM_SCROLL_TIMER = setTimeout(() => {
                             if (popUpInDisplay) {
@@ -316,6 +364,7 @@ const ReSpeak = props => {
                             globalNextPlayMode_respeak = localStorage.getItem('globalNextPlayMode_respeak');
                             nextPlayMode = globalNextPlayMode_respeak;
                         }
+                        console.log('popup : ', popUpInDisplay, ' nextPlayMode : ', nextPlayMode);
                         if (nextPlayMode === 'pause') {
                             // currently playing
                             scrollOnCursorLimit(cursorPos);
@@ -348,19 +397,21 @@ const ReSpeak = props => {
                         $sectionBox.addEventListener('click', e => {
                             e.preventDefault();
 
+                            localStorage.setItem('globalNextPlayMode_respeak', 'pause');
+                            nextPlayMode = 'pause';
+
                             removeAllSectionHighlights();
                             const sentenceId = parseInt(e.srcElement.innerText);
                             scrollToSection(sentenceId);
 
                             dispatch(addSectionForReSpeak(sentenceId - 1)); // scrolls to sentence
 
-                            nextPlayMode = 'pause';
+                            updateEditorState({ activeSentence: sentenceId - 1 });
+
                             props.callbacks.changeTrackMode('play', null, ee);
                         });
                     }
 
-                    const $stopBtn = document.getElementsByClassName('btn-stop')[0];
-                    const $sentenceMenu = document.querySelector('.three.wide.column');
                     $stopBtn.addEventListener('click', _ => {
                         removeTimePopUp();
                         removeAllSectionHighlights();
@@ -371,13 +422,20 @@ const ReSpeak = props => {
                         });
 
                         dispatch(addSectionForReSpeak(0));
-                    });
-                });
 
-            return () => {
-                clearInterval(cursorUpdate);
-            };
+                        updateEditorState({ activeSentence: 0 });
+                    });
+
+                    // load prev state from localStorage
+                    localStorage.getItem('loadSavedState_ReSpeak') === 'true' && loadEditorState();
+                });
         }, 100);
+
+        return () => {
+            clearInterval(cursorUpdate);
+
+            localStorage.removeItem('cursorPos');
+        };
     }, []);
 
     if (!trackLoaded) {
