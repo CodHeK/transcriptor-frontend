@@ -352,12 +352,26 @@ const ReSpeak = props => {
                             const sentenceId = parseInt(e.srcElement.innerText);
                             scrollToSection(sentenceId);
 
-                            dispatch(addSectionForReSpeak(sentenceId - 1));
+                            dispatch(addSectionForReSpeak(sentenceId - 1)); // scrolls to sentence
 
                             nextPlayMode = 'pause';
                             props.callbacks.changeTrackMode('play', null, ee);
                         });
                     }
+
+                    const $stopBtn = document.getElementsByClassName('btn-stop')[0];
+                    const $sentenceMenu = document.querySelector('.three.wide.column');
+                    $stopBtn.addEventListener('click', _ => {
+                        removeTimePopUp();
+                        removeAllSectionHighlights();
+
+                        $waveform.scrollTo({
+                            left: 0,
+                            top: 0,
+                        });
+
+                        dispatch(addSectionForReSpeak(0));
+                    });
                 });
 
             return () => {
