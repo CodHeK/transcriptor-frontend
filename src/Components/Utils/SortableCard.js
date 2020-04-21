@@ -18,6 +18,11 @@ const SortableCard = ({ data: item, callbacks }) => {
 
         return () => {
             $(`#${item.id}`).unbind();
+
+            localStorage.removeItem('global_play_audio_flag');
+            localStorage.removeItem('global_recording_flag');
+
+            recorder.stop();
         };
     }, []);
 
