@@ -46,18 +46,26 @@ const CustomCard = props => {
         );
     };
 
+    const isReSpeakOpen = () => {
+        return (
+            (localStorage.getItem('reSpeakConfig') !== null &&
+                JSON.parse(localStorage.getItem('reSpeakConfig'))._id === props._id) ||
+            respeakId === props._id
+        );
+    };
+
     const options = [
         {
             key: 1,
             text: 'edit',
             value: 1,
-            disabled: isEditorOpen(),
+            disabled: isEditorOpen() || isReSpeakOpen(),
         },
         {
             key: 2,
             text: 're-speak',
             value: 2,
-            disabled: isEditorOpen(),
+            disabled: isEditorOpen() || isReSpeakOpen(),
         },
         {
             key: 3,
@@ -171,26 +179,38 @@ const CustomCard = props => {
         }
     };
 
+    const Mode = () => {
+        if (isEditorOpen()) {
+            const ID = JSON.parse(localStorage.getItem('editorConfig'))._id;
+
+            if (ID === props._id) {
+                return <span className="mode-flag">IN EDIT</span>;
+            }
+        } else if (isReSpeakOpen()) {
+            const ID = JSON.parse(localStorage.getItem('reSpeakConfig'))._id;
+
+            if (ID === props._id) {
+                return <span className="mode-flag">IN RE-SPEAK</span>;
+            }
+        }
+
+        // display cross icon
+        return (
+            <ConfirmationModal
+                callback={modalCallback}
+                content={'Warning'}
+                icon={'warning'}
+                body={'Are you sure you want to delete this transcription ?'}
+            />
+        );
+    };
+
     return (
         <Card style={styles.Card}>
             <Card.Content>
                 <Card.Header className="card-header">
                     {!loading ? props.filename : <Skeleton width={250} height={18} />}
-                    <span>
-                        {!loading &&
-                            (editMode && editId === props._id ? (
-                                <span className="edit-flag">IN EDIT</span>
-                            ) : editorNotSaved ? (
-                                <span className="edit-flag">IN EDIT</span>
-                            ) : (
-                                <ConfirmationModal
-                                    callback={modalCallback}
-                                    content={'Warning'}
-                                    icon={'warning'}
-                                    body={'Are you sure you want to delete this transcription ?'}
-                                />
-                            ))}
-                    </span>
+                    <span>{!loading && <Mode />}</span>
                 </Card.Header>
                 <Card.Meta className="card-meta">
                     {!loading ? date + ', ' + time : <Skeleton width={180} height={15} />}

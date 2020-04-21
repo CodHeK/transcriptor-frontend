@@ -123,7 +123,7 @@ body ::-webkit-scrollbar-track {
     right: 8px !important;
 }
 
-.edit-flag {
+.mode-flag {
     color: red;
     letter-spacing: 0.7px;
     position: absolute !important;
@@ -1074,6 +1074,8 @@ footer {
 
 .time-label {
     position: absolute;
+    min-width: 50px;
+    text-align: center;
     width: auto;
     height: 20px;
     font-size: 12px;
