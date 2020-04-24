@@ -155,7 +155,7 @@ const ReSpeakEditor = props => {
     };
 
     const setCursorByLeft = left => {
-        $cursor.style.left = left.toString() + 'px';
+        setTimeout(() => ($cursor.style.left = left.toString() + 'px'), 10);
     };
 
     const toggleTrackModes = (mode, args = null, e = null) => {

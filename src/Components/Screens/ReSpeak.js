@@ -389,6 +389,35 @@ const ReSpeak = props => {
                         setTimeout(() => {
                             $cursor.style.left = $selectionPoint.style.left;
 
+                            setTimeout(() => {
+                                const inSectionPlayMod = JSON.parse(localStorage.getItem('section-playing-respeak'));
+
+                                if (inSectionPlayMod) {
+                                    let startTime = 0;
+                                    if (localStorage.getItem('cursorPos')) {
+                                        startTime = parseFloat(localStorage.getItem('cursorPos'));
+                                    }
+
+                                    const OLD_SECTION_TIMER = parseInt(localStorage.getItem('SECTION_TIMER_ID'));
+
+                                    if (OLD_SECTION_TIMER) {
+                                        clearTimeout(OLD_SECTION_TIMER);
+                                        localStorage.removeItem('SECTION_TIMER_ID');
+                                    }
+
+                                    const NEW_SECTION_TIMER = setTimeout(() => {
+                                        localStorage.removeItem('section-playing-respeak');
+                                        localStorage.removeItem('SECTION_TIMER_ID');
+                                        props.callbacks.changeTrackMode('pause', null, ee);
+                                        const sentenceIdx = parseInt(inSectionPlayMod.sentenceIdx);
+                                        removeSectionHighlight($sentenceSectionBoxes[sentenceIdx]);
+                                        setCursorByLeft(inSectionPlayMod.startPoint);
+                                    }, (inSectionPlayMod.endTime - startTime) * 1000 - 500); // as cursorUpdate took 500ms
+
+                                    localStorage.setItem('SECTION_TIMER_ID', NEW_SECTION_TIMER);
+                                }
+                            }, 500); // as cursorPos update is every 500ms
+
                             popUpInDisplay && removeTimePopUp();
                             !popUpInDisplay && showTimePopUp();
                         }, 10);
@@ -424,6 +453,13 @@ const ReSpeak = props => {
                             updateEditorState({ activeSentence: sentenceId - 1 });
 
                             props.callbacks.changeTrackMode('play', { startTime, endTime }, ee); // [NEEDS FIX]
+
+                            const OLD_SECTION_TIMER = parseInt(localStorage.getItem('SECTION_TIMER_ID'));
+
+                            if (OLD_SECTION_TIMER) {
+                                clearTimeout(OLD_SECTION_TIMER);
+                                localStorage.removeItem('SECTION_TIMER_ID');
+                            }
 
                             SECTION_TIMER = setTimeout(() => {
                                 localStorage.removeItem('section-playing-respeak');
