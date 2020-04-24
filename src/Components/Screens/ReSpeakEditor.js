@@ -32,6 +32,8 @@ const ReSpeakEditor = props => {
 
     const dispatch = useDispatch();
     const { addToast } = useToasts();
+    const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
+    const $cursor = document.getElementsByClassName('cursor')[0];
 
     const { ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
@@ -105,6 +107,8 @@ const ReSpeakEditor = props => {
         localStorage.removeItem('global_recording_flag');
         localStorage.removeItem('global_play_audio_flag');
         localStorage.removeItem('currently_playing');
+        localStorage.removeItem('SECTION_TIMER_ID');
+        localStorage.removeItem('section-playing-respeak');
 
         localforage.clear();
 
@@ -146,9 +150,18 @@ const ReSpeakEditor = props => {
             });
     };
 
+    const removeSectionHighlight = $element => {
+        $element.classList.remove('section-highlight');
+    };
+
+    const setCursorByLeft = left => {
+        $cursor.style.left = left.toString() + 'px';
+    };
+
     const toggleTrackModes = (mode, args = null, e = null) => {
         let $playListMuteButton = null,
             fromReSpeakEditor = true;
+        const inSectionPlayMod = JSON.parse(localStorage.getItem('section-playing-respeak'));
 
         if (!e) {
             // if no event emitter passed
@@ -158,27 +171,52 @@ const ReSpeakEditor = props => {
 
         switch (mode) {
             case 'play':
-                let startTime = 0;
+                let startTime = 0,
+                    NEW_SECTION_TIMER = null;
                 if (localStorage.getItem('cursorPos')) {
                     startTime = parseFloat(localStorage.getItem('cursorPos'));
                 }
                 setTrackMode(mode);
-                if (!fromReSpeakEditor) {
-                    if (!args) {
-                        e.emit(mode, startTime);
+
+                if (fromReSpeakEditor) {
+                    e.emit('play', parseFloat(args.startTime), parseFloat(args.endTime));
+                } else {
+                    if (inSectionPlayMod) {
+                        // section was paused in between and now played
+                        e.emit('play', startTime, inSectionPlayMod.endTime);
+
+                        NEW_SECTION_TIMER = setTimeout(() => {
+                            localStorage.removeItem('section-playing-respeak');
+                            localStorage.removeItem('SECTION_TIMER_ID');
+                            setTrackMode('pause');
+                            const sentenceIdx = parseInt(inSectionPlayMod.sentenceIdx);
+                            removeSectionHighlight($sentenceSectionBoxes[sentenceIdx]);
+                            setCursorByLeft(inSectionPlayMod.startPoint);
+                        }, (inSectionPlayMod.endTime - startTime) * 1000);
+
+                        localStorage.setItem('SECTION_TIMER_ID', NEW_SECTION_TIMER);
                     } else {
-                        e.emit(mode, startTime, args.endTime); /* used to just play the section */
+                        e.emit('play', startTime);
                     }
-                    localStorage.setItem('globalNextPlayMode_respeak', 'pause');
                 }
+                localStorage.setItem('globalNextPlayMode_respeak', 'pause');
                 break;
 
             case 'pause':
                 setTrackMode(mode);
-                if (!fromReSpeakEditor) {
+
+                if (inSectionPlayMod) {
+                    // clear the SECTION_TIMER Timeout
+                    const SECTION_TIMER = parseInt(localStorage.getItem('SECTION_TIMER_ID'));
+
+                    clearTimeout(SECTION_TIMER);
+                    localStorage.removeItem('SECTION_TIMER_ID');
+
                     e.emit(mode);
-                    localStorage.setItem('globalNextPlayMode_respeak', 'play');
+                } else {
+                    e.emit(mode);
                 }
+                localStorage.setItem('globalNextPlayMode_respeak', 'play');
                 break;
 
             case 'stop':

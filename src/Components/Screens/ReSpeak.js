@@ -124,6 +124,10 @@ const ReSpeak = props => {
 
                     let oneSecond = oneSecondinPx();
 
+                    const setCursorByLeft = left => {
+                        $cursor.style.left = left.toString() + 'px';
+                    };
+
                     const updateEditorState = (args = null) => {
                         let currEditorState = {
                             waveFormScroll: $waveform.scrollLeft,
@@ -144,8 +148,6 @@ const ReSpeak = props => {
 
                     const loadEditorState = () => {
                         let prevState = JSON.parse(localStorage.getItem('reSpeakEditorState'));
-
-                        console.log(prevState);
 
                         if (prevState) {
                             $waveform.scrollTo({ left: prevState.waveFormScroll, top: 0 });
@@ -364,7 +366,6 @@ const ReSpeak = props => {
                             globalNextPlayMode_respeak = localStorage.getItem('globalNextPlayMode_respeak');
                             nextPlayMode = globalNextPlayMode_respeak;
                         }
-                        console.log('popup : ', popUpInDisplay, ' nextPlayMode : ', nextPlayMode);
                         if (nextPlayMode === 'pause') {
                             // currently playing
                             scrollOnCursorLimit(cursorPos);
@@ -393,22 +394,46 @@ const ReSpeak = props => {
                         }, 10);
                     });
 
+                    let SECTION_TIMER = null;
+
                     for (let $sectionBox of $sentenceSectionBoxes) {
                         $sectionBox.addEventListener('click', e => {
                             e.preventDefault();
 
-                            localStorage.setItem('globalNextPlayMode_respeak', 'pause');
+                            // localStorage.setItem('globalNextPlayMode_respeak', 'pause'); // [A STOPGAP, NEEDS TO BE FIXED]
                             nextPlayMode = 'pause';
 
                             removeAllSectionHighlights();
                             const sentenceId = parseInt(e.srcElement.innerText);
                             scrollToSection(sentenceId);
 
+                            const { begin: startTime, end: endTime } = props.notes[sentenceId - 1];
+                            const startPoint =
+                                parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) + $waveform.scrollLeft;
+                            const sectionData = {
+                                startPoint,
+                                sentenceIdx: sentenceId - 1,
+                                startTime,
+                                endTime,
+                            };
+
+                            localStorage.setItem('section-playing-respeak', JSON.stringify(sectionData));
+
                             dispatch(addSectionForReSpeak(sentenceId - 1)); // scrolls to sentence
 
                             updateEditorState({ activeSentence: sentenceId - 1 });
 
-                            props.callbacks.changeTrackMode('play', null, ee);
+                            props.callbacks.changeTrackMode('play', { startTime, endTime }, ee); // [NEEDS FIX]
+
+                            SECTION_TIMER = setTimeout(() => {
+                                localStorage.removeItem('section-playing-respeak');
+                                localStorage.removeItem('SECTION_TIMER_ID');
+                                props.callbacks.changeTrackMode('pause', null, ee);
+                                removeSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
+                                setCursorByLeft(startPoint);
+                            }, (endTime - startTime) * 1000);
+
+                            localStorage.setItem('SECTION_TIMER_ID', SECTION_TIMER);
                         });
                     }
 

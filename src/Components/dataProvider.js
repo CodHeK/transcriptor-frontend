@@ -7,7 +7,7 @@ const defaultOptions = {
 const statusOK = status => status === 200 || status === 304;
 
 export default {
-    auth: async (resource, params) => {
+    auth: (resource, params) => {
         return new Promise((resolve, reject) => {
             axios({
                 method: 'POST',

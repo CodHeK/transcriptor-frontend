@@ -446,7 +446,8 @@ const Playlist = props => {
                         $cursor.style.left = cursorPos.toString() + 'px';
                     };
 
-                    const setCursor1 = time => {
+                    // [EXPERIMENTAL]
+                    const setCursorByTime1 = time => {
                         const delta = parseFloat(time) - parseInt(time);
                         const offset = delta * oneSecond;
                         const idx = lower_bound(parseInt(time), timeList);
@@ -463,13 +464,14 @@ const Playlist = props => {
                         $cursor.style.left = pos + offset + 25 + 'px';
                     };
 
-                    const setCursor = time => {
-                        console.log('time: ', time, ' oneSecond: ', oneSecond);
+                    const setCursorByTime = time => {
                         let offset = parseFloat(time) * oneSecond;
 
-                        console.log('offset ', offset);
-
                         $cursor.style.left = offset.toString() + 'px';
+                    };
+
+                    const setCursorByLeft = left => {
+                        $cursor.style.left = left.toString() + 'px';
                     };
 
                     const diffTimes = (oldTime, newTime) => oldTime !== newTime;
@@ -686,13 +688,16 @@ const Playlist = props => {
                                         currently track paused
                                     */
                                     const cursorPos = getTimeAtCursorPosition();
-                                    let { startTime, endTime } = getSentenceInfo($currentHighlighted);
+                                    let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
 
                                     startTime = Math.max(startTime, cursorPos);
 
                                     TIMER = setTimeout(() => {
                                         sentenceSectionMode = false;
-                                        setCursor(startTime + 0.1);
+                                        const startPoint =
+                                            parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
+                                            $waveform.scrollLeft;
+                                        setCursorByLeft(startPoint);
                                         props.callbacks.changeTrackMode('pause', null, ee);
                                         nextPlayMode = 'play';
                                     }, (endTime - startTime + 0.1) * 1000);
@@ -987,7 +992,7 @@ const Playlist = props => {
                         setTimeout(() => {
                             oneSecond = oneSecondinPx();
                             updateEditorState();
-                            setCursor(prevTime);
+                            setCursorByTime(prevTime);
                         }, 50);
                     };
 
@@ -1114,7 +1119,7 @@ const Playlist = props => {
 
                                 $currentHighlighted.classList.remove('current-editing');
 
-                                let { startTime, endTime } = getSentenceInfo($currentHighlighted);
+                                let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
                                 let cursorPosTime = getTimeAtCursorPosition();
 
                                 keyBoardMode = true;
@@ -1132,7 +1137,10 @@ const Playlist = props => {
                                 addSentenceHighlight($currentHighlighted);
 
                                 setTimeout(() => {
-                                    setCursor(startTime);
+                                    const startPoint =
+                                        parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
+                                        $waveform.scrollLeft;
+                                    setCursorByLeft(startPoint);
                                     updateEditorState();
                                 }, 20);
                             }
@@ -1175,8 +1183,9 @@ const Playlist = props => {
                             scrollToSection(sentenceId);
 
                             setTimeout(() => {
-                                console.log('st ', startTime);
-                                setCursor(startTime);
+                                const startPoint =
+                                    parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) + $waveform.scrollLeft;
+                                setCursorByLeft(startPoint);
                                 updateEditorState();
                             }, 20);
                         });
@@ -1249,7 +1258,10 @@ const Playlist = props => {
                                 scrollToSection(sentenceId);
 
                                 SECTION_TIMER = setTimeout(() => {
-                                    setCursor(startTime + 0.1);
+                                    const startPoint =
+                                        parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
+                                        $waveform.scrollLeft;
+                                    setCursorByLeft(startPoint);
                                     addSentenceHighlight($currentElement);
                                     props.callbacks.changeTrackMode('pause', null, ee);
                                     nextPlayMode = 'play';
@@ -1593,7 +1605,10 @@ const Playlist = props => {
                                 }
 
                                 setTimeout(() => {
-                                    setCursor(startTime);
+                                    const startPoint =
+                                        parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
+                                        $waveform.scrollLeft;
+                                    setCursorByLeft(startPoint);
                                 }, 20);
                             }
 
