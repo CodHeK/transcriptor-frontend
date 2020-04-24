@@ -1263,6 +1263,7 @@ const Playlist = props => {
                                         $waveform.scrollLeft;
                                     setCursorByLeft(startPoint);
                                     addSentenceHighlight($currentElement);
+                                    removeSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
                                     props.callbacks.changeTrackMode('pause', null, ee);
                                     nextPlayMode = 'play';
                                 }, (endTime - startTime + 0.1) * 1000);
