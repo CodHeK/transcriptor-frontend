@@ -32,6 +32,7 @@ const ReSpeakEditor = props => {
 
     const dispatch = useDispatch();
     const { addToast } = useToasts();
+
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
     const $cursor = document.getElementsByClassName('cursor')[0];
 
@@ -109,6 +110,7 @@ const ReSpeakEditor = props => {
         localStorage.removeItem('currently_playing');
         localStorage.removeItem('SECTION_TIMER_ID');
         localStorage.removeItem('section-playing-respeak');
+        localStorage.removeItem('loadSavedState_ReSpeak');
 
         localforage.clear();
 
@@ -192,7 +194,7 @@ const ReSpeakEditor = props => {
                             const sentenceIdx = parseInt(inSectionPlayMod.sentenceIdx);
                             removeSectionHighlight($sentenceSectionBoxes[sentenceIdx]);
                             setCursorByLeft(inSectionPlayMod.startPoint);
-                        }, (inSectionPlayMod.endTime - startTime) * 1000);
+                        }, (inSectionPlayMod.endTime - startTime + 0.1) * 1000);
 
                         localStorage.setItem('SECTION_TIMER_ID', NEW_SECTION_TIMER);
                     } else {
@@ -211,11 +213,9 @@ const ReSpeakEditor = props => {
 
                     clearTimeout(SECTION_TIMER);
                     localStorage.removeItem('SECTION_TIMER_ID');
-
-                    e.emit(mode);
-                } else {
-                    e.emit(mode);
                 }
+
+                e.emit(mode);
                 localStorage.setItem('globalNextPlayMode_respeak', 'play');
                 break;
 

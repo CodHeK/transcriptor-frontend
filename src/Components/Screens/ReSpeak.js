@@ -261,7 +261,10 @@ const ReSpeak = props => {
                         const $popUp = document.getElementsByClassName('pop-up-container')[0];
                         const styles = getComputedStyle($popUp);
 
-                        $popUp.style.left = parseFloat(styles.left) - parseFloat($popUp.clientWidth / 2) + 29 + 'px';
+                        if ($popUp) {
+                            $popUp.style.left =
+                                parseFloat(styles.left) - parseFloat($popUp.clientWidth / 2) + 29 + 'px';
+                        }
                     };
 
                     const showTimePopUp = () => {
@@ -285,19 +288,21 @@ const ReSpeak = props => {
                             const $timeDisplay = buildElement('div', 'pop-up-time-display animate', null, null, time);
                             const $pointer = buildElement('div', 'pop-up-pointer animate');
 
-                            $popUp.appendChild($timeDisplay);
+                            if ($popUp) {
+                                $popUp.appendChild($timeDisplay);
 
-                            window.scrollY <= 250 && $popUp.appendChild($pointer);
+                                window.scrollY <= 250 && $popUp.appendChild($pointer);
 
-                            $playlistContainer.insertBefore($popUp, $playlist);
+                                $playlistContainer.insertBefore($popUp, $playlist);
 
-                            popUpInDisplay = true;
+                                popUpInDisplay = true;
 
-                            localStorage.setItem('popUpInDisplay', popUpInDisplay);
+                                localStorage.setItem('popUpInDisplay', popUpInDisplay);
 
-                            adjustLeft();
+                                adjustLeft();
 
-                            updateEditorState();
+                                updateEditorState();
+                            }
                         }
                     };
 
@@ -307,13 +312,15 @@ const ReSpeak = props => {
                         if ($playlistContainer) {
                             const $popUp = document.getElementsByClassName('pop-up-container')[0];
 
-                            $popUp && $playlistContainer.removeChild($popUp);
+                            if ($popUp) {
+                                $playlistContainer.removeChild($popUp);
 
-                            popUpInDisplay = false;
+                                popUpInDisplay = false;
 
-                            localStorage.setItem('popUpInDisplay', popUpInDisplay);
+                                localStorage.setItem('popUpInDisplay', popUpInDisplay);
 
-                            updateEditorState();
+                                updateEditorState();
+                            }
                         }
                     };
 
@@ -429,7 +436,6 @@ const ReSpeak = props => {
                         $sectionBox.addEventListener('click', e => {
                             e.preventDefault();
 
-                            // localStorage.setItem('globalNextPlayMode_respeak', 'pause'); // [A STOPGAP, NEEDS TO BE FIXED]
                             nextPlayMode = 'pause';
 
                             removeAllSectionHighlights();
@@ -452,7 +458,7 @@ const ReSpeak = props => {
 
                             updateEditorState({ activeSentence: sentenceId - 1 });
 
-                            props.callbacks.changeTrackMode('play', { startTime, endTime }, ee); // [NEEDS FIX]
+                            props.callbacks.changeTrackMode('play', { startTime, endTime }, ee);
 
                             const OLD_SECTION_TIMER = parseInt(localStorage.getItem('SECTION_TIMER_ID'));
 

@@ -667,54 +667,58 @@ const Playlist = props => {
                         }
                     };
 
-                    let TIMER = null,
-                        SECTION_TIMER = null;
+                    let SECTION_TIMER = null;
 
                     const cueTrack = () => {
                         localStorage.removeItem('globalNextPlayMode');
 
+                        sentenceSectionMode = localStorage.getItem('section-playing-editor') ? true : false;
+
                         if (editMode || sentenceSectionMode) {
                             /* 
-                                play / pause inside sentence or sentence section click
+                                play / pause (using ctrl + p) inside sentence or sentence section click
                             */
 
                             let $currentHighlighted = getCurrentHighlightedElement();
 
                             if ($currentHighlighted) {
                                 if (nextPlayMode === 'play') {
-                                    clearTimeout(TIMER);
-
                                     /* 
-                                        currently track paused
+                                        track was paused, now playing
                                     */
                                     const cursorPos = getTimeAtCursorPosition();
                                     let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
+                                    const startPoint =
+                                        parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
+                                        $waveform.scrollLeft;
 
                                     startTime = Math.max(startTime, cursorPos);
 
-                                    TIMER = setTimeout(() => {
+                                    SECTION_TIMER = setTimeout(() => {
                                         sentenceSectionMode = false;
-                                        const startPoint =
-                                            parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
-                                            $waveform.scrollLeft;
+                                        localStorage.removeItem('section-playing-editor');
+                                        localStorage.removeItem('SECTION_TIMER_ID');
                                         setCursorByLeft(startPoint);
                                         props.callbacks.changeTrackMode('pause', null, ee);
                                         nextPlayMode = 'play';
                                     }, (endTime - startTime + 0.1) * 1000);
 
+                                    // update the current section timer id to localStorage
+                                    localStorage.setItem('SECTION_TIMER_ID', SECTION_TIMER);
+
                                     ee.emit('play', startTime, endTime);
                                     nextPlayMode = 'pause';
                                 } else {
                                     /* 
-                                        currently track is playing
+                                        track was playing, now paused
                                     */
                                     const cursorPos = getTimeAtCursorPosition();
 
                                     ee.emit('pause');
                                     nextPlayMode = 'play';
 
-                                    clearTimeout(TIMER);
                                     clearTimeout(SECTION_TIMER);
+                                    localStorage.removeItem('SECTION_TIMER_ID');
                                 }
                             }
                         } else {
@@ -795,7 +799,10 @@ const Playlist = props => {
                         const $popUp = document.getElementsByClassName('pop-up-container')[0];
                         const styles = getComputedStyle($popUp);
 
-                        $popUp.style.left = parseFloat(styles.left) - parseFloat($popUp.clientWidth / 2) + 29 + 'px';
+                        if ($popUp) {
+                            $popUp.style.left =
+                                parseFloat(styles.left) - parseFloat($popUp.clientWidth / 2) + 29 + 'px';
+                        }
                     };
 
                     const showTimePopUp = () => {
@@ -819,17 +826,19 @@ const Playlist = props => {
                             const $timeDisplay = buildElement('div', 'pop-up-time-display animate', null, null, time);
                             const $pointer = buildElement('div', 'pop-up-pointer animate');
 
-                            $popUp.appendChild($timeDisplay);
+                            if ($popUp) {
+                                $popUp.appendChild($timeDisplay);
 
-                            window.scrollY <= 250 && $popUp.appendChild($pointer);
+                                window.scrollY <= 250 && $popUp.appendChild($pointer);
 
-                            $playlistContainer.insertBefore($popUp, $playlist);
+                                $playlistContainer.insertBefore($popUp, $playlist);
 
-                            popUpInDisplay = true;
+                                popUpInDisplay = true;
 
-                            updateEditorState();
+                                updateEditorState();
 
-                            adjustLeft();
+                                adjustLeft();
+                            }
                         }
                     };
 
@@ -839,11 +848,13 @@ const Playlist = props => {
                         if ($playlistContainer) {
                             const $popUp = document.getElementsByClassName('pop-up-container')[0];
 
-                            $playlistContainer.removeChild($popUp);
+                            if ($popUp) {
+                                $playlistContainer.removeChild($popUp);
 
-                            popUpInDisplay = false;
+                                popUpInDisplay = false;
 
-                            updateEditorState();
+                                updateEditorState();
+                            }
                         }
                     };
 
@@ -1253,20 +1264,32 @@ const Playlist = props => {
 
                             if ($currentElement) {
                                 let { startTime, endTime } = getSentenceInfo($currentElement);
+                                const startPoint =
+                                    parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) + $waveform.scrollLeft;
+
+                                const sectionData = {
+                                    startPoint,
+                                    sentenceIdx: sentenceId - 1,
+                                    startTime,
+                                    endTime,
+                                };
+
+                                localStorage.setItem('section-playing-editor', JSON.stringify(sectionData));
 
                                 scrollToSentence(sentenceId);
                                 scrollToSection(sentenceId);
 
                                 SECTION_TIMER = setTimeout(() => {
-                                    const startPoint =
-                                        parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
-                                        $waveform.scrollLeft;
+                                    localStorage.removeItem('section-playing-editor');
+                                    localStorage.removeItem('SECTION_TIMER_ID');
                                     setCursorByLeft(startPoint);
                                     addSentenceHighlight($currentElement);
                                     removeSectionHighlight($sentenceSectionBoxes[sentenceId - 1]);
                                     props.callbacks.changeTrackMode('pause', null, ee);
                                     nextPlayMode = 'play';
                                 }, (endTime - startTime + 0.1) * 1000);
+
+                                localStorage.setItem('SECTION_TIMER_ID', SECTION_TIMER);
                             }
 
                             updateEditorState();

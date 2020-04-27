@@ -39,6 +39,9 @@ const Editor = props => {
     );
     const [mute, setMute] = useState(false);
 
+    const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
+    const $cursor = document.getElementsByClassName('cursor')[0];
+
     if (localStorage.getItem('autoSave') === null) {
         localStorage.setItem('autoSave', 'true');
     }
@@ -116,6 +119,8 @@ const Editor = props => {
         localStorage.removeItem('cursorPos');
         localStorage.removeItem('globalNextPlayMode');
         localStorage.removeItem('loadSavedState');
+        localStorage.removeItem('section-playing-editor');
+        localStorage.removeItem('SECTION_TIMER_ID');
 
         dispatch(disableEditMode());
         dispatch(setTranscriptionIdForEdit(null));
@@ -157,9 +162,18 @@ const Editor = props => {
         localStorage.setItem('autoSave', !autoSave);
     };
 
+    const removeSectionHighlight = $element => {
+        $element.classList.remove('section-highlight');
+    };
+
+    const setCursorByLeft = left => {
+        setTimeout(() => ($cursor.style.left = left.toString() + 'px'), 10);
+    };
+
     const toggleTrackModes = (mode, args = null, e = null) => {
         let $playListMuteButton = null,
             keyBoardMode = true;
+        const inSectionPlayMod = JSON.parse(localStorage.getItem('section-playing-editor'));
 
         if (!e) {
             // if no event emitter passed
@@ -169,13 +183,32 @@ const Editor = props => {
 
         switch (mode) {
             case 'play':
-                let startTime = 0;
+                let startTime = 0,
+                    NEW_SECTION_TIMER = null;
+
                 if (localStorage.getItem('cursorPos')) {
                     startTime = parseFloat(localStorage.getItem('cursorPos'));
                 }
                 setTrackMode(mode);
                 if (!keyBoardMode) {
-                    e.emit(mode, startTime);
+                    if (inSectionPlayMod) {
+                        // section was paused in between and now played
+                        e.emit(mode, startTime, inSectionPlayMod.endTime);
+
+                        NEW_SECTION_TIMER = setTimeout(() => {
+                            localStorage.removeItem('section-playing-editor');
+                            localStorage.removeItem('SECTION_TIMER_ID');
+                            setTrackMode('pause');
+                            const sentenceIdx = parseInt(inSectionPlayMod.sentenceIdx);
+                            removeSectionHighlight($sentenceSectionBoxes[sentenceIdx]);
+                            setCursorByLeft(inSectionPlayMod.startPoint);
+                        }, (inSectionPlayMod.endTime - startTime + 0.1) * 1000);
+
+                        localStorage.setItem('SECTION_TIMER_ID', NEW_SECTION_TIMER);
+                    } else {
+                        e.emit(mode, startTime);
+                    }
+
                     localStorage.setItem('globalNextPlayMode', 'pause');
                 }
                 break;
@@ -183,6 +216,14 @@ const Editor = props => {
             case 'pause':
                 setTrackMode(mode);
                 if (!keyBoardMode) {
+                    if (inSectionPlayMod) {
+                        // clear the SECTION_TIMER Timeout
+                        const SECTION_TIMER = parseInt(localStorage.getItem('SECTION_TIMER_ID'));
+
+                        clearTimeout(SECTION_TIMER);
+                        localStorage.removeItem('SECTION_TIMER_ID');
+                    }
+
                     e.emit(mode);
                     localStorage.setItem('globalNextPlayMode', 'play');
                 }
