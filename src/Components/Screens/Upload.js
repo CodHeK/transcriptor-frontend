@@ -23,15 +23,10 @@ const Upload = () => {
         };
     };
 
-    const handleChangeStatus = ({ meta }, status) => {
-        console.log(status, meta);
-    };
-
     return (
         <Dropzone
             getUploadParams={getUploadParams}
-            onChangeStatus={handleChangeStatus}
-            accept="image/*,audio/*,video/*"
+            accept=".mp3, .wav, .stm"
             inputContent={(_, extra) =>
                 extra.reject ? 'Image, audio and video files only' : 'Upload audio file(s) to continue'
             }
