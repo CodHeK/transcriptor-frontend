@@ -1,34 +1,49 @@
 import React from 'react';
 import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader';
+import dataProvider from '../dataProvider';
+import { useToasts } from 'react-toast-notifications';
 import '../styles.css';
 
 /*
-  Refer: https://react-dropzone-uploader.js.org/docs/api#getuploadparams
+  Refer: https://react-dropzone-uploader.js.org/docs/api#onsubmit
 */
 
 const Upload = () => {
-    const getUploadParams = async ({ file, meta }) => {
+    const { addToast } = useToasts();
+
+    const onSubmit = (_, UploadedFiles) => {
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('language', 'english');
-        const token = localStorage.getItem('token');
-        return {
-            url: `${process.env.REACT_APP_API_HOST}/api/speech/upload`,
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-        };
+
+        for (let info of UploadedFiles) {
+            const { file, meta } = info;
+            formData.append('file', file);
+            formData.append('language', 'english');
+        }
+
+        dataProvider.speech
+            .create('upload', {
+                options: {
+                    data: formData,
+                },
+            })
+            .then(res => {
+                addToast(`File(s) uploaded successfully! View status in "My Transcriptions"`, {
+                    autoDismiss: true,
+                    appearance: 'success',
+                    autoDismissTimeout: 5000,
+                });
+            });
     };
 
     return (
         <Dropzone
-            getUploadParams={getUploadParams}
+            onSubmit={onSubmit}
             accept=".mp3, .wav, .stm"
             inputContent={(_, extra) =>
-                extra.reject ? 'Image, audio and video files only' : 'Upload audio file(s) to continue'
+                extra.reject
+                    ? 'Only .mp3, .wav, .stm file formats valid!'
+                    : `Upload audio file(s) and/or transcripts to continue`
             }
             styles={{
                 dropzoneReject: { borderColor: 'red', backgroundColor: '#DAA' },

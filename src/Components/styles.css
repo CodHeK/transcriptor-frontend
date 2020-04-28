@@ -23,7 +23,7 @@
 }
 
 /* 
-    DropZone styles
+    Upload.js css
 */
 
 .dzu-input {
@@ -60,7 +60,10 @@
 }
 
 .dzu-submitButtonContainer {
-    display: none !important;
+    /* margin: 0 0 !important; */
+    position: absolute !important;
+    right: 2%;
+    bottom: 10px;
 }
 
 .dzu-submitButton {
@@ -70,6 +73,7 @@
     color: #000 !important;
     margin-top: 3.5em;
     background-color: #e6e6e6 !important;
+    position: relative;
 }
 
 body ::-webkit-scrollbar-track {

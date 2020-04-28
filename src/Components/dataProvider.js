@@ -89,6 +89,37 @@ export default {
                 alert("Couldn't DELETE resource!");
             }
         },
+        create: async (resource, params) => {
+            try {
+                console.log({
+                    method: 'POST',
+                    url: `${apiUrl}/speech/${resource}`,
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        ...params.headers,
+                    },
+                    ...defaultOptions,
+                    ...params.options,
+                });
+
+                const res = await axios({
+                    method: 'POST',
+                    url: `${apiUrl}/speech/${resource}`,
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        ...params.headers,
+                    },
+                    ...defaultOptions,
+                    ...params.options,
+                });
+
+                if (statusOK(res.status)) {
+                    return res;
+                }
+            } catch (e) {
+                alert("Couldn't POST resource!");
+            }
+        },
         transcripts: {
             create: async (resource, params) => {
                 try {

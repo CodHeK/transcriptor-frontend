@@ -183,6 +183,9 @@ const Dashboard = props => {
             </ToastProvider>
         );
     } else {
+        /* 
+            if not authenticated
+        */
         return (
             <Redirect
                 to={{
