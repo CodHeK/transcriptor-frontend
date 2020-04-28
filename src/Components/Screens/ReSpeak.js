@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint no-loop-func: "off" */
 import React, { useEffect, useState } from 'react';
-import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import EventEmitter from 'event-emitter';
 import Recorder from '../Utils/Recorder';
 import { ReSpeakLoader } from '../Utils/Loader';
@@ -89,7 +90,6 @@ const ReSpeak = props => {
                     const $waveformTrack = document.getElementsByClassName('waveform')[0];
                     const $selectionPoint = document.getElementsByClassName('point')[0];
                     const $stopBtn = document.getElementsByClassName('btn-stop')[0];
-                    const $sentenceMenu = document.querySelector('.three.wide.column');
 
                     let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
                     let nextPlayMode = 'play';

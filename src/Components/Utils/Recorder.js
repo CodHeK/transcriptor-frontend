@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Grid, Menu, Segment, Button } from 'semantic-ui-react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
+import { Grid, Menu } from 'semantic-ui-react';
 import SideSegment from './SideSegment';
 import localforage from 'localforage';
 import $ from 'jquery';

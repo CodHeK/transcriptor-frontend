@@ -16,7 +16,7 @@ const Upload = () => {
         const formData = new FormData();
 
         for (let info of UploadedFiles) {
-            const { file, meta } = info;
+            const { file } = info;
             formData.append('file', file);
             formData.append('language', 'english');
         }

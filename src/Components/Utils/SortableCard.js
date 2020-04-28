@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import MicRecorder from 'mic-recorder-to-mp3';
 import { useToasts } from 'react-toast-notifications';

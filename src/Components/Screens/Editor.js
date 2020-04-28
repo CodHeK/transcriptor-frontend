@@ -14,12 +14,7 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Label } from 'semantic-ui-react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    disableEditMode,
-    setTranscriptionIdForEdit,
-    deleteSentence,
-    setSentenceId,
-} from '../../actions/TranscriptionActions';
+import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
 
 const moment = require('moment');
 
@@ -46,7 +41,7 @@ const Editor = props => {
         localStorage.setItem('autoSave', 'true');
     }
 
-    const { inSaveMode, sentenceId, ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { inSaveMode, ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let dispatch = useDispatch();
 

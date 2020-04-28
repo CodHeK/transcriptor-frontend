@@ -23,7 +23,7 @@ const moment = require('moment');
 
 const CustomCard = props => {
     const [mode, setMode] = useState('choose');
-    const { editId, editMode, respeakId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { editId, respeakId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     const dispatch = useDispatch();
 
@@ -33,10 +33,6 @@ const CustomCard = props => {
 
     const time = moment(props.createdAt).format('LT');
     const date = moment(props.createdAt).format('LL');
-
-    const editorNotSaved =
-        localStorage.getItem('editorConfig') !== null &&
-        JSON.parse(localStorage.getItem('editorConfig'))._id === props._id;
 
     const isEditorOpen = () => {
         return (

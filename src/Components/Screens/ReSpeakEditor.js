@@ -1,9 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import ReSpeak from './ReSpeak';
-import Loader from 'react-loader-spinner';
 import Skeleton from 'react-loading-skeleton';
-import { ToastProvider } from 'react-toast-notifications';
 import { useToasts } from 'react-toast-notifications';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Label, Button } from 'semantic-ui-react';

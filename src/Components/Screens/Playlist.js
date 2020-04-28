@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint no-loop-func: "off" */
 import React, { useState, useEffect } from 'react';
 import EventEmitter from 'event-emitter';
 import hotkeys from 'hotkeys-js';
@@ -12,11 +13,9 @@ import { saveEventEmitter, toggleSaveMode, releaseToast } from '../../actions/Tr
 import { useToasts } from 'react-toast-notifications';
 
 const WaveformPlaylist = require('waveform-playlist');
-const axios = require('axios');
 
 const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
-    const [annotationsLoaded, setAnnotationsLoaded] = useState(false);
 
     const { inSaveMode, toast } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
@@ -144,8 +143,7 @@ const Playlist = props => {
                     let sentenceIdOnCursor = 0;
                     let cursorLimit = $annotationsBoxesDiv && $annotationsBoxesDiv.offsetWidth;
                     let nextPlayMode = 'play';
-                    let keyBoardMode = false,
-                        editMode = false,
+                    let editMode = false,
                         sentenceSectionMode = false;
 
                     let timeMap = new Map();
@@ -226,6 +224,7 @@ const Playlist = props => {
                         $element && $element.classList.add('current-selected');
                     };
 
+                    // eslint-disable-next-line
                     const removeAllSentenceHighlights = () => {
                         Array.from($annotations).map($e => $e.classList.remove('current-selected'));
                     };
@@ -248,7 +247,7 @@ const Playlist = props => {
                     };
 
                     const getCurrentHighlightedElement = () => {
-                        if (currentHighlightedSentence != -1) {
+                        if (currentHighlightedSentence !== -1) {
                             return $annotations[currentHighlightedSentence];
                         }
                         return null;
@@ -446,24 +445,6 @@ const Playlist = props => {
                         $cursor.style.left = cursorPos.toString() + 'px';
                     };
 
-                    // [EXPERIMENTAL]
-                    const setCursorByTime1 = time => {
-                        const delta = parseFloat(time) - parseInt(time);
-                        const offset = delta * oneSecond;
-                        const idx = lower_bound(parseInt(time), timeList);
-                        let nearestIntegerTimeTick = timeList[idx];
-
-                        if (nearestIntegerTimeTick > parseInt(time)) {
-                            nearestIntegerTimeTick = timeList[idx - 1];
-                        }
-
-                        const pos = timeMap.get(nearestIntegerTimeTick);
-
-                        // console.log(pos + offset, pos, offset, oneSecond, nearestIntegerTimeTick, delta);
-
-                        $cursor.style.left = pos + offset + 25 + 'px';
-                    };
-
                     const setCursorByTime = time => {
                         let offset = parseFloat(time) * oneSecond;
 
@@ -475,15 +456,6 @@ const Playlist = props => {
                     };
 
                     const diffTimes = (oldTime, newTime) => oldTime !== newTime;
-
-                    const getSentenceTimeInfo = ($sentence, sentenceId) => {
-                        const { startTime: newStartTime, endTime: newEndTime } = getSentenceInfo($sentence);
-
-                        const oldStartTime = parseFloat(notesCache[sentenceId]['begin']);
-                        const oldEndTime = parseFloat(notesCache[sentenceId]['end']);
-
-                        return { newStartTime, newEndTime, oldStartTime, oldEndTime };
-                    };
 
                     const diffExists = (sentenceId, newText, currNewStartTime, currNewEndTime) => {
                         const oldText = notesCache[sentenceId]['lines'].trim();
@@ -712,8 +684,6 @@ const Playlist = props => {
                                     /* 
                                         track was playing, now paused
                                     */
-                                    const cursorPos = getTimeAtCursorPosition();
-
                                     ee.emit('pause');
                                     nextPlayMode = 'play';
 
@@ -909,7 +879,7 @@ const Playlist = props => {
                             // currently playing
                             scrollOnCursorLimit(cursorPos);
 
-                            let { $currSentence, sentenceId } = cursorPos && findSentence(cursorPos);
+                            let { sentenceId } = cursorPos && findSentence(cursorPos);
 
                             if (sentenceId) currentHighlightedSentence = sentenceId - 1;
 
@@ -1133,7 +1103,6 @@ const Playlist = props => {
                                 let { sentenceId, startTime, endTime } = getSentenceInfo($currentHighlighted);
                                 let cursorPosTime = getTimeAtCursorPosition();
 
-                                keyBoardMode = true;
                                 editMode = false;
 
                                 removeAllSectionHighlights();
@@ -1171,7 +1140,6 @@ const Playlist = props => {
                             props.callbacks.changeTrackMode('pause', null, ee);
 
                             nextPlayMode = 'play';
-                            keyBoardMode = false;
                             editMode = true;
 
                             removeAllHighlights();
@@ -1513,7 +1481,7 @@ const Playlist = props => {
                             if (timer !== null) {
                                 clearTimeout(timer);
 
-                                const { startTime, endTime, sentenceId } = getSentenceInfo($sentence);
+                                const { endTime, sentenceId } = getSentenceInfo($sentence);
 
                                 let flag = true;
 
@@ -1555,7 +1523,6 @@ const Playlist = props => {
 
                     hotkeys('down', (e, _) => {
                         e.preventDefault();
-                        keyBoardMode = true;
                         editMode = false;
 
                         const { $prevSentenceNode } = moveDown();
@@ -1575,7 +1542,6 @@ const Playlist = props => {
 
                     hotkeys('up', (e, _) => {
                         e.preventDefault();
-                        keyBoardMode = true;
                         editMode = false;
 
                         const { $prevSentenceNode } = moveUp();
@@ -1637,7 +1603,6 @@ const Playlist = props => {
                             }
 
                             scrollToSection(sentenceId);
-                            keyBoardMode = true;
 
                             /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
                             setTimeout(() => $currentAnnotationText.focus(), 0);
