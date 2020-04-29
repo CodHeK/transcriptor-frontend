@@ -11,10 +11,11 @@ const SideSegement = props => {
     const { sentenceInfo, activeSentence, sentenceFiles, sentenceStatus } = props;
     const [files, setFiles] = useState(sentenceFiles);
     const [status, setStatus] = useState(sentenceStatus);
+    const [audioObj, setAudioObj] = useState(null);
 
     const { addToast } = useToasts();
-    let volumeDown = null,
-        volumeUp = null;
+
+    let AUDIO_TIMER = null;
 
     useEffect(() => {
         setFiles(sentenceFiles);
@@ -117,43 +118,39 @@ const SideSegement = props => {
         );
     };
 
+    const getAudioIcon = elem => {
+        if (Array.from(elem.classList).includes('sortable-listen-icon')) {
+            /* 
+                As the play event listener is `sortable-listen-icon` div (SortableCard.js)
+                which is parent to the icon `fa-play` / `fa-stop`
+            */
+            elem = elem.childNodes[0];
+        }
+
+        return elem;
+    };
+
     const playSegment = (id, elem) => {
         const file = files.filter(file => file.id === id)[0];
         if (file.blob) {
             localStorage.setItem('global_play_audio_flag', 'true');
+            localStorage.setItem('currently_playing', id);
 
             const audio = new Audio(URL.createObjectURL(file.blob));
+
+            setAudioObj(audio);
 
             audio.onloadedmetadata = () => {
                 const duration = audio.duration * 1000;
 
-                if (Array.from(elem.classList).includes('sortable-listen-icon')) {
-                    /* 
-                        As the play event listener is `sortable-listen-icon` div (SortableCard.js)
-                        which is parent to the icon `fa-volume-up`
-                    */
-                    elem = elem.childNodes[0];
-                }
+                elem = getAudioIcon(elem);
 
-                volumeDown = setInterval(() => {
-                    elem.classList.remove('fa-volume-up');
-                    elem.classList.add('fa-volume-down');
-                    elem.classList.add('playing');
-                }, 750);
+                elem.classList.remove('fa-play');
+                elem.classList.add('fa-stop');
 
-                volumeUp = setInterval(() => {
-                    elem.classList.remove('fa-volume-down');
-                    elem.classList.add('fa-volume-up');
-                    elem.classList.add('playing');
-                }, 1000);
-
-                setTimeout(() => {
-                    clearInterval(volumeDown);
-                    clearInterval(volumeUp);
-
-                    elem.classList.remove('fa-volume-down');
-                    elem.classList.add('fa-volume-up');
-                    elem.classList.remove('playing');
+                AUDIO_TIMER = setTimeout(() => {
+                    elem.classList.remove('fa-stop');
+                    elem.classList.add('fa-play');
 
                     localStorage.removeItem('global_play_audio_flag');
                     localStorage.removeItem('currently_playing');
@@ -163,6 +160,23 @@ const SideSegement = props => {
         } else {
             notify("Segment isin't recorded yet!", 'error');
         }
+    };
+
+    const stopSegment = (id, elem) => {
+        elem = getAudioIcon(elem);
+
+        clearTimeout(AUDIO_TIMER);
+
+        audioObj.pause();
+        audioObj.currentTime = 0;
+
+        setAudioObj(null);
+
+        elem.classList.remove('fa-stop');
+        elem.classList.add('fa-play');
+
+        localStorage.removeItem('global_play_audio_flag');
+        localStorage.removeItem('currently_playing');
     };
 
     const changeDisplayName = (id, newName) => {
@@ -180,6 +194,7 @@ const SideSegement = props => {
         deleteSegment,
         saveSegment,
         playSegment,
+        stopSegment,
         changeDisplayName,
     };
 

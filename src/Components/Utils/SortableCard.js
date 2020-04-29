@@ -90,16 +90,22 @@ const SortableCard = ({ data: item, callbacks }) => {
         callbacks.deleteSegment(item.id);
     };
 
-    const playAudio = e => {
-        if (!getGlobalFlagStatus('recording') && !getGlobalFlagStatus('play_audio')) {
-            localStorage.setItem('currently_playing', item.id);
-            callbacks.playSegment(item.id, e.target);
-        } else {
-            if (getGlobalFlagStatus('recording')) {
-                notify('Cannot play and record at the same time!', 'error');
-            } else if (getGlobalFlagStatus('play_audio')) {
-                notify('Cannot play two segments at the same time!', 'error');
+    const toggleAudio = e => {
+        if (!getGlobalFlagStatus('recording')) {
+            const currPlayingId = localStorage.getItem('currently_playing');
+            if (currPlayingId) {
+                if (currPlayingId.toString() === item.id.toString()) {
+                    // stop audio play
+                    callbacks.stopSegment(item.id, e.target);
+                } else {
+                    notify('Cannot play two segments at the same time!', 'error');
+                }
+            } else {
+                // no audio playing, play current segment
+                callbacks.playSegment(item.id, e.target);
             }
+        } else {
+            notify('Cannot play and record at the same time!', 'error');
         }
     };
 
@@ -168,13 +174,13 @@ const SortableCard = ({ data: item, callbacks }) => {
                     {item.displayName}
                 </span>
             </div>
-            <div className="sortable-listen-icon" onClick={playAudio}>
-                <i className="fas fa-volume-up"></i>
+            <div className="sortable-listen-icon" onClick={toggleAudio} title="play segment">
+                <i className="fa fa-play"></i>
             </div>
-            <div className="sortable-record-icon" onClick={handleRecording}>
+            <div className="sortable-record-icon" onClick={handleRecording} title="record segment">
                 <i className={`fas fa-microphone ${recording ? `recording` : ``}`}></i>
             </div>
-            <div className="sortable-delete-icon" onClick={handleDelete}>
+            <div className="sortable-delete-icon" onClick={handleDelete} title="delete segment">
                 <i className="fas fa-times"></i>
             </div>
         </div>

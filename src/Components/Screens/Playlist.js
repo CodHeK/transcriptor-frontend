@@ -1491,7 +1491,6 @@ const Playlist = props => {
                                     currentHighlightedSentence += 1;
                                 }
 
-                                // can be optimized using lower_bound()
                                 for (let idx in $annotations) {
                                     let id = parseInt(idx);
                                     if (!isNaN(id)) {
