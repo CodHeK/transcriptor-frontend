@@ -197,7 +197,6 @@ const Recorder = props => {
         // remove from edit set and push into saved set
         removeSentenceFromEdit(id);
         addSentenceToDone(id);
-        // setActiveSentence(activeSentence => (activeSentence + 1) % notes.length);
     };
 
     const nullifySentence = id => {

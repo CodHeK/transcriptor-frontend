@@ -770,7 +770,8 @@ footer {
 }
 
 .fa-volume-mute,
-.fa-volume-up .fa-volume-down,
+.fa-volume-up,
+.fa-volume-down,
 .fa-save {
     font-size: 19px !important;
     padding-top: 1px !important;
@@ -966,7 +967,6 @@ footer {
 /* 
     SortableCard.js css
 */
-
 .sortable-list {
     width: 390px;
     height: 60px;
@@ -1011,13 +1011,13 @@ footer {
 }
 
 .sortable-listen-icon .fa-play {
-    font-size: 17px;
+    font-size: 18px;
     padding-top: 1px;
     padding-left: 2px;
 }
 
 .sortable-listen-icon .fa-stop {
-    font-size: 17px;
+    font-size: 18px;
     padding-top: 1px;
     padding-left: 2px;
     color: rgba(255, 0, 0, 0.5);

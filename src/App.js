@@ -13,13 +13,16 @@ const App = () => {
     let Form = null;
 
     if (page === 'register') {
+        /* 
+            Handle '/register' 
+        */
         Form = <RegisterForm />;
     } else if (page === '' || page === 'login') {
+        /* 
+            Handle '/' and '/login' 
+        */
         Form = <LoginForm />;
     }
-
-    /* Clear localStorage */
-    localStorage.clear();
 
     return (
         <ToastProvider placement={'top-right'}>

@@ -8,9 +8,6 @@ import dataProvider from '../dataProvider';
 import { useToasts } from 'react-toast-notifications';
 
 const RegisterForm = () => {
-    /*
-    Defining Hooks for input fields
-  */
     const [registered, setRegistered] = useState(false);
     const styles = LoginFormStyles;
 
@@ -32,7 +29,6 @@ const RegisterForm = () => {
         const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
         const authenticateUser = () => {
-            // Init authentication
             setErrorState({
                 firstname: null,
                 lastname: null,
@@ -41,7 +37,9 @@ const RegisterForm = () => {
             });
             setLoading(true);
 
-            // Validate Form Data
+            /* 
+                Validate Form Data
+            */
             if (firstname === '') {
                 setErrorState({ ...errorState, firstname: 'error' });
             } else if (lastname === '') {
@@ -53,7 +51,9 @@ const RegisterForm = () => {
             } else {
                 const formData = { firstname, lastname, email, password };
 
-                // Send formData to the backend to authenticate
+                /* 
+                    Send formData to the backend to authenticate
+                */
                 dataProvider
                     .auth('register', {
                         options: {

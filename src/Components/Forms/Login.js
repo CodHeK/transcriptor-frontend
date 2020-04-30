@@ -8,9 +8,6 @@ import '../styles.css';
 import dataProvider from '../dataProvider';
 
 const LoginForm = props => {
-    /*
-        Defining Hooks for input fields
-    */
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,18 +15,19 @@ const LoginForm = props => {
     const [errorState, setErrorState] = useState({
         email: null,
         password: null,
-    }); // { 'elementID': state }
+    });
 
     const styles = LoginFormStyles;
 
     const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
     const authenticateUser = () => {
-        // Init authentication
         setErrorState({ email: null, password: null });
         setLoading(true);
 
-        // Validate form Data
+        /* 
+            Validate form Data
+        */
         if (email === '') {
             setErrorState({ ...errorState, email: 'empty' });
         } else if (email !== '' && password === '') {
@@ -37,7 +35,9 @@ const LoginForm = props => {
         } else if (email !== '' && password !== '') {
             const formData = { email, password };
 
-            // Send email and password values to the backend to authenticate
+            /*
+                Send email and password values to the backend to authenticate
+            */
             dataProvider
                 .auth('login', {
                     options: {

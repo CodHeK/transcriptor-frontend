@@ -91,20 +91,9 @@ export default {
         },
         create: async (resource, params) => {
             try {
-                console.log({
-                    method: 'POST',
-                    url: `${apiUrl}/speech/${resource}`,
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        ...params.headers,
-                    },
-                    ...defaultOptions,
-                    ...params.options,
-                });
-
                 const res = await axios({
                     method: 'POST',
-                    url: `${apiUrl}/speech/${resource}`,
+                    url: 'id' in params ? `${apiUrl}/speech/${params.id}/${resource}` : `${apiUrl}/speech/${resource}`,
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                         ...params.headers,

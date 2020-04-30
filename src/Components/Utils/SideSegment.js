@@ -138,6 +138,10 @@ const SideSegement = props => {
 
             const audio = new Audio(URL.createObjectURL(file.blob));
 
+            /* 
+                Saving currently playinh audio obj
+                needed when user presses stop audio.
+            */
             setAudioObj(audio);
 
             audio.onloadedmetadata = () => {
@@ -167,6 +171,9 @@ const SideSegement = props => {
 
         clearTimeout(AUDIO_TIMER);
 
+        /* 
+            A way to stop audio play
+        */
         audioObj.pause();
         audioObj.currentTime = 0;
 

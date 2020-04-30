@@ -257,15 +257,28 @@ const ReSpeakEditor = props => {
         });
     };
 
-    const checkEmpty = allFiles => {
+    const isEmpty = allFiles => {
         let isEmpty = true;
-        for (let file of allFiles) {
-            if (file.length > 0) {
+        for (let each of allFiles) {
+            const { files } = each;
+            if (files.length > 0) {
                 isEmpty = false;
                 break;
             }
         }
+
         return isEmpty;
+    };
+
+    const isComplete = allFiles => {
+        let isComplete = true;
+        for (let each of allFiles) {
+            if (each.status === 'in-edit') {
+                isComplete = false;
+                break;
+            }
+        }
+        return isComplete;
     };
 
     const handleSubmit = () => {
@@ -275,14 +288,40 @@ const ReSpeakEditor = props => {
         localforage.getItem('allFiles', (err, res) => {
             if (res) {
                 const allFiles = res;
-
-                if (!checkEmpty(allFiles)) {
+                const empty = isEmpty(allFiles),
+                    complete = isComplete(allFiles);
+                if (!empty && complete) {
                     /* 
                         POST request to the server here!
                     */
-                    notify('All files submitted successfully!', 'success');
+                    const formData = new FormData();
+                    for (let each of allFiles) {
+                        const { files } = each;
+
+                        for (let idx in files) {
+                            // name -> sentenceId_<increment>
+                            const name = `${files[idx].name.split('_')[0]}_${idx + 1}.mp3`;
+                            formData.append('files', files[idx].blob, name);
+                        }
+                    }
+
+                    dataProvider.speech
+                        .create('respeak', {
+                            id: transcriptionId,
+                            options: {
+                                data: formData,
+                            },
+                        })
+                        .then(res => {
+                            console.log(res);
+                            notify('All files submitted successfully!', 'success');
+                        });
                 } else {
-                    notify('No files recorded to submit!', 'error');
+                    if (empty) {
+                        notify('No files recorded to submit!', 'error');
+                    } else if (!complete) {
+                        notify('You have files still in EDIT, Make sure to save them before submitting.', 'warning');
+                    }
                 }
             } else {
                 notify('No files recorded to submit!', 'error');

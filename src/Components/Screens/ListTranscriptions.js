@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
-import CustomCard from '../Utils/Card';
+import CustomCard from '../Utils/CustomCard';
 import dataProvider from '../dataProvider';
 
 /* import react-redux hook for getting state */

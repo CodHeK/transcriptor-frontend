@@ -78,6 +78,7 @@ const Editor = props => {
                     lines: s.text /* `lines` key needed for library to display */,
                     sentenceId: s._id,
                     prevText: s.prevText,
+                    reSpeak: s.respeak,
                 });
 
                 counter++;
@@ -94,6 +95,8 @@ const Editor = props => {
                     const { uploadedFile, sentences } = res.data.speech;
 
                     const notes = processSentances(sentences);
+
+                    console.log(notes);
 
                     setFileInfo(uploadedFile);
                     setTranscript(notes);

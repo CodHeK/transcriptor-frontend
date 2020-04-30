@@ -27,4 +27,4 @@ All keys in `.env` must start with the prefix `REACT_APP_`. For more info refer 
 
 ### Note:
 
--   The project uses React Hooks which is in the newer versions on React, make sure you learn how hooks work, can refer to the link [here](https://reactjs.org/docs/hooks-intro.html).
+-   The project uses React Hooks which is in the newer versions of React, make sure you learn how hooks work, can refer to the link [here](https://reactjs.org/docs/hooks-intro.html).
