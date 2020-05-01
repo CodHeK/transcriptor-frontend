@@ -61,7 +61,7 @@ const Upload = () => {
             return prev + curr.size / 1000;
         }, 0);
 
-        const timeTakenEstimated = totalKbs / bw;
+        const timeTakenEstimated = 0.5 + totalKbs / bw;
 
         addToast(`Please wait until file is uploaded! (Est. time: ${timeFormat(timeTakenEstimated)})`, {
             autoDismiss: true,
