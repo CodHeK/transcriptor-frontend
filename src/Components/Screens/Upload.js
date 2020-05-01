@@ -10,7 +10,7 @@ import '../styles.css';
 */
 
 const Upload = () => {
-    const { addToast } = useToasts();
+    const { addToast, removeToast } = useToasts();
 
     const onSubmit = (_, UploadedFiles) => {
         const formData = new FormData();
@@ -21,6 +21,14 @@ const Upload = () => {
             formData.append('language', 'english');
         }
 
+        addToast('Please wait until file is uploaded!', {
+            autoDismiss: false,
+            appearance: 'warning',
+            id: 1, // random id
+        });
+
+        localStorage.setItem('upload_in_progress', 'true');
+
         dataProvider.speech
             .create('upload', {
                 options: {
@@ -28,11 +36,15 @@ const Upload = () => {
                 },
             })
             .then(res => {
+                removeToast(1);
+
                 addToast(`File(s) uploaded successfully! View status in "My Transcriptions"`, {
                     autoDismiss: true,
                     appearance: 'success',
                     autoDismissTimeout: 5000,
                 });
+
+                localStorage.removeItem('upload_in_progress');
             });
     };
 

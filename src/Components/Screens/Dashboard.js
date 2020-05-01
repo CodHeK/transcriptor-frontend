@@ -47,23 +47,25 @@ const Dashboard = props => {
 
                 history.push('/login');
             } else {
-                if (name === 'Editor') {
-                    if (localStorage.getItem('editorConfig')) {
-                        const inEditMode = JSON.parse(localStorage.getItem('editorConfig'));
-                        if (inEditMode.active) {
-                            localStorage.setItem('loadSavedState', 'true');
+                if (!localStorage.getItem('upload_in_progress')) {
+                    if (name === 'Editor') {
+                        if (localStorage.getItem('editorConfig')) {
+                            const inEditMode = JSON.parse(localStorage.getItem('editorConfig'));
+                            if (inEditMode.active) {
+                                localStorage.setItem('loadSavedState', 'true');
+                            }
+                        }
+                    } else if (name === 'Re-speak') {
+                        if (localStorage.getItem('reSpeakConfig')) {
+                            const inReSpeakMode = JSON.parse(localStorage.getItem('reSpeakConfig'));
+                            if (inReSpeakMode.active) {
+                                localStorage.setItem('loadSavedState_ReSpeak', 'true');
+                            }
                         }
                     }
-                } else if (name === 'Re-speak') {
-                    if (localStorage.getItem('reSpeakConfig')) {
-                        const inReSpeakMode = JSON.parse(localStorage.getItem('reSpeakConfig'));
-                        if (inReSpeakMode.active) {
-                            localStorage.setItem('loadSavedState_ReSpeak', 'true');
-                        }
-                    }
+                    localStorage.setItem('subpage', name);
+                    setPage(name);
                 }
-                localStorage.setItem('subpage', name);
-                setPage(name);
             }
         };
 
