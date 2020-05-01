@@ -13,7 +13,7 @@
         "jquery": "^3.4.1",
         "localforage": "^1.7.3",
         "mic-recorder-to-mp3": "^2.2.1",
-        "moment": "^2.24.0",
+        "moment": "2.18.1",
         "react": "^16.12.0",
         "react-dom": "^16.12.0",
         "react-dropzone": "^10.2.1",
