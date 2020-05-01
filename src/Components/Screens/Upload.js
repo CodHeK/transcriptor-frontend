@@ -55,7 +55,7 @@ const Upload = () => {
             formData.append('language', 'english');
         }
 
-        const bw = await bandwidth();
+        const bw = await bandwidth(); // in kbps
 
         const totalKbs = formData.getAll('file').reduce((prev, curr) => {
             return prev + curr.size / 1000;
@@ -63,7 +63,7 @@ const Upload = () => {
 
         const timeTakenEstimated = 0.5 + totalKbs / bw;
 
-        addToast(`Please wait until file is uploaded! (Est. time: ${timeFormat(timeTakenEstimated)})`, {
+        addToast(`Please wait until file is uploaded! - Estimated time: ${timeFormat(timeTakenEstimated)}`, {
             autoDismiss: true,
             appearance: 'warning',
             id: 1, // random id
