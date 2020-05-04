@@ -96,8 +96,6 @@ const Editor = props => {
 
                     const notes = processSentances(sentences);
 
-                    console.log(notes);
-
                     setFileInfo(uploadedFile);
                     setTranscript(notes);
                 });

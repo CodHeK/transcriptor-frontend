@@ -9,6 +9,7 @@ import { EditorLoader } from '../Utils/Loader';
 import dataProvider from '../dataProvider';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { updateReSpeakData } from '../../actions/SocketActions';
 import { saveEventEmitter, toggleSaveMode, releaseToast } from '../../actions/TranscriptionActions';
 import { useToasts } from 'react-toast-notifications';
 
@@ -18,6 +19,7 @@ const Playlist = props => {
     const [playlistLoaded, setPlaylistLoaded] = useState(false);
 
     const { inSaveMode, toast } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { reSpeakData } = useSelector(state => ({ ...state.SOCKET }));
 
     const dispatch = useDispatch();
     const { addToast, removeToast } = useToasts();
@@ -55,6 +57,13 @@ const Playlist = props => {
         clearInterval(cursorUpdate);
         clearInterval(autoSave);
     };
+
+    useEffect(() => {
+        if (reSpeakData) {
+            console.log('reSpeakData ', reSpeakData);
+            dispatch(updateReSpeakData(null));
+        }
+    }, [reSpeakData]);
 
     useEffect(() => {
         let playlist = WaveformPlaylist.init(
@@ -147,11 +156,7 @@ const Playlist = props => {
                     let nextPlayMode = 'play';
                     let editMode = false,
                         sentenceSectionMode = false;
-
-                    let timeMap = new Map();
-                    let timeList = [];
                     let popUpInDisplay = false;
-
                     let currentHighlightedSentence = -1;
 
                     for (let i = 1; i < annotationBoxHeights.length; i++) {
@@ -189,11 +194,6 @@ const Playlist = props => {
                     };
 
                     let oneSecond = oneSecondinPx();
-
-                    for (let $tick of $timeTicks) {
-                        timeMap.set(timeStringToFloat('00:' + $tick.innerText), parseInt($tick.style.left));
-                        timeList.push(timeStringToFloat('00:' + $tick.innerText));
-                    }
 
                     /* 
                         Unsubscribe to all event listeners
@@ -312,11 +312,20 @@ const Playlist = props => {
                             const $revertIcon = $annotation.getElementsByClassName('fa-history')[0];
                             const $lockIcon = $annotation.getElementsByClassName('fa-lock')[0];
 
-                            if (!props.notes[idx].reSpeak.inProgress) {
-                                $lockIcon.style.display = 'none';
-                            } else {
-                                $annotation.style.cursor = 'not-allowed';
-                                $textarea.style.cursor = 'not-allowed';
+                            switch (props.notes[idx].reSpeak.status) {
+                                case 0:
+                                    // never in respeak before
+                                    $lockIcon.style.display = 'none';
+                                    break;
+
+                                case 1:
+                                    // respeak in progress
+                                    $annotation.style.cursor = 'not-allowed';
+                                    $textarea.style.cursor = 'not-allowed';
+                                    break;
+
+                                default:
+                                    break;
                             }
 
                             if (!props.notes[idx].prevText) {
