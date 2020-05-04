@@ -524,6 +524,8 @@ body ::-webkit-scrollbar-track {
     border-radius: 5px;
     height: auto;
     min-height: 85px;
+    position: relative;
+    padding-left: 30px;
 }
 
 .playlist .annotations .annotations-text .annotation span {
@@ -671,12 +673,35 @@ footer {
     display: none;
     color: #808080;
     padding-top: 18px;
-    padding-right: 6px;
+    padding-right: 0px;
     font-size: 17px;
+    margin-right: 6px !important;
+}
+
+.fas.fa-lock {
+    color: #808080;
+    font-size: 16px;
+    position: absolute;
+    left: 10px;
+    top: 8px;
+}
+
+.fas.fa-lock:hover {
+    color: rgba(255, 0, 0, 0.5) !important;
+}
+
+.fas.fa-unlock {
+    color: #808080;
+    font-size: 16px;
+    display: none;
+    left: 10px;
+    top: 8px;
+    position: absolute;
 }
 
 .fa.fa-times:hover,
-.fas.fa-history:hover {
+.fas.fa-history:hover,
+.fas.fa-unlock:hover {
     color: black !important;
 }
 

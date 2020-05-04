@@ -127,6 +127,8 @@ const Playlist = props => {
                     const $timeTicks = Array.from(document.getElementsByClassName('time'));
                     const $sentenceDeleteCrosses = $annotationsTextBoxContainer.getElementsByClassName('fa-times');
                     const $setenceRevertIcons = $annotationsTextBoxContainer.getElementsByClassName('fa-history');
+                    const $lockIcons = $annotationsTextBoxContainer.getElementsByClassName('fa-lock');
+                    const $unLockIcons = $annotationsTextBoxContainer.getElementsByClassName('fa-unlock');
 
                     let notesCache = props.notes;
                     let prevScroll = 0;
@@ -308,6 +310,14 @@ const Playlist = props => {
                             $annotation.insertBefore($textarea, $annotationsActionsDiv);
 
                             const $revertIcon = $annotation.getElementsByClassName('fa-history')[0];
+                            const $lockIcon = $annotation.getElementsByClassName('fa-lock')[0];
+
+                            if (!props.notes[idx].reSpeak.inProgress) {
+                                $lockIcon.style.display = 'none';
+                            } else {
+                                $annotation.style.cursor = 'not-allowed';
+                                $textarea.style.cursor = 'not-allowed';
+                            }
 
                             if (!props.notes[idx].prevText) {
                                 $revertIcon.classList.add('disable');
@@ -1145,28 +1155,44 @@ const Playlist = props => {
                             removeAllHighlights();
 
                             let $currentClickedSentence = e.path[1];
-                            let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
-                            let cursorPosTime = getTimeAtCursorPosition();
 
-                            $currentClickedSentence.classList.add('current-editing');
-                            $currentClickedSentence.classList.remove('current-hover');
+                            const $lockIcon = $currentClickedSentence.getElementsByClassName('fa-lock')[0];
 
-                            currentHighlightedSentence = sentenceId - 1;
+                            if ($lockIcon.style.display === 'none') {
+                                let { sentenceId, startTime, endTime } = getSentenceInfo($currentClickedSentence);
+                                let cursorPosTime = getTimeAtCursorPosition();
 
-                            if (cursorPosTime > startTime && cursorPosTime < endTime) {
-                                startTime = cursorPosTime;
+                                $currentClickedSentence.classList.add('current-editing');
+                                $currentClickedSentence.classList.remove('current-hover');
+
+                                currentHighlightedSentence = sentenceId - 1;
+
+                                if (cursorPosTime > startTime && cursorPosTime < endTime) {
+                                    startTime = cursorPosTime;
+                                } else {
+                                    startTime += 0.1;
+                                }
+
+                                scrollToSection(sentenceId);
+
+                                setTimeout(() => {
+                                    const startPoint =
+                                        parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
+                                        $waveform.scrollLeft;
+                                    setCursorByLeft(startPoint);
+                                    updateEditorState();
+                                }, 20);
                             } else {
-                                startTime += 0.1;
+                                $annotationTextBox.blur();
+                                dispatch(
+                                    releaseToast({
+                                        content:
+                                            'Sentence in respeak, unlock sentence first, edits maybe overwritten by respeak!',
+                                        appearance: 'warning',
+                                        autoDismissTimeout: 6000,
+                                    })
+                                );
                             }
-
-                            scrollToSection(sentenceId);
-
-                            setTimeout(() => {
-                                const startPoint =
-                                    parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) + $waveform.scrollLeft;
-                                setCursorByLeft(startPoint);
-                                updateEditorState();
-                            }, 20);
                         });
 
                         $annotationTextBox.addEventListener('blur', e => {
@@ -1183,18 +1209,21 @@ const Playlist = props => {
                     }
 
                     for (let $annotation of $annotations) {
+                        const $lockIcon = $annotation.getElementsByClassName('fa-lock')[0];
                         $annotation.addEventListener('mouseover', e => {
                             let $element = getEnclosingAnnotationElement(e);
 
-                            if (!Array.from($element.classList).includes('current-selected')) {
-                                $element.classList.add('current-hover');
+                            if ($lockIcon.style.display === 'none') {
+                                if (!Array.from($element.classList).includes('current-selected')) {
+                                    $element.classList.add('current-hover');
+                                }
+
+                                const $deleteIcon = $element.getElementsByClassName('fa-times')[0];
+                                $deleteIcon.style.display = 'block';
+
+                                const $revertIcon = $element.getElementsByClassName('fa-history')[0];
+                                $revertIcon.style.display = 'block';
                             }
-
-                            const $deleteIcon = $element.getElementsByClassName('fa-times')[0];
-                            $deleteIcon.style.display = 'block';
-
-                            const $revertIcon = $element.getElementsByClassName('fa-history')[0];
-                            $revertIcon.style.display = 'block';
                         });
 
                         $annotation.addEventListener('mouseout', e => {
@@ -1275,7 +1304,6 @@ const Playlist = props => {
                                 $currentHighlighted = $annotations[sentenceId - 1];
 
                                 save($currentHighlighted).then(res => {
-                                    console.log('saved section times!');
                                     setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
                                 });
                             }
@@ -1336,6 +1364,36 @@ const Playlist = props => {
                     }
 
                     /* 
+                        Handling unlocking 
+                    */
+                    for (let $lockIcon of $lockIcons) {
+                        $lockIcon.addEventListener('click', e => {
+                            const $sentence = e.path[2];
+
+                            // maybe first display a pop-up ?
+                            $lockIcon.style.display = 'none';
+
+                            const $unLockIcon = $sentence.getElementsByClassName('fa-unlock')[0];
+                            $unLockIcon.style.display = 'block';
+                        });
+                    }
+
+                    /* 
+                        Handling locking
+                    */
+                    for (let $unLockIcon of $unLockIcons) {
+                        $unLockIcon.addEventListener('click', e => {
+                            const $sentence = e.path[2];
+
+                            // maybe first display a pop-up
+                            $unLockIcon.style.display = 'none';
+
+                            const $lockIcon = $sentence.getElementsByClassName('fa-lock')[0];
+                            $lockIcon.style.display = 'block';
+                        });
+                    }
+
+                    /* 
                         Handling delete sentence
                     */
                     let undoQueue = [];
@@ -1360,6 +1418,10 @@ const Playlist = props => {
 
                             removeSentenceHighlight($sentence);
 
+                            /* 
+                                As sentence got deleted, if the current sentence is below
+                                current deleted index reduces by 1
+                            */
                             if (currentHighlightedSentence >= sentenceId - 1) {
                                 currentHighlightedSentence -= 1;
                             }
@@ -1572,39 +1634,52 @@ const Playlist = props => {
 
                             currentHighlightedSentence = sentenceId - 1;
 
-                            let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
-                                'annotation-lines'
-                            )[0];
+                            const $lockIcon = $currentHighlighted.getElementsByClassName('fa-lock')[0];
 
-                            $currentHighlighted.classList.remove('current-selected');
-                            $currentHighlighted.classList.add('current-editing');
+                            if ($lockIcon.style.display === 'none') {
+                                let $currentAnnotationText = $currentHighlighted.getElementsByClassName(
+                                    'annotation-lines'
+                                )[0];
 
-                            if (!(nextPlayMode === 'pause' && cursorPosTime - startTime > 0.1)) {
-                                ee.emit('stop');
+                                $currentHighlighted.classList.remove('current-selected');
+                                $currentHighlighted.classList.add('current-editing');
 
-                                props.callbacks.changeTrackMode('pause', null, ee);
+                                if (!(nextPlayMode === 'pause' && cursorPosTime - startTime > 0.1)) {
+                                    ee.emit('stop');
 
-                                nextPlayMode = 'play';
+                                    props.callbacks.changeTrackMode('pause', null, ee);
 
-                                let cursorPosTime = getTimeAtCursorPosition();
-                                if (cursorPosTime > startTime && cursorPosTime < endTime) {
-                                    startTime = cursorPosTime;
-                                } else {
-                                    startTime += 0.1;
+                                    nextPlayMode = 'play';
+
+                                    let cursorPosTime = getTimeAtCursorPosition();
+                                    if (cursorPosTime > startTime && cursorPosTime < endTime) {
+                                        startTime = cursorPosTime;
+                                    } else {
+                                        startTime += 0.1;
+                                    }
+
+                                    setTimeout(() => {
+                                        const startPoint =
+                                            parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
+                                            $waveform.scrollLeft;
+                                        setCursorByLeft(startPoint);
+                                    }, 20);
                                 }
 
-                                setTimeout(() => {
-                                    const startPoint =
-                                        parseInt($sentenceSectionBoxes[sentenceId - 1].style.left) +
-                                        $waveform.scrollLeft;
-                                    setCursorByLeft(startPoint);
-                                }, 20);
+                                scrollToSection(sentenceId);
+
+                                /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
+                                setTimeout(() => $currentAnnotationText.focus(), 0);
+                            } else {
+                                dispatch(
+                                    releaseToast({
+                                        content:
+                                            'Sentence in respeak, unlock sentence first, edits maybe overwritten by respeak!',
+                                        appearance: 'warning',
+                                        autoDismissTimeout: 6000,
+                                    })
+                                );
                             }
-
-                            scrollToSection(sentenceId);
-
-                            /* Reason for timeout: https://stackoverflow.com/questions/15859113/focus-not-working */
-                            setTimeout(() => $currentAnnotationText.focus(), 0);
                         }
 
                         updateEditorState();

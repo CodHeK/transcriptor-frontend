@@ -269,6 +269,11 @@ const Editor = props => {
         },
         actions: [
             {
+                class: 'fas.fa-unlock',
+                title: 'unlock to edit',
+                action: () => {} /* Unlock sentence voluntarily for editing */,
+            },
+            {
                 class: 'fa.fa-times',
                 title: 'Delete sentence',
                 action: () => {} /* delete handled in Playlist.js */,
@@ -277,6 +282,11 @@ const Editor = props => {
                 class: 'fas.fa-history',
                 title: 'Revert back',
                 action: () => {} /* Revert back to previous version of sentence */,
+            },
+            {
+                class: 'fas.fa-lock',
+                title: 'respeak in progress',
+                action: () => {} /* Notify respeak in progress and unlock in necessary */,
             },
         ],
     };
