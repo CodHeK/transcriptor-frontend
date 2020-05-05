@@ -961,6 +961,18 @@ footer {
     right: 15px;
 }
 
+.ui.grid .three.wide.column .item.respeak-in-progress::after {
+    content: '⚠️';
+    position: absolute;
+    right: 15px;
+}
+
+.ui.grid .three.wide.column .item.respeak-done::after {
+    content: '✅';
+    position: absolute;
+    right: 15px;
+}
+
 .recorder-container-respeak {
     width: 100%;
     font-family: 'Open Sans' !important;
@@ -1099,6 +1111,17 @@ footer {
     letter-spacing: 1px;
     font-family: 'Open Sans' !important;
     font-weight: 400;
+}
+
+.respeak-status {
+    font-size: 14px;
+    color: #333;
+    margin-left: 5%;
+    letter-spacing: 1px;
+    font-family: 'Open Sans' !important;
+    font-weight: 400;
+    background-color: rgba(253, 255, 50, 0.5);
+    padding: 0 5px;
 }
 
 .time-label {

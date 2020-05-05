@@ -171,13 +171,20 @@ const Recorder = props => {
             if (sentenceDone.has(id)) return 'done';
             else if (sentenceInEdit.has(id)) return 'in-edit';
         }
-        return '';
+
+        if (notes[id].reSpeak.status === 1) {
+            return 'respeak-in-progress';
+        } else if (notes[id].reSpeak.status === 2) {
+            return 'respeak-done';
+        }
+        return ''; // never done respeak before
     };
 
     const SideSentenceMenu = allFiles ? (
         notes.map(sentence => {
             const sentenceId = parseInt(sentence.id);
             const sentenceIndex = sentenceId - 1;
+            const status = getStatus(sentenceIndex);
             return (
                 <Menu.Item
                     key={sentenceIndex}
@@ -185,7 +192,8 @@ const Recorder = props => {
                     active={activeSentence === sentenceIndex}
                     onClick={handleSentenceClick}
                     id={`menu-item-${sentenceIndex}`}
-                    className={getStatus(sentenceIndex)}
+                    className={status}
+                    title={status}
                 />
             );
         })

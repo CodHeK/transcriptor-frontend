@@ -247,6 +247,22 @@ const SideSegement = props => {
         }
     };
 
+    const ReSpeakStatus = () => {
+        let status = null;
+        switch (sentenceInfo.reSpeak.status) {
+            case 1:
+                status = 'Re-speak in progress for this sentence';
+                break;
+            case 2:
+                status = 'Re-speak already done for this sentence';
+                break;
+            default:
+                break;
+        }
+
+        return <span className="respeak-status">{status}</span>;
+    };
+
     return (
         <Segment className="respeak-container">
             <div className="sentence-container-respeak">
@@ -256,6 +272,7 @@ const SideSegement = props => {
                         {`(${timeFormat(sentenceInfo.begin.slice(0, 5))}
                           - ${timeFormat(sentenceInfo.end.slice(0, 5))})`}
                     </span>
+                    <ReSpeakStatus />
                 </h1>
                 <div className="sentence-respeak">{sentenceInfo.lines}</div>
             </div>

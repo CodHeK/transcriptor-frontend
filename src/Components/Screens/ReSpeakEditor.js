@@ -69,6 +69,7 @@ const ReSpeakEditor = props => {
                     lines: s.text /* `lines` key needed for library to display */,
                     sentenceId: s._id,
                     prevText: s.prevText,
+                    reSpeak: s.respeak,
                 });
 
                 counter++;

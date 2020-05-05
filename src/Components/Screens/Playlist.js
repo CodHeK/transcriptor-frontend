@@ -1712,12 +1712,24 @@ const Playlist = props => {
                     */
                     hotkeys('command+r', (e, _) => {
                         e.preventDefault();
-                        console.log('refreshed');
+                        dispatch(
+                            releaseToast({
+                                content: 'Refresh is disabled, use your browser button to refresh!',
+                                appearance: 'warning',
+                                autoDismissTimeout: 5000,
+                            })
+                        );
                     });
 
                     hotkeys('ctrl+r', (e, _) => {
                         e.preventDefault();
-                        console.log('refreshed');
+                        dispatch(
+                            releaseToast({
+                                content: 'Refresh is disabled, use your browser button to refresh!',
+                                appearance: 'warning',
+                                autoDismissTimeout: 5000,
+                            })
+                        );
                     });
                 });
         }, 100);
