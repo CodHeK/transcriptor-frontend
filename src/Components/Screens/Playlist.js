@@ -1381,6 +1381,10 @@ const Playlist = props => {
 
                             // maybe first display a pop-up ?
                             $lockIcon.style.display = 'none';
+                            $sentence.style.cursor = 'pointer';
+
+                            const $textarea = $sentence.querySelector('textarea');
+                            $textarea.style.cursor = 'auto';
 
                             const $unLockIcon = $sentence.getElementsByClassName('fa-unlock')[0];
                             $unLockIcon.style.display = 'block';
@@ -1396,6 +1400,10 @@ const Playlist = props => {
 
                             // maybe first display a pop-up
                             $unLockIcon.style.display = 'none';
+                            $sentence.style.cursor = 'not-allowed';
+
+                            const $textarea = $sentence.querySelector('textarea');
+                            $textarea.style.cursor = 'not-allowed';
 
                             const $lockIcon = $sentence.getElementsByClassName('fa-lock')[0];
                             $lockIcon.style.display = 'block';
