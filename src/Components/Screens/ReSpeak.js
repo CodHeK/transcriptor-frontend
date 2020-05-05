@@ -356,6 +356,8 @@ const ReSpeak = props => {
                     window.addEventListener('scroll', e => {
                         e.preventDefault();
 
+                        popUpInDisplay && removeTimePopUp();
+
                         clearTimeout(WINDOW_SCROLL_TIMER);
 
                         WINDOW_SCROLL_TIMER = setTimeout(() => {
