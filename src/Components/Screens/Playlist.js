@@ -129,6 +129,7 @@ const Playlist = props => {
                     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
                     const $annotationsBoxesDiv = document.getElementsByClassName('annotations-boxes')[0];
                     const $annotationsTextBoxes = document.getElementsByClassName('annotation-lines');
+                    const $annotationsSpeaker = document.getElementsByClassName('annotation-speaker');
                     const $cursor = document.getElementsByClassName('cursor')[0];
                     const $waveformTrack = document.getElementsByClassName('waveform')[0];
                     const $selectionPoint = document.getElementsByClassName('point')[0];
@@ -158,6 +159,7 @@ const Playlist = props => {
                         sentenceSectionMode = false;
                     let popUpInDisplay = false;
                     let currentHighlightedSentence = -1;
+                    let speakerMap = new Map();
 
                     for (let i = 1; i < annotationBoxHeights.length; i++) {
                         annotationBoxHeights[i] += annotationBoxHeights[i - 1];
@@ -300,6 +302,29 @@ const Playlist = props => {
                             const $contentEditAbleSpan = $annotation.getElementsByClassName('annotation-lines')[0];
                             const $annotationsActionsDiv = $annotation.getElementsByClassName('annotation-actions')[0];
                             const sentenceText = $contentEditAbleSpan.innerText.trim();
+
+                            // build speaker span before 'annotation-start' span
+                            const $annotationStartSpan = $annotation.getElementsByClassName('annotation-start')[0];
+                            const $speakerSpan = document.createElement('span');
+                            $speakerSpan.className = 'annotation-speaker';
+
+                            const [_, speaker] = props.notes[idx].speaker.split('_'); // [ channel, speaker ]
+                            const { sentenceId } = props.notes[idx];
+
+                            if (speakerMap.has(speaker)) {
+                                const listOfSentences = speakerMap.get(speaker);
+                                listOfSentences.push({
+                                    _id: sentenceId,
+                                    sentenceIdx: idx + 1,
+                                });
+
+                                speakerMap.set(speaker, listOfSentences);
+                            } else {
+                                speakerMap.set(speaker, [{ _id: sentenceId, sentenceIdx: idx + 1 }]);
+                            }
+
+                            $speakerSpan.innerText = `${speaker}`;
+                            $annotation.insertBefore($speakerSpan, $annotationStartSpan);
 
                             const $textarea = document.createElement('textarea');
 
@@ -1409,6 +1434,99 @@ const Playlist = props => {
 
                             const $lockIcon = $sentence.getElementsByClassName('fa-lock')[0];
                             $lockIcon.style.display = 'block';
+                        });
+                    }
+
+                    /* 
+                        Handling Speaker name change
+                    */
+                    const displayTaggingOptions = (x, y, speaker, currSentenceId) => {
+                        x = parseFloat(x);
+                        y = parseFloat(y);
+
+                        /* 
+                            <div className="speaker-container">
+                                <div className="sentence-list-container">
+                                    <ul className="sentence-list">
+                                        <li className="sentence-list-item"></li>
+                                        ...
+                                    </ul>
+                                </div>
+                                <div className="tagging-container">
+                                    <div className="tag-input-container">
+                                        <input className="tag-input" value={speaker} />
+                                    </div>
+                                    <div className="tag-btn-container">
+                                        <button className="tag-btn">Tag</button>
+                                    </div>
+                                    <div className="tag-all-btn-container">
+                                        <button className="tag-all-btn">Tag All</button>
+                                    </div>
+                                </div>                                                        
+                            </div>
+                        */
+                        const $speakerContainer = buildElement('div', 'speaker-container');
+
+                        // 250 -> height of speaker-container
+                        $speakerContainer.style.top = y - 250 - 10 + 'px';
+                        $speakerContainer.style.left = x + 5 + 'px';
+
+                        const $sentenceListContainer = buildElement('div', 'sentence-list-container');
+                        const $sentenceList = buildElement('ul', 'sentence-list');
+
+                        const $listFragment = document.createDocumentFragment();
+
+                        const listOfSentences = speakerMap.get(speaker);
+
+                        for (let sentence of listOfSentences) {
+                            const $sentenceListItem = buildElement('li', 'sentence-list-item', sentence._id);
+                            $sentenceListItem.textContent = `Sentence ${sentence.sentenceIdx}`;
+                            $sentenceListItem.setAttribute('title', 'click to select');
+                            $listFragment.appendChild($sentenceListItem);
+                        }
+
+                        $sentenceListContainer.appendChild($listFragment);
+
+                        const $taggingContainer = buildElement('div', 'tagging-container');
+
+                        const $tagInputContainer = buildElement('div', 'tag-input-container');
+                        const $tagInput = buildElement('input', 'tag-input');
+                        $tagInput.value = `${speaker}`;
+
+                        $tagInputContainer.appendChild($tagInput);
+
+                        const $tagBtnContainer = buildElement('div', 'tag-btn-container');
+                        const $tagBtn = buildElement('button', 'tag-btn');
+                        $tagBtn.textContent = 'Tag';
+
+                        $tagBtnContainer.appendChild($tagBtn);
+
+                        const $tagAllBtnContainer = buildElement('div', 'tag-all-btn-container');
+                        const $tagAllBtn = buildElement('button', 'tag-all-btn');
+                        $tagAllBtn.textContent = 'Tag All';
+
+                        $tagAllBtnContainer.appendChild($tagAllBtn);
+
+                        $taggingContainer.appendChild($tagInputContainer);
+                        $taggingContainer.appendChild($tagBtnContainer);
+                        $taggingContainer.appendChild($tagAllBtnContainer);
+
+                        $speakerContainer.appendChild($sentenceListContainer);
+                        $speakerContainer.appendChild($taggingContainer);
+
+                        document.body.appendChild($speakerContainer);
+                    };
+
+                    for (let $speakerBox of $annotationsSpeaker) {
+                        $speakerBox.addEventListener('click', e => {
+                            const { x, y } = $speakerBox.getBoundingClientRect();
+                            const speaker = $speakerBox.innerText;
+
+                            const $sentence = e.path[1];
+                            const currSentenceId =
+                                parseInt($sentence.getElementsByClassName('annotation-id')[0].innerText) - 1;
+
+                            displayTaggingOptions(x, y, speaker, currSentenceId);
                         });
                     }
 

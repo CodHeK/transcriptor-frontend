@@ -79,6 +79,7 @@ const Editor = props => {
                     sentenceId: s._id,
                     prevText: s.prevText,
                     reSpeak: s.respeak,
+                    speaker: s.speaker,
                 });
 
                 counter++;

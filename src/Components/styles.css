@@ -275,8 +275,6 @@ body ::-webkit-scrollbar-track {
 
 /* 
     Playlist.js css 
-
-    From: https://github.com/naomiaro/waveform-playlist/blob/master/dist/waveform-playlist/css/main.css
 */
 
 .editor-title {
@@ -463,14 +461,153 @@ body ::-webkit-scrollbar-track {
     background: #ccc;
 }
 
+/* css for the pop-up speaker tagging container */
+.speaker-container {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 250px;
+    position: absolute;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    border-radius: 5px;
+    background-color: white;
+    align-items: center;
+}
+
+/* caret on pop-up */
+.speaker-container:before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    transform: rotate(-45deg);
+    background: #fff;
+    position: absolute;
+    z-index: -1;
+    bottom: -4px;
+    left: 4px;
+}
+
+.sentence-list-container {
+    margin: 0.7em 0.7em 0em 0.7em;
+    width: 90%;
+    height: 80%;
+    border-radius: 5px;
+    overflow-y: scroll;
+}
+
+.sentence-list-container::-webkit-scrollbar {
+    width: 7px;
+}
+
+.sentence-list {
+    width: 100%;
+    height: 100%;
+}
+
+.sentence-list-item {
+    width: 100%;
+    height: 40px;
+    font-size: 13px;
+    padding: 10px;
+    line-height: 1.5;
+    list-style: none;
+    border-top: 1px solid #c0c0c0;
+    font-family: 'Open Sans' !important;
+    letter-spacing: 0.7px;
+    cursor: pointer;
+}
+
+.tagging-container {
+    margin: 0.7em;
+    width: 90%;
+    height: 20%;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+.tag-input-container {
+    width: 50%;
+    height: 100%;
+}
+
+.tag-input {
+    width: 100%;
+    height: 100%;
+    font-size: 13px;
+    padding: 10px;
+    color: black;
+    border: 1px solid black;
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+    font-family: 'Open Sans' !important;
+}
+
+.tag-input:focus {
+    outline: none;
+}
+
+.tag-btn-container {
+    width: 25%;
+    height: 100%;
+}
+
+.tag-btn {
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+    padding: 10px;
+    font-size: 13px;
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    border-left: 0;
+}
+
+.tag-btn:hover {
+    background-color: #ececec;
+}
+
+.tag-btn:focus {
+    outline: none;
+}
+
+.tag-all-btn-container {
+    width: 25%;
+    height: 100%;
+}
+
+.tag-all-btn {
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+    font-size: 13px;
+    padding: 10px;
+    letter-spacing: 0.6px;
+    background-color: #333;
+    color: #f5f5f5;
+    font-family: 'Open Sans' !important;
+    border-left: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    transition: 0.5s all;
+}
+
+.tag-all-btn:hover {
+    background-color: #fff;
+    color: #333;
+}
+
+.tag-all-btn:focus {
+    outline: none;
+}
+
 .playlist .annotations {
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;
     height: 520px;
     padding-bottom: 200px;
 }
-
-/* Add media queries for above style here */
 
 .playlist .annotations .annotations-boxes {
     text-align: center;
@@ -539,6 +676,24 @@ body ::-webkit-scrollbar-track {
 .playlist .annotations .annotations-text .annotation .annotation-id {
     font-size: 16px;
     line-height: 27px;
+}
+
+.playlist .annotations .annotations-text .annotation .annotation-speaker {
+    font-size: 14px;
+    line-height: 25px;
+    background-color: rgb(224, 239, 241, 0.5);
+    height: 25px;
+    width: auto;
+    padding: 0;
+    padding: 0px 3px 6px 5px;
+    margin-top: 5px;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.7px;
+}
+
+.annotation-speaker:hover {
+    cursor: pointer;
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-start {
