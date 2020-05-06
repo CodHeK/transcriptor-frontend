@@ -269,7 +269,7 @@ const Editor = props => {
         actions: [
             {
                 class: 'fas.fa-unlock',
-                title: 'unlock to edit',
+                title: 'lock sentence',
                 action: () => {} /* Unlock sentence voluntarily for editing */,
             },
             {
@@ -284,7 +284,7 @@ const Editor = props => {
             },
             {
                 class: 'fas.fa-lock',
-                title: 'respeak in progress',
+                title: 'unlock sentence',
                 action: () => {} /* Notify respeak in progress and unlock in necessary */,
             },
         ],

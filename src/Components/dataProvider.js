@@ -7,6 +7,13 @@ const defaultOptions = {
 const statusOK = status => status === 200 || status === 304;
 
 export default {
+    faker: delay => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve('faked!');
+            }, delay);
+        });
+    },
     auth: (resource, params) => {
         return new Promise((resolve, reject) => {
             axios({

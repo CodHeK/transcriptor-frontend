@@ -602,6 +602,10 @@ body ::-webkit-scrollbar-track {
     outline: none;
 }
 
+.tag-selected {
+    background-color: rgb(224, 239, 241);
+}
+
 .playlist .annotations {
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;

@@ -157,7 +157,9 @@ const Playlist = props => {
                     let nextPlayMode = 'play';
                     let editMode = false,
                         sentenceSectionMode = false;
-                    let popUpInDisplay = false;
+                    let popUpInDisplay = false,
+                        speakerPopUpInDisplay = false;
+                    let popUpOpenForSentenceId = -1;
                     let currentHighlightedSentence = -1;
                     let speakerMap = new Map();
 
@@ -323,7 +325,9 @@ const Playlist = props => {
                                 speakerMap.set(speaker, [{ _id: sentenceId, sentenceIdx: idx + 1 }]);
                             }
 
-                            $speakerSpan.innerText = `${speaker}`;
+                            $speakerSpan.id = `speaker-name-${sentenceId}`;
+                            $speakerSpan.textContent = `${speaker}`;
+                            $speakerSpan.setAttribute('title', `Sentence by Speaker - ${speaker}`);
                             $annotation.insertBefore($speakerSpan, $annotationStartSpan);
 
                             const $textarea = document.createElement('textarea');
@@ -1440,11 +1444,21 @@ const Playlist = props => {
                     /* 
                         Handling Speaker name change
                     */
+
+                    const sentencesForTagging = new Set();
+
+                    const updateSpeakerName = (_id, name) => {
+                        const $speakerBox = document.getElementById(`speaker-name-${_id}`);
+                        $speakerBox.textContent = name;
+                    };
+
                     const displayTaggingOptions = (x, y, speaker, currSentenceId) => {
                         x = parseFloat(x);
                         y = parseFloat(y);
 
                         /* 
+                            HTML GENERATED BELOW FOR SPEAKER POP-UP :
+
                             <div className="speaker-container">
                                 <div className="sentence-list-container">
                                     <ul className="sentence-list">
@@ -1482,6 +1496,23 @@ const Playlist = props => {
                             const $sentenceListItem = buildElement('li', 'sentence-list-item', sentence._id);
                             $sentenceListItem.textContent = `Sentence ${sentence.sentenceIdx}`;
                             $sentenceListItem.setAttribute('title', 'click to select');
+
+                            $sentenceListItem.onclick = e => {
+                                const $e = e.target;
+
+                                if (sentencesForTagging.has($e.id)) {
+                                    sentencesForTagging.delete($e.id);
+                                    $e.classList.remove('tag-selected');
+
+                                    $e.setAttribute('title', 'click to select');
+                                } else {
+                                    sentencesForTagging.add($e.id);
+                                    $e.classList.add('tag-selected');
+
+                                    $e.setAttribute('title', 'click to unselect');
+                                }
+                            };
+
                             $listFragment.appendChild($sentenceListItem);
                         }
 
@@ -1493,17 +1524,76 @@ const Playlist = props => {
                         const $tagInput = buildElement('input', 'tag-input');
                         $tagInput.value = `${speaker}`;
 
+                        let inp_timer = null;
+
+                        $tagInput.oninput = e => {
+                            clearTimeout(inp_timer);
+
+                            inp_timer = setTimeout(() => {
+                                const oldSpeakerName = speaker;
+                                const newSpeakerName = e.target.value.trim();
+
+                                updateSpeakerName(currSentenceId, newSpeakerName);
+                            }, 200);
+                        };
+
                         $tagInputContainer.appendChild($tagInput);
 
                         const $tagBtnContainer = buildElement('div', 'tag-btn-container');
                         const $tagBtn = buildElement('button', 'tag-btn');
                         $tagBtn.textContent = 'Tag';
 
+                        $tagBtn.onclick = e => {
+                            const sentencesToTag = [];
+                            if (sentencesForTagging.size === 0) {
+                                // tag current sentence only
+                                sentencesToTag.push(popUpOpenForSentenceId);
+                            } else {
+                                // tag all sentences in the set `sentencesForTagging`
+                                for (let _id of sentencesForTagging) {
+                                    sentencesToTag.push(_id);
+                                }
+                            }
+
+                            const newSpeakerName = document.getElementsByClassName('tag-input')[0].value;
+
+                            // POST req to server
+                            console.log(newSpeakerName, sentencesToTag);
+
+                            dataProvider.faker(1000).then(res => {
+                                // modify speaker names on UI
+                                for (let _id of sentencesToTag) {
+                                    updateSpeakerName(_id, newSpeakerName);
+                                }
+                            });
+                        };
+
                         $tagBtnContainer.appendChild($tagBtn);
 
                         const $tagAllBtnContainer = buildElement('div', 'tag-all-btn-container');
                         const $tagAllBtn = buildElement('button', 'tag-all-btn');
                         $tagAllBtn.textContent = 'Tag All';
+
+                        $tagAllBtn.onclick = e => {
+                            const sentencesToTag = [];
+                            const listOfSentences = speakerMap.get(speaker);
+
+                            for (let sentence of listOfSentences) {
+                                sentencesToTag.push(sentence._id);
+                            }
+
+                            const newSpeakerName = document.getElementsByClassName('tag-input')[0].value;
+
+                            // POST req to server
+                            console.log(newSpeakerName, sentencesToTag);
+
+                            dataProvider.faker(1000).then(res => {
+                                // modify speaker names on UI
+                                for (let sentence of listOfSentences) {
+                                    updateSpeakerName(sentence._id, newSpeakerName);
+                                }
+                            });
+                        };
 
                         $tagAllBtnContainer.appendChild($tagAllBtn);
 
@@ -1515,18 +1605,39 @@ const Playlist = props => {
                         $speakerContainer.appendChild($taggingContainer);
 
                         document.body.appendChild($speakerContainer);
+
+                        popUpOpenForSentenceId = currSentenceId;
+                        speakerPopUpInDisplay = true;
+                    };
+
+                    const removeTaggingOptions = () => {
+                        const $speakerContainer = document.getElementsByClassName('speaker-container')[0];
+                        document.body.removeChild($speakerContainer);
+
+                        popUpOpenForSentenceId = -1;
+                        speakerPopUpInDisplay = false;
+
+                        sentencesForTagging.clear();
                     };
 
                     for (let $speakerBox of $annotationsSpeaker) {
                         $speakerBox.addEventListener('click', e => {
                             const { x, y } = $speakerBox.getBoundingClientRect();
-                            const speaker = $speakerBox.innerText;
+                            const speaker = $speakerBox.textContent;
 
                             const $sentence = e.path[1];
-                            const currSentenceId =
-                                parseInt($sentence.getElementsByClassName('annotation-id')[0].innerText) - 1;
+                            const currSentenceId = $speakerBox.id.split('-')[2]; // speaker-name-<currSentenceId>
 
-                            displayTaggingOptions(x, y, speaker, currSentenceId);
+                            if (popUpOpenForSentenceId === -1) {
+                                !speakerPopUpInDisplay && displayTaggingOptions(x, y, speaker, currSentenceId);
+                            } else {
+                                if (popUpOpenForSentenceId === currSentenceId) {
+                                    removeTaggingOptions();
+                                } else {
+                                    removeTaggingOptions();
+                                    !speakerPopUpInDisplay && displayTaggingOptions(x, y, speaker, currSentenceId);
+                                }
+                            }
                         });
                     }
 
