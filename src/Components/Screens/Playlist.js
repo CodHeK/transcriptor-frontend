@@ -80,6 +80,9 @@ const Playlist = props => {
                 const $annotationTextarea = $annotation.getElementsByClassName('annotation-lines')[0];
                 $annotationTextarea.value = text;
 
+                $annotation.style.cursor = 'pointer';
+                $annotationTextarea.style.cursor = 'auto';
+
                 $annotation.classList.add('flash');
 
                 setTimeout(() => {
@@ -861,33 +864,45 @@ const Playlist = props => {
                         const $playlistContainer = document.getElementById('waveform-playlist-container');
 
                         if ($playlistContainer) {
-                            const $playlist = document.getElementsByClassName('playlist')[0];
+                            const cursorLeft = parseInt($cursor.style.left);
+                            if (cursorLeft >= prevScroll && cursorLeft <= prevScroll + cursorLimit) {
+                                /* 
+                                    Display pop-up only when $cursor is in view on the waveform
+                                */
+                                const $playlist = document.getElementsByClassName('playlist')[0];
 
-                            const time = timeFormat(cursorPos);
+                                const time = timeFormat(cursorPos);
 
-                            const popUpStyles = `
-                                .pop-up-container {
-                                    top: ${window.scrollY > 250 ? 0 : top - 60}px;
-                                    left: ${left - 28}px;
+                                const popUpStyles = `
+                                    .pop-up-container {
+                                        top: ${window.scrollY > 250 ? 0 : top - 60}px;
+                                        left: ${left - 28}px;
+                                    }
+                                `;
+
+                                const $popUp = buildElement('div', 'pop-up-container', null, popUpStyles);
+                                const $timeDisplay = buildElement(
+                                    'div',
+                                    'pop-up-time-display animate',
+                                    null,
+                                    null,
+                                    time
+                                );
+                                const $pointer = buildElement('div', 'pop-up-pointer animate');
+
+                                if ($popUp) {
+                                    $popUp.appendChild($timeDisplay);
+
+                                    window.scrollY <= 250 && $popUp.appendChild($pointer);
+
+                                    $playlistContainer.insertBefore($popUp, $playlist);
+
+                                    popUpInDisplay = true;
+
+                                    updateEditorState();
+
+                                    adjustLeft();
                                 }
-                            `;
-
-                            const $popUp = buildElement('div', 'pop-up-container', null, popUpStyles);
-                            const $timeDisplay = buildElement('div', 'pop-up-time-display animate', null, null, time);
-                            const $pointer = buildElement('div', 'pop-up-pointer animate');
-
-                            if ($popUp) {
-                                $popUp.appendChild($timeDisplay);
-
-                                window.scrollY <= 250 && $popUp.appendChild($pointer);
-
-                                $playlistContainer.insertBefore($popUp, $playlist);
-
-                                popUpInDisplay = true;
-
-                                updateEditorState();
-
-                                adjustLeft();
                             }
                         }
                     };

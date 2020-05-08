@@ -34,6 +34,7 @@ const Editor = props => {
     );
     const [mute, setMute] = useState(false);
 
+    const $annotations = document.getElementsByClassName('annotation');
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
     const $cursor = document.getElementsByClassName('cursor')[0];
 
@@ -163,6 +164,10 @@ const Editor = props => {
         $element.classList.remove('section-highlight');
     };
 
+    const removeAllSentenceHighlights = () => {
+        Array.from($annotations).map($e => $e.classList.remove('current-selected'));
+    };
+
     const setCursorByLeft = left => {
         setTimeout(() => ($cursor.style.left = left.toString() + 'px'), 10);
     };
@@ -228,6 +233,7 @@ const Editor = props => {
 
             case 'stop':
                 e.emit(mode);
+                removeAllSentenceHighlights();
                 setTrackMode('pause');
                 break;
 
