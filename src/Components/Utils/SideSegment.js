@@ -248,19 +248,22 @@ const SideSegement = props => {
     };
 
     const ReSpeakStatus = () => {
-        let status = null;
+        let status = null,
+            className = '';
         switch (sentenceInfo.reSpeak.status) {
             case 1:
                 status = 'Re-speak in progress for this sentence';
+                className = 'respeak-in-progress';
                 break;
             case 2:
                 status = 'Re-speak already done for this sentence';
+                className = 'respeak-done';
                 break;
             default:
                 break;
         }
 
-        return <span className="respeak-status">{status}</span>;
+        return <span className={`respeak-status ${className}`}>{status}</span>;
     };
 
     return (

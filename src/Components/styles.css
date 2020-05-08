@@ -1279,8 +1279,15 @@ footer {
     letter-spacing: 1px;
     font-family: 'Open Sans' !important;
     font-weight: 400;
-    background-color: rgba(253, 255, 50, 0.5);
     padding: 0 5px;
+}
+
+.respeak-in-progress {
+    background-color: rgba(253, 255, 50, 0.5);
+}
+
+.respeak-done {
+    background-color: rgba(57, 255, 20, 0.5);
 }
 
 .time-label {
