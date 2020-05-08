@@ -333,6 +333,8 @@ const Playlist = props => {
                             const { sentenceId } = props.notes[idx];
 
                             $annotation.id = `annotation_${sentenceId}`;
+                            $annotation.classList.remove('respeak-failed');
+
                             const $contentEditAbleSpan = $annotation.getElementsByClassName('annotation-lines')[0];
                             const $annotationsActionsDiv = $annotation.getElementsByClassName('annotation-actions')[0];
                             const sentenceText = $contentEditAbleSpan.innerText.trim();
@@ -385,7 +387,14 @@ const Playlist = props => {
                                     break;
 
                                 case 2:
+                                    // respeak done
                                     $lockIcon.style.display = 'none';
+                                    break;
+
+                                case 3:
+                                    //respeak failed
+                                    $annotation.classList.add('respeak-failed');
+                                    $annotation.setAttribute('title', 're-speak failed');
                                     break;
 
                                 default:

@@ -176,6 +176,8 @@ const Recorder = props => {
             return 'respeak-in-progress';
         } else if (notes[id].reSpeak.status === 2) {
             return 'respeak-done';
+        } else if (notes[id].reSpeak.status === 3) {
+            return 'respeak-failed';
         }
         return ''; // never done respeak before
     };

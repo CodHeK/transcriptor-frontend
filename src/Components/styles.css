@@ -719,7 +719,7 @@ body ::-webkit-scrollbar-track {
     position: relative;
     padding: 0px 10px 10px 10px;
     border: 0;
-    background-color: inherit;
+    background-color: transparent;
     width: 100%;
     font-family: 'Open Sans' !important;
     resize: none;
@@ -1132,6 +1132,12 @@ footer {
     right: 15px;
 }
 
+.ui.grid .three.wide.column .item.respeak-failed::after {
+    content: '❗️';
+    position: absolute;
+    right: 15px;
+}
+
 .recorder-container-respeak {
     width: 100%;
     font-family: 'Open Sans' !important;
@@ -1288,6 +1294,10 @@ footer {
 
 .respeak-done {
     background-color: rgba(57, 255, 20, 0.5);
+}
+
+.respeak-failed {
+    background-color: rgba(255, 204, 203, 0.7);
 }
 
 .time-label {
