@@ -1571,17 +1571,21 @@ const Playlist = props => {
                         const $tagInput = buildElement('input', 'tag-input');
                         $tagInput.value = `${speaker}`;
 
-                        let inp_timer = null;
+                        // let inp_timer = null;
 
                         $tagInput.oninput = e => {
-                            clearTimeout(inp_timer);
+                            const oldSpeakerName = speaker;
+                            const newSpeakerName = e.target.value.trim();
 
-                            inp_timer = setTimeout(() => {
-                                const oldSpeakerName = speaker;
-                                const newSpeakerName = e.target.value.trim();
+                            updateSpeakerName(currSentenceId, newSpeakerName);
+                            // clearTimeout(inp_timer);
 
-                                updateSpeakerName(currSentenceId, newSpeakerName);
-                            }, 200);
+                            // inp_timer = setTimeout(() => {
+                            //     const oldSpeakerName = speaker;
+                            //     const newSpeakerName = e.target.value.trim();
+
+                            //     updateSpeakerName(currSentenceId, newSpeakerName);
+                            // }, 200);
                         };
 
                         $tagInputContainer.appendChild($tagInput);
@@ -1607,7 +1611,7 @@ const Playlist = props => {
                             // POST req to server
                             console.log(newSpeakerName, sentencesToTag);
 
-                            dataProvider.faker(1000).then(res => {
+                            dataProvider.faker(500).then(res => {
                                 // modify speaker names on UI
                                 for (let _id of sentencesToTag) {
                                     updateSpeakerName(_id, newSpeakerName);
@@ -1634,7 +1638,7 @@ const Playlist = props => {
                             // POST req to server
                             console.log(newSpeakerName, sentencesToTag);
 
-                            dataProvider.faker(1000).then(res => {
+                            dataProvider.faker(500).then(res => {
                                 // modify speaker names on UI
                                 for (let sentence of listOfSentences) {
                                     updateSpeakerName(sentence._id, newSpeakerName);
