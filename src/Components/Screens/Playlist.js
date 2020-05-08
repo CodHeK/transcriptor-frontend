@@ -60,7 +60,33 @@ const Playlist = props => {
 
     useEffect(() => {
         if (reSpeakData) {
-            console.log('reSpeakData ', reSpeakData);
+            const { sentences } = reSpeakData;
+
+            dispatch(
+                releaseToast({
+                    content: 'New version of sentences found via re-speak!',
+                    appearance: 'info',
+                    autoDismissTimeout: 5000,
+                })
+            );
+
+            for (let _id in sentences) {
+                const { status, text } = sentences[_id];
+                const $annotation = document.getElementById(`annotation_${_id}`);
+
+                const $lockIcon = $annotation.getElementsByClassName('fa-lock')[0];
+                $lockIcon.style.display = 'none';
+
+                const $annotationTextarea = $annotation.getElementsByClassName('annotation-lines')[0];
+                $annotationTextarea.value = text;
+
+                $annotation.classList.add('flash');
+
+                setTimeout(() => {
+                    $annotation.classList.remove('flash');
+                }, 1500);
+            }
+
             dispatch(updateReSpeakData(null));
         }
     }, [reSpeakData]);
@@ -301,6 +327,9 @@ const Playlist = props => {
                         */
                         let idx = 0;
                         for (let $annotation of $annotations) {
+                            const { sentenceId } = props.notes[idx];
+
+                            $annotation.id = `annotation_${sentenceId}`;
                             const $contentEditAbleSpan = $annotation.getElementsByClassName('annotation-lines')[0];
                             const $annotationsActionsDiv = $annotation.getElementsByClassName('annotation-actions')[0];
                             const sentenceText = $contentEditAbleSpan.innerText.trim();
@@ -311,7 +340,6 @@ const Playlist = props => {
                             $speakerSpan.className = 'annotation-speaker';
 
                             const [_, speaker] = props.notes[idx].speaker.split('_'); // [ channel, speaker ]
-                            const { sentenceId } = props.notes[idx];
 
                             if (speakerMap.has(speaker)) {
                                 const listOfSentences = speakerMap.get(speaker);
@@ -351,6 +379,10 @@ const Playlist = props => {
                                     // respeak in progress
                                     $annotation.style.cursor = 'not-allowed';
                                     $textarea.style.cursor = 'not-allowed';
+                                    break;
+
+                                case 2:
+                                    $lockIcon.style.display = 'none';
                                     break;
 
                                 default:

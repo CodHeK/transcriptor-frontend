@@ -6,7 +6,7 @@ export const ReSpeakLoader = () => {
         const menuGhost = [];
         for (let i = 1; i <= 7; i++) {
             menuGhost.push(
-                <li className="menu-item-ghost">
+                <li className="menu-item-ghost" key={i}>
                     <Skeleton width={182} height={41} />
                 </li>
             );
