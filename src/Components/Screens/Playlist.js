@@ -66,7 +66,7 @@ const Playlist = props => {
                 releaseToast({
                     content: 'New version of sentences found via re-speak!',
                     appearance: 'info',
-                    autoDismissTimeout: 5000,
+                    autoDismissTimeout: 3000,
                 })
             );
 
