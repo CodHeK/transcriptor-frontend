@@ -46,6 +46,18 @@ const Upload = () => {
         return stringTimeFormat(h, m, s);
     };
 
+    const uploadStatus = (message, type) => {
+        removeToast(1);
+
+        addToast(message, {
+            autoDismiss: true,
+            appearance: type,
+            autoDismissTimeout: 5000,
+        });
+
+        localStorage.removeItem('upload_in_progress');
+    };
+
     const onSubmit = async (_, UploadedFiles) => {
         const formData = new FormData();
 
@@ -79,15 +91,14 @@ const Upload = () => {
                 },
             })
             .then(res => {
-                removeToast(1);
-
-                addToast(`File(s) uploaded successfully! View status in "My Transcriptions"`, {
-                    autoDismiss: true,
-                    appearance: 'success',
-                    autoDismissTimeout: 5000,
-                });
-
-                localStorage.removeItem('upload_in_progress');
+                uploadStatus(`File(s) uploaded successfully! View status in "My Transcriptions"`, 'success');
+            })
+            .catch(err => {
+                if ('error' in err.response.data) {
+                    uploadStatus(err.response.data.error, 'error');
+                } else {
+                    uploadStatus('Error Uploading file', 'error');
+                }
             });
     };
 

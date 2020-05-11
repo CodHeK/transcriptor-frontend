@@ -4,6 +4,7 @@ import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import CustomCard from '../Utils/CustomCard';
 import dataProvider from '../dataProvider';
+import { useToasts } from 'react-toast-notifications';
 
 /* import react-redux hook for getting state */
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +16,7 @@ const ListTranscriptions = () => {
     const [transcriptionList, setTranscriptionList] = useState([]);
     const [cardsLoaded, setCardLoaded] = useState(false);
     const [filteredList, setFilteredList] = useState([]);
+    const { addToast } = useToasts();
 
     /* 
         Transcription related operations
@@ -34,19 +36,39 @@ const ListTranscriptions = () => {
                     id: transcriptionId,
                 })
                 .then(res => {
-                    console.log('Deleted transcript!');
+                    addToast('Transcription deleted sucessfully!', {
+                        autoDismiss: true,
+                        appearance: 'success',
+                        autoDismissTimeout: 3000,
+                    });
+                })
+                .catch(err => {
+                    addToast(err.response.data.error, {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
                 });
 
             dispatch(setTranscriptionId(null));
         }
 
         setTimeout(() => {
-            dataProvider.speech.getList('transcriptions', {}).then(res => {
-                const list = res.data.speeches;
+            dataProvider.speech
+                .getList('transcriptions', {})
+                .then(res => {
+                    const list = res.data.speeches;
 
-                setTranscriptionList(list);
-                setCardLoaded(true);
-            });
+                    setTranscriptionList(list);
+                    setCardLoaded(true);
+                })
+                .catch(err => {
+                    addToast(err.response.data.error + ' Try, refreshing your page!', {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
+                });
         }, 500);
     }, [transcriptionId]);
 

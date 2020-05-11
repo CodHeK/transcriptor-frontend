@@ -71,7 +71,7 @@ const Playlist = props => {
             );
 
             for (let _id in sentences) {
-                const { status, text } = sentences[_id];
+                const { text } = sentences[_id]; // { status, text }
                 const $annotation = document.getElementById(`annotation_${_id}`);
 
                 const $lockIcon = $annotation.getElementsByClassName('fa-lock')[0];
@@ -344,7 +344,14 @@ const Playlist = props => {
                             const $speakerSpan = document.createElement('span');
                             $speakerSpan.className = 'annotation-speaker';
 
-                            const [_, speaker] = props.notes[idx].speaker.split('_'); // [ channel, speaker ]
+                            let speaker = null;
+
+                            // [ NEEDS FIX ]
+                            // const [_, speaker] = props.notes[idx].speaker.split('_'); // [ channel, speaker ]
+
+                            const res = props.notes[idx].speaker.split('_'); // [ channel, speaker ]
+                            if (res.length !== 2) speaker = res[0];
+                            else speaker = res[1];
 
                             if (speakerMap.has(speaker)) {
                                 const listOfSentences = speakerMap.get(speaker);
@@ -663,16 +670,20 @@ const Playlist = props => {
                                         endTime,
                                     });
 
-                                    const res = await dataProvider.speech.transcripts.update('', {
-                                        id: props._id,
-                                        options: {
-                                            data: {
-                                                sentences,
+                                    try {
+                                        const res = await dataProvider.speech.transcripts.update('', {
+                                            id: props._id,
+                                            options: {
+                                                data: {
+                                                    sentences,
+                                                },
                                             },
-                                        },
-                                    });
+                                        });
 
-                                    return res;
+                                        return res;
+                                    } catch (e) {
+                                        return Promise.reject(e);
+                                    }
                                 }
                             }
                         }
@@ -953,12 +964,21 @@ const Playlist = props => {
                         const autoSaveMode = localStorage.getItem('autoSave');
 
                         if (!inSaveMode && autoSaveMode === 'true') {
-                            save($currentHighlighted).then(resp => {
-                                if (resp !== null) {
-                                    console.log('Auto saved!');
-                                    setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
-                                }
-                            });
+                            save($currentHighlighted)
+                                .then(resp => {
+                                    if (resp !== null) {
+                                        setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
+                                    }
+                                })
+                                .catch(err => {
+                                    dispatch(
+                                        releaseToast({
+                                            content: err.response.data.error + ' Try, refreshing your page!',
+                                            appearance: 'error',
+                                            autoDismissTimeout: 3000,
+                                        })
+                                    );
+                                });
                         }
                     }, 1000);
 
@@ -1399,9 +1419,19 @@ const Playlist = props => {
                                 let sentenceId = parseInt(e.path[1].getAttribute('data-id'));
                                 $currentHighlighted = $annotations[sentenceId - 1];
 
-                                save($currentHighlighted).then(res => {
-                                    setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
-                                });
+                                save($currentHighlighted)
+                                    .then(res => {
+                                        setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
+                                    })
+                                    .catch(err => {
+                                        dispatch(
+                                            releaseToast({
+                                                content: err.response.data.error + ' Try, refreshing your page!',
+                                                appearance: 'error',
+                                                autoDismissTimeout: 3000,
+                                            })
+                                        );
+                                    });
                             }
                         });
                     }
@@ -1445,6 +1475,15 @@ const Playlist = props => {
                                         setTimeout(() => {
                                             $sentence.classList.remove('flash');
                                         }, 1500);
+                                    })
+                                    .catch(err => {
+                                        dispatch(
+                                            releaseToast({
+                                                content: err.response.data.error + ' Try, refreshing your page!',
+                                                appearance: 'error',
+                                                autoDismissTimeout: 3000,
+                                            })
+                                        );
                                     });
                             } else {
                                 dispatch(
@@ -1572,7 +1611,8 @@ const Playlist = props => {
                             $listFragment.appendChild($sentenceListItem);
                         }
 
-                        $sentenceListContainer.appendChild($listFragment);
+                        $sentenceList.appendChild($listFragment);
+                        $sentenceListContainer.appendChild($sentenceList);
 
                         const $taggingContainer = buildElement('div', 'tagging-container');
 
@@ -1582,20 +1622,20 @@ const Playlist = props => {
 
                         // let inp_timer = null;
 
-                        $tagInput.oninput = e => {
-                            const oldSpeakerName = speaker;
-                            const newSpeakerName = e.target.value.trim();
+                        // $tagInput.oninput = e => {
+                        //     const oldSpeakerName = speaker;
+                        //     const newSpeakerName = e.target.value.trim();
 
-                            updateSpeakerName(currSentenceId, newSpeakerName);
-                            // clearTimeout(inp_timer);
+                        //     updateSpeakerName(currSentenceId, newSpeakerName);
+                        //     clearTimeout(inp_timer);
 
-                            // inp_timer = setTimeout(() => {
-                            //     const oldSpeakerName = speaker;
-                            //     const newSpeakerName = e.target.value.trim();
+                        //     inp_timer = setTimeout(() => {
+                        //         const oldSpeakerName = speaker;
+                        //         const newSpeakerName = e.target.value.trim();
 
-                            //     updateSpeakerName(currSentenceId, newSpeakerName);
-                            // }, 200);
-                        };
+                        //         updateSpeakerName(currSentenceId, newSpeakerName);
+                        //     }, 200);
+                        // };
 
                         $tagInputContainer.appendChild($tagInput);
 
@@ -1618,14 +1658,42 @@ const Playlist = props => {
                             const newSpeakerName = document.getElementsByClassName('tag-input')[0].value;
 
                             // POST req to server
-                            console.log(newSpeakerName, sentencesToTag);
-
-                            dataProvider.faker(500).then(res => {
-                                // modify speaker names on UI
-                                for (let _id of sentencesToTag) {
-                                    updateSpeakerName(_id, newSpeakerName);
-                                }
+                            const sentenceData = sentencesToTag.map(_id => {
+                                return {
+                                    _id,
+                                    newSpeaker: newSpeakerName,
+                                };
                             });
+
+                            dataProvider.speech.transcripts
+                                .create('tag-speaker', {
+                                    id: props._id, // speech_id
+                                    options: {
+                                        data: {
+                                            sentences: sentenceData,
+                                        },
+                                    },
+                                })
+                                .then(res => {
+                                    console.log(res);
+                                    // modify speaker names on UI
+                                    if (res.data.failed.length === 0) {
+                                        const modSentences = res.data.success;
+                                        for (let { _id, newSpeaker } of modSentences) {
+                                            updateSpeakerName(_id, newSpeaker);
+                                        }
+                                    } else {
+                                    }
+                                })
+                                .catch(err => {
+                                    dispatch(
+                                        releaseToast({
+                                            content: err.response.data.error + ' Try, refreshing your page!',
+                                            appearance: 'error',
+                                            autoDismissTimeout: 3000,
+                                        })
+                                    );
+                                });
                         };
 
                         $tagBtnContainer.appendChild($tagBtn);
@@ -1645,14 +1713,38 @@ const Playlist = props => {
                             const newSpeakerName = document.getElementsByClassName('tag-input')[0].value;
 
                             // POST req to server
-                            console.log(newSpeakerName, sentencesToTag);
-
-                            dataProvider.faker(500).then(res => {
-                                // modify speaker names on UI
-                                for (let sentence of listOfSentences) {
-                                    updateSpeakerName(sentence._id, newSpeakerName);
-                                }
+                            const sentenceData = sentencesToTag.map(_id => {
+                                return {
+                                    _id,
+                                    newSpeaker: newSpeakerName,
+                                };
                             });
+
+                            dataProvider.speech.transcripts
+                                .create('tag-speaker', {
+                                    id: props._id, // speech_id
+                                    options: {
+                                        data: {
+                                            sentences: sentenceData,
+                                        },
+                                    },
+                                })
+                                .then(res => {
+                                    console.log(res);
+                                    // modify speaker names on UI
+                                    for (let sentence of listOfSentences) {
+                                        updateSpeakerName(sentence._id, newSpeakerName);
+                                    }
+                                })
+                                .catch(err => {
+                                    dispatch(
+                                        releaseToast({
+                                            content: err.response.data.error + ' Try, refreshing your page!',
+                                            appearance: 'error',
+                                            autoDismissTimeout: 3000,
+                                        })
+                                    );
+                                });
                         };
 
                         $tagAllBtnContainer.appendChild($tagAllBtn);
@@ -1685,7 +1777,7 @@ const Playlist = props => {
                             const { x, y } = $speakerBox.getBoundingClientRect();
                             const speaker = $speakerBox.textContent;
 
-                            const $sentence = e.path[1];
+                            // const $sentence = e.path[1];
                             const currSentenceId = $speakerBox.id.split('-')[2]; // speaker-name-<currSentenceId>
 
                             if (popUpOpenForSentenceId === -1) {
@@ -1761,13 +1853,20 @@ const Playlist = props => {
                                     })
                                     .then(res => {
                                         if (res.data.success) {
-                                            console.log('Sentence deleted on server!');
-
                                             if (undoQueue.length > 0) {
                                                 undoQueue.shift();
                                                 undoSet.delete(sentenceId);
                                             }
                                         }
+                                    })
+                                    .catch(err => {
+                                        dispatch(
+                                            releaseToast({
+                                                content: err.response.data.error + ' Try, refreshing your page!',
+                                                appearance: 'error',
+                                                autoDismissTimeout: 3000,
+                                            })
+                                        );
                                     });
                             }, UNDO_TIME);
 
@@ -1899,10 +1998,19 @@ const Playlist = props => {
                         /* 
                             Call function to save edit here
                         */
-                        save($prevSentenceNode).then(resp => {
-                            console.log('saved!');
-                            setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
-                        });
+                        save($prevSentenceNode)
+                            .then(resp => {
+                                setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
+                            })
+                            .catch(err => {
+                                dispatch(
+                                    releaseToast({
+                                        content: err.response.data.error + ' Try, refreshing your page!',
+                                        appearance: 'error',
+                                        autoDismissTimeout: 3000,
+                                    })
+                                );
+                            });
 
                         nextPlayMode = 'play';
 
@@ -1918,10 +2026,19 @@ const Playlist = props => {
                         /* 
                             Call function to save edit here
                         */
-                        save($prevSentenceNode).then(resp => {
-                            console.log('saved!');
-                            setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
-                        });
+                        save($prevSentenceNode)
+                            .then(resp => {
+                                setTimeout(() => dispatch(toggleSaveMode(false)), 1000);
+                            })
+                            .catch(err => {
+                                dispatch(
+                                    releaseToast({
+                                        content: err.response.data.error + ' Try, refreshing your page!',
+                                        appearance: 'error',
+                                        autoDismissTimeout: 3000,
+                                    })
+                                );
+                            });
 
                         nextPlayMode = 'play';
 

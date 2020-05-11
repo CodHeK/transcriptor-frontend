@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import '../styles.css';
 
 import dataProvider from '../dataProvider';
+import { useToasts } from 'react-toast-notifications';
 
 const LoginForm = props => {
     const [email, setEmail] = useState('');
@@ -16,6 +17,8 @@ const LoginForm = props => {
         email: null,
         password: null,
     });
+
+    const { addToast } = useToasts();
 
     const styles = LoginFormStyles;
 
@@ -54,6 +57,13 @@ const LoginForm = props => {
                     } else {
                         setErrorState({ ...errorState, email: 'wrong' });
                     }
+                })
+                .catch(err => {
+                    addToast(err.response.data.message, {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
                 });
         }
 

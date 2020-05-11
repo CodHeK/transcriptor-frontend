@@ -490,7 +490,7 @@ body ::-webkit-scrollbar-track {
 
 .sentence-list-container {
     margin: 0.7em 0.7em 0em 0.7em;
-    width: 90%;
+    width: 100%;
     height: 80%;
     border-radius: 5px;
     overflow-y: scroll;
@@ -503,6 +503,8 @@ body ::-webkit-scrollbar-track {
 .sentence-list {
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0px 10px;
 }
 
 .sentence-list-item {
@@ -1109,30 +1111,35 @@ footer {
 }
 
 .ui.grid .three.wide.column .item.done::after {
+    /* Denoting sentence is saved */
     content: '✅';
     position: absolute;
     right: 15px;
 }
 
 .ui.grid .three.wide.column .item.in-edit::after {
+    /* Denoting sentence is in edit */
     content: '🖍';
     position: absolute;
     right: 15px;
 }
 
 .ui.grid .three.wide.column .item.respeak-in-progress::after {
+    /* Denoting respeak for this sentence is in progress */
     content: '⚠️';
     position: absolute;
     right: 15px;
 }
 
 .ui.grid .three.wide.column .item.respeak-done::after {
+    /* Denoting respeak for this sentence is in done */
     content: '✅';
     position: absolute;
     right: 15px;
 }
 
 .ui.grid .three.wide.column .item.respeak-failed::after {
+    /* Denoting respeak for this sentence failed */
     content: '❗️';
     position: absolute;
     right: 15px;
@@ -1279,7 +1286,7 @@ footer {
 }
 
 .respeak-status {
-    font-size: 14px;
+    font-size: 13px;
     color: #333;
     margin-left: 5%;
     letter-spacing: 1px;
@@ -1289,15 +1296,21 @@ footer {
 }
 
 .respeak-in-progress {
-    background-color: rgba(253, 255, 50, 0.5);
+    border: 1px solid rgba(253, 255, 50, 0.7);
+    background-color: rgba(253, 255, 50, 0.1);
+    border-radius: 5px;
 }
 
 .respeak-done {
-    background-color: rgba(57, 255, 20, 0.5);
+    border: 1px solid rgba(57, 255, 20, 0.6);
+    background-color: rgba(57, 255, 20, 0.1);
+    border-radius: 5px;
 }
 
 .respeak-failed {
-    background-color: rgba(255, 204, 203, 0.7);
+    border: 1px solid rgba(255, 0, 0, 0.5);
+    background-color: rgba(255, 204, 203, 0.3);
+    border-radius: 5px;
 }
 
 .time-label {

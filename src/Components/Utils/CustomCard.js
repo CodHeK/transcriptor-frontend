@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
 import { Card, Dropdown } from 'semantic-ui-react';
 import ConfirmationModal from './ConfirmationModal';
+import { useToasts } from 'react-toast-notifications';
 import PropTypes from 'prop-types';
 import dataProvider from '../dataProvider';
 import '../styles.css';
@@ -26,6 +27,7 @@ const CustomCard = props => {
     const { editId, respeakId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     const dispatch = useDispatch();
+    const { addToast } = useToasts();
 
     const loading = props.data === null;
 
@@ -117,6 +119,13 @@ const CustomCard = props => {
             })
             .then(res => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
+            })
+            .catch(err => {
+                addToast(err.response.data.error, {
+                    autoDismiss: true,
+                    appearance: 'error',
+                    autoDismissTimeout: 3000,
+                });
             });
     };
 

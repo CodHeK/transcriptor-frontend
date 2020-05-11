@@ -64,16 +64,17 @@ const RegisterForm = () => {
                         if (res) {
                             if (res.data.success) {
                                 setRegistered(true);
-                            } else {
-                                addToast(res.data.message, {
-                                    autoDismiss: true,
-                                    appearance: 'error',
-                                    autoDismissTimeout: 3000,
-                                });
                             }
                         } else {
                             alert("Couldn't register user, please try again!");
                         }
+                    })
+                    .catch(err => {
+                        addToast(err.response.data.message, {
+                            autoDismiss: true,
+                            appearance: 'error',
+                            autoDismissTimeout: 3000,
+                        });
                     });
             }
 

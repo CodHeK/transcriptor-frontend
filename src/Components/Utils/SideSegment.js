@@ -262,6 +262,7 @@ const SideSegement = props => {
             case 3:
                 status = 'Re-speak failed for this sentence';
                 className = 'respeak-failed';
+                break;
             default:
                 break;
         }

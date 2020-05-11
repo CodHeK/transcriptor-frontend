@@ -36,6 +36,17 @@ const ReSpeakEditor = props => {
 
     const { ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
+    const notify = (message, type) => {
+        /* 
+            type: error | warning | success
+        */
+        addToast(message, {
+            autoDismiss: true,
+            appearance: type,
+            autoDismissTimeout: 3000,
+        });
+    };
+
     useEffect(() => {
         let _id = null;
 
@@ -89,6 +100,9 @@ const ReSpeakEditor = props => {
 
                     setFileInfo(uploadedFile);
                     setTranscript(notes);
+                })
+                .catch(err => {
+                    notify(err.response.data.error, 'error');
                 });
         }
     }, [transcriptionId]);
@@ -148,6 +162,9 @@ const ReSpeakEditor = props => {
             })
             .then(res => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
+            })
+            .catch(err => {
+                notify(err.response.data.error, 'error');
             });
     };
 
@@ -247,17 +264,6 @@ const ReSpeakEditor = props => {
         }
     };
 
-    const notify = (message, type) => {
-        /* 
-            type: error | warning | success
-        */
-        addToast(message, {
-            autoDismiss: true,
-            appearance: type,
-            autoDismissTimeout: 3000,
-        });
-    };
-
     const isEmpty = allFiles => {
         let isEmpty = true;
         for (let each of allFiles) {
@@ -316,6 +322,9 @@ const ReSpeakEditor = props => {
                         .then(res => {
                             console.log(res);
                             notify('All files submitted successfully!', 'success');
+                        })
+                        .catch(err => {
+                            notify(err.response.data.error, 'error');
                         });
                 } else {
                     if (empty) {

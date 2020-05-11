@@ -14,9 +14,9 @@ export default {
             }, delay);
         });
     },
-    auth: (resource, params) => {
-        return new Promise((resolve, reject) => {
-            axios({
+    auth: async (resource, params) => {
+        try {
+            const res = await axios({
                 method: 'POST',
                 url: `${apiUrl}/auth/${resource}`,
                 headers: {
@@ -24,14 +24,14 @@ export default {
                 },
                 ...defaultOptions,
                 ...params.options,
-            })
-                .then(res => {
-                    return resolve(res);
-                })
-                .catch(err => {
-                    return resolve(err.response);
-                });
-        });
+            });
+
+            if (statusOK(res.status)) {
+                return res;
+            }
+        } catch (e) {
+            return Promise.reject(e);
+        }
     },
     speech: {
         getList: async (resource, params) => {
@@ -52,7 +52,7 @@ export default {
                     return res;
                 }
             } catch (e) {
-                alert("Couldn't GET resource!");
+                return Promise.reject(e);
             }
         },
         get: async (resource, params) => {
@@ -72,7 +72,7 @@ export default {
                     return res;
                 }
             } catch (e) {
-                alert("Couldn't GET resource!");
+                return Promise.reject(e);
             }
         },
         delete: async (resource, params) => {
@@ -93,7 +93,7 @@ export default {
                     return res;
                 }
             } catch (e) {
-                alert("Couldn't DELETE resource!");
+                return Promise.reject(e);
             }
         },
         create: async (resource, params) => {
@@ -113,7 +113,7 @@ export default {
                     return res;
                 }
             } catch (e) {
-                alert("Couldn't POST resource!");
+                return Promise.reject(e);
             }
         },
         transcripts: {
@@ -134,7 +134,7 @@ export default {
                         return res;
                     }
                 } catch (e) {
-                    alert("Couldn't CREATE resource!");
+                    return Promise.reject(e);
                 }
             },
             update: async (resource, params) => {
@@ -154,7 +154,7 @@ export default {
                         return res;
                     }
                 } catch (e) {
-                    alert("Couldn't PUT resource!");
+                    return Promise.reject(e);
                 }
             },
         },

@@ -15,6 +15,7 @@ import { Label } from 'semantic-ui-react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
+import { useToasts } from 'react-toast-notifications';
 
 const moment = require('moment');
 
@@ -33,6 +34,7 @@ const Editor = props => {
         localStorage.getItem('autoSave') ? localStorage.getItem('autoSave') === 'true' : true
     );
     const [mute, setMute] = useState(false);
+    const { addToast } = useToasts();
 
     const $annotations = document.getElementsByClassName('annotation');
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
@@ -100,6 +102,13 @@ const Editor = props => {
 
                     setFileInfo(uploadedFile);
                     setTranscript(notes);
+                })
+                .catch(err => {
+                    addToast(err.response.data.error, {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
                 });
         }
     }, [transcriptionId]);
@@ -152,6 +161,13 @@ const Editor = props => {
             })
             .then(res => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
+            })
+            .catch(err => {
+                addToast(err.response.data.error, {
+                    autoDismiss: true,
+                    appearance: 'error',
+                    autoDismissTimeout: 3000,
+                });
             });
     };
 
