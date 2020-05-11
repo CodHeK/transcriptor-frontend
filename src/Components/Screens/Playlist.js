@@ -1547,6 +1547,64 @@ const Playlist = props => {
                         $speakerBox.textContent = name;
                     };
 
+                    const updateSpeakerMap = (oldSpeakerName, newSpeakerName, sentences, all = false) => {
+                        console.log('before ', speakerMap);
+                        let oldSpeakerSentences = speakerMap.get(oldSpeakerName);
+                        let newSpeakerSentences = speakerMap.get(newSpeakerName);
+
+                        if (all) {
+                            /* 
+                                Add those _id's in `oldSpeakerSentences` to `newSpeakerSentences`
+                            */
+                            if (newSpeakerSentences) {
+                                newSpeakerSentences = [...newSpeakerSentences, ...oldSpeakerSentences];
+                            } else {
+                                newSpeakerSentences = oldSpeakerSentences;
+                            }
+
+                            speakerMap.delete(oldSpeakerName);
+                            speakerMap.set(newSpeakerName, newSpeakerSentences);
+                        } else {
+                            sentences = sentences.map(({ _id, _ }) => _id);
+
+                            /* 
+                                Remove _id's from `oldSpeakerSentences` belonging in `sentences`
+                            */
+                            oldSpeakerSentences = oldSpeakerSentences.filter(sentence => {
+                                return !sentences.includes(sentence._id);
+                            });
+
+                            if (oldSpeakerSentences.length > 0) {
+                                speakerMap.set(oldSpeakerName, oldSpeakerSentences);
+                            } else {
+                                speakerMap.delete(oldSpeakerName);
+                            }
+
+                            /* 
+                                Add those _id's in `sentences` to `newSpeakerSentences`
+                            */
+                            if (newSpeakerSentences) {
+                                newSpeakerSentences = [...newSpeakerSentences, ...sentences];
+                            } else {
+                                newSpeakerSentences = sentences;
+                            }
+
+                            speakerMap.set(newSpeakerName, newSpeakerSentences);
+                        }
+
+                        console.log('after ', speakerMap);
+                    };
+
+                    const removeTaggingOptions = () => {
+                        const $speakerContainer = document.getElementsByClassName('speaker-container')[0];
+                        document.body.removeChild($speakerContainer);
+
+                        popUpOpenForSentenceId = -1;
+                        speakerPopUpInDisplay = false;
+
+                        sentencesForTagging.clear();
+                    };
+
                     const displayTaggingOptions = (x, y, speaker, currSentenceId) => {
                         x = parseFloat(x);
                         y = parseFloat(y);
@@ -1675,14 +1733,27 @@ const Playlist = props => {
                                     },
                                 })
                                 .then(res => {
-                                    console.log(res);
-                                    // modify speaker names on UI
-                                    if (res.data.failed.length === 0) {
-                                        const modSentences = res.data.success;
-                                        for (let { _id, newSpeaker } of modSentences) {
+                                    const { success, failed } = res.data;
+                                    if (failed.length === 0 && success.length > 0) {
+                                        const newSpeakerName = success[0].newSpeaker;
+                                        const oldSpeakerName = speaker;
+
+                                        for (let { _id, newSpeaker } of success) {
                                             updateSpeakerName(_id, newSpeaker);
                                         }
+
+                                        // modify values in speakerMap
+                                        updateSpeakerMap(oldSpeakerName, newSpeakerName, success);
+
+                                        removeTaggingOptions();
                                     } else {
+                                        dispatch(
+                                            releaseToast({
+                                                content: 'Certain Sentences failed to change speaker name!',
+                                                appearance: 'error',
+                                                autoDismissTimeout: 5000,
+                                            })
+                                        );
                                     }
                                 })
                                 .catch(err => {
@@ -1713,27 +1784,43 @@ const Playlist = props => {
                             const newSpeakerName = document.getElementsByClassName('tag-input')[0].value;
 
                             // POST req to server
-                            const sentenceData = sentencesToTag.map(_id => {
-                                return {
-                                    _id,
-                                    newSpeaker: newSpeakerName,
-                                };
-                            });
 
                             dataProvider.speech.transcripts
                                 .create('tag-speaker', {
                                     id: props._id, // speech_id
                                     options: {
                                         data: {
-                                            sentences: sentenceData,
+                                            sentences: [
+                                                {
+                                                    oldSpeaker: speaker,
+                                                    newSpeaker: newSpeakerName,
+                                                },
+                                            ],
                                         },
                                     },
                                 })
                                 .then(res => {
-                                    console.log(res);
-                                    // modify speaker names on UI
-                                    for (let sentence of listOfSentences) {
-                                        updateSpeakerName(sentence._id, newSpeakerName);
+                                    const { success, failed } = res.data;
+                                    if (failed.length === 0 && success.length > 0) {
+                                        const newSpeakerName = success[0].newSpeaker;
+                                        const oldSpeakerName = success[0].oldSpeaker;
+
+                                        // modify speaker names on UI
+                                        for (let sentence of listOfSentences) {
+                                            updateSpeakerName(sentence._id, newSpeakerName);
+                                        }
+                                        // modify values in speakerMap
+                                        updateSpeakerMap(oldSpeakerName, newSpeakerName, success, true);
+
+                                        removeTaggingOptions();
+                                    } else {
+                                        dispatch(
+                                            releaseToast({
+                                                content: 'Certain Sentences failed to change speaker name!',
+                                                appearance: 'error',
+                                                autoDismissTimeout: 5000,
+                                            })
+                                        );
                                     }
                                 })
                                 .catch(err => {
@@ -1760,16 +1847,6 @@ const Playlist = props => {
 
                         popUpOpenForSentenceId = currSentenceId;
                         speakerPopUpInDisplay = true;
-                    };
-
-                    const removeTaggingOptions = () => {
-                        const $speakerContainer = document.getElementsByClassName('speaker-container')[0];
-                        document.body.removeChild($speakerContainer);
-
-                        popUpOpenForSentenceId = -1;
-                        speakerPopUpInDisplay = false;
-
-                        sentencesForTagging.clear();
                     };
 
                     for (let $speakerBox of $annotationsSpeaker) {
