@@ -58,6 +58,7 @@ const CustomCard = props => {
             text: 'edit',
             value: 1,
             disabled: isEditorOpen() || isReSpeakOpen(),
+            selected: false,
         },
         {
             key: 2,
@@ -85,16 +86,20 @@ const CustomCard = props => {
         setMode(optionText);
 
         switch (value) {
-            case 1:
+            case 1: // edit
                 ActionDispatchers.transcriptionIdForEdit(props._id);
                 break;
 
-            case 2:
+            case 2: // re-speak
                 ActionDispatchers.transcriptionIdForReSpeak(props._id);
                 break;
 
+            case 3: // assign
+                ActionDispatchers.transcriptionIdForAssign(props._id); // [ not implemented yet! ]
+                break;
+
             default:
-                ActionDispatchers.transcriptionIdForAssign(props._id); // not implemented yet!
+                return;
         }
     };
 
@@ -172,7 +177,14 @@ const CustomCard = props => {
             return (
                 <React.Fragment>
                     <i className="fas fa-download" onClick={downloadTranscriptAndAudio}></i>
-                    <Dropdown text={mode} options={options} style={styles.dropdown} onChange={modeHandler} />
+                    <Dropdown
+                        text={mode}
+                        options={options}
+                        style={styles.dropdown}
+                        selectOnBlur={false}
+                        selectOnNavigation={false}
+                        onChange={modeHandler}
+                    />
                 </React.Fragment>
             );
         }
