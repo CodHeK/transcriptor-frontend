@@ -179,7 +179,7 @@ const Playlist = props => {
                     let currZoomLevel = zoomLevels.indexOf(cachedZoomLevel);
 
                     let annotationsContainerHeight =
-                        $annotationsTextBoxContainer && $annotationsTextBoxContainer.offsetHeight > 320 ? 550 : 300;
+                        $annotationsTextBoxContainer && $annotationsTextBoxContainer.offsetHeight - 20;
                     let annotationBoxHeights = Array.from($annotations).map($annotation => $annotation.offsetHeight);
                     let scrollPoints = new Set();
                     let sentenceIdOnCursor = 0;

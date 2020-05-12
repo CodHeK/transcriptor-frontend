@@ -27,9 +27,36 @@
     #waveform-playlist-container .playlist .annotations {
         letter-spacing: 0.7px !important;
         font-family: 'Open Sans' !important;
-        height: 720px !important;
+        height: 100% !important;
         padding-bottom: 200px;
     }
+}
+
+.container {
+    margin: 0 auto;
+}
+
+#root {
+    height: 100%;
+}
+
+.ui.container {
+    width: 80%;
+    height: 90%;
+}
+
+.playlist-top-bar {
+    height: 100%;
+}
+
+#waveform-playlist-container {
+    height: 80%;
+    width: 100%;
+}
+
+#waveform-playlist-container .playlist {
+    height: 100%;
+    width: 100%;
 }
 
 /* 

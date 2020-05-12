@@ -149,7 +149,7 @@ const RegisterForm = () => {
 
     const Verified = () => {
         return (
-            <React.Fragment style={{ width: '100%' }}>
+            <React.Fragment style={{ width: '100%', height: '550px' }}>
                 <h3 style={styles.title}>User Registered</h3>
                 <img src={tick} alt="tick" className="tick" style={{ width: '128px', height: '128px' }} />
                 <br />
