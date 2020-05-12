@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { socketDataUpdated, socketConnectionAuthenticated } from '../../actions/SocketActions';
+import { socketDataUpdated, socketConnectionAuthenticated, updateReSpeakData } from '../../actions/SocketActions';
 
 const socketMiddleware = () => {
     return store => {
@@ -30,6 +30,10 @@ const socketMiddleware = () => {
             */
             const { _id, content } = { ...data.speech, ...data.status };
             store.dispatch(socketDataUpdated({ _id, content }));
+        });
+
+        socket.on('respeak done', data => {
+            store.dispatch(updateReSpeakData(data));
         });
 
         const authenticateSocket = () => {

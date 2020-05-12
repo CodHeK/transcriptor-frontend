@@ -1,58 +1,57 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
-import InfoModal from '../Utils/InfoModal';
-import Playlist from './Playlist';
+import React, { useEffect, useState } from 'react';
+import ReSpeak from './ReSpeak';
 import Skeleton from 'react-loading-skeleton';
-import { Checkbox } from 'semantic-ui-react';
+import { useToasts } from 'react-toast-notifications';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import { Label, Button } from 'semantic-ui-react';
+import dataProvider from '../dataProvider';
+import localforage from 'localforage';
 import $ from 'jquery';
 import '../styles.css';
 
-import dataProvider from '../dataProvider';
-
-import Loader from 'react-loader-spinner';
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import { Label } from 'semantic-ui-react';
-
 import { useDispatch, useSelector } from 'react-redux';
-import { disableEditMode, setTranscriptionIdForEdit } from '../../actions/TranscriptionActions';
-import { useToasts } from 'react-toast-notifications';
+import { disableReSpeakMode, setTranscriptionIdForReSpeak } from '../../actions/TranscriptionActions';
 
 const moment = require('moment');
 
 const Empty = () => (
     <h3 style={{ marginLeft: '4%', color: 'rgba(0,0,0,0.7)' }}>
-        No file selected into Editor, go to 'My Transcriptions' to select a file!
+        No file selected for Re-speaking, go to 'My Transcriptions' to select a file!
     </h3>
 );
 
-const Editor = props => {
+const ReSpeakEditor = props => {
     const [transcriptionId, setTranscriptionId] = useState(null);
     const [transcript, setTranscript] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
     const [trackMode, setTrackMode] = useState('pause');
-    const [autoSave, setAutoSave] = useState(
-        localStorage.getItem('autoSave') ? localStorage.getItem('autoSave') === 'true' : true
-    );
     const [mute, setMute] = useState(false);
+
+    const dispatch = useDispatch();
     const { addToast } = useToasts();
 
-    const $annotations = document.getElementsByClassName('annotation');
     const $sentenceSectionBoxes = document.getElementsByClassName('annotation-box');
     const $cursor = document.getElementsByClassName('cursor')[0];
 
-    if (localStorage.getItem('autoSave') === null) {
-        localStorage.setItem('autoSave', 'true');
-    }
+    const { ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
-    const { inSaveMode, ee } = useSelector(state => ({ ...state.TRANSCRIPTION }));
-
-    let dispatch = useDispatch();
+    const notify = (message, type) => {
+        /* 
+            type: error | warning | success
+        */
+        addToast(message, {
+            autoDismiss: true,
+            appearance: type,
+            autoDismissTimeout: 3000,
+        });
+    };
 
     useEffect(() => {
         let _id = null;
 
-        if (localStorage.getItem('editorConfig') !== null) {
-            const config = JSON.parse(localStorage.getItem('editorConfig'));
+        if (localStorage.getItem('reSpeakConfig') !== null) {
+            const config = JSON.parse(localStorage.getItem('reSpeakConfig'));
 
             _id = config._id;
         } else {
@@ -64,7 +63,7 @@ const Editor = props => {
 
     useEffect(() => {
         $('.playlist-toolbar').hide();
-        $('#waveform-playlist-container').hide();
+        $('#waveform-playlist-container-respeak').hide();
 
         const processSentances = sentences => {
             let notes = [],
@@ -82,7 +81,6 @@ const Editor = props => {
                     sentenceId: s._id,
                     prevText: s.prevText,
                     reSpeak: s.respeak,
-                    speaker: s.speaker,
                 });
 
                 counter++;
@@ -104,37 +102,40 @@ const Editor = props => {
                     setTranscript(notes);
                 })
                 .catch(err => {
-                    addToast(err.response.data.message, {
-                        autoDismiss: true,
-                        appearance: 'error',
-                        autoDismissTimeout: 3000,
-                    });
+                    notify(err.response.data.message, 'error');
                 });
         }
     }, [transcriptionId]);
 
-    const closeEditor = e => {
+    const closeReSpeakEditor = e => {
         /* 
             Close all editor related modes
             and remove items from localStorage
         */
-        document.getElementById('waveform-playlist-container').remove();
-
-        localStorage.removeItem('editorConfig');
-        localStorage.removeItem('editorState');
-        localStorage.removeItem('autoSave');
+        localStorage.removeItem('reSpeakConfig');
         localStorage.removeItem('cursorPos');
-        localStorage.removeItem('globalNextPlayMode');
-        localStorage.removeItem('loadSavedState');
-        localStorage.removeItem('section-playing-editor');
+        localStorage.removeItem('once-loaded');
+        localStorage.removeItem('reSpeakEditorState');
+        localStorage.removeItem('globalNextPlayMode_respeak');
+        localStorage.removeItem('popUpInDisplay');
+        localStorage.removeItem('global_recording_flag');
+        localStorage.removeItem('global_play_audio_flag');
+        localStorage.removeItem('currently_playing');
         localStorage.removeItem('SECTION_TIMER_ID');
+        localStorage.removeItem('section-playing-respeak');
+        localStorage.removeItem('loadSavedState_ReSpeak');
 
-        dispatch(disableEditMode());
-        dispatch(setTranscriptionIdForEdit(null));
+        localforage.clear();
+
+        dispatch(disableReSpeakMode());
+        dispatch(setTranscriptionIdForReSpeak(null));
 
         /* Transition back to 'My Transcriptions' page */
         props.subPageCallback('My Transcriptions');
         localStorage.setItem('subpage', 'My Transcriptions');
+
+        $('#waveform-playlist-container-respeak').unbind();
+        document.getElementById('waveform-playlist-container-respeak').remove();
     };
 
     const createLinkForDownload = (url, type) => {
@@ -163,33 +164,12 @@ const Editor = props => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
             })
             .catch(err => {
-                if (err.response) {
-                    addToast(err.response.data.message, {
-                        autoDismiss: true,
-                        appearance: 'error',
-                        autoDismissTimeout: 3000,
-                    });
-                } else {
-                    addToast('Network error, please try again!', {
-                        autoDismiss: true,
-                        appearance: 'error',
-                        autoDismissTimeout: 3000,
-                    });
-                }
+                notify(err.response.data.message, 'error');
             });
-    };
-
-    const toggleAutoSave = () => {
-        setAutoSave(!autoSave);
-        localStorage.setItem('autoSave', !autoSave);
     };
 
     const removeSectionHighlight = $element => {
         $element.classList.remove('section-highlight');
-    };
-
-    const removeAllSentenceHighlights = () => {
-        Array.from($annotations).map($e => $e.classList.remove('current-selected'));
     };
 
     const setCursorByLeft = left => {
@@ -198,31 +178,33 @@ const Editor = props => {
 
     const toggleTrackModes = (mode, args = null, e = null) => {
         let $playListMuteButton = null,
-            keyBoardMode = true;
-        const inSectionPlayMod = JSON.parse(localStorage.getItem('section-playing-editor'));
+            fromReSpeakEditor = true;
+        const inSectionPlayMod = JSON.parse(localStorage.getItem('section-playing-respeak'));
 
         if (!e) {
             // if no event emitter passed
             e = ee;
-            keyBoardMode = false;
+            fromReSpeakEditor = false;
         }
 
         switch (mode) {
             case 'play':
                 let startTime = 0,
                     NEW_SECTION_TIMER = null;
-
                 if (localStorage.getItem('cursorPos')) {
                     startTime = parseFloat(localStorage.getItem('cursorPos'));
                 }
                 setTrackMode(mode);
-                if (!keyBoardMode) {
+
+                if (fromReSpeakEditor) {
+                    e.emit('play', parseFloat(args.startTime), parseFloat(args.endTime));
+                } else {
                     if (inSectionPlayMod) {
                         // section was paused in between and now played
-                        e.emit(mode, startTime, inSectionPlayMod.endTime);
+                        e.emit('play', startTime, inSectionPlayMod.endTime);
 
                         NEW_SECTION_TIMER = setTimeout(() => {
-                            localStorage.removeItem('section-playing-editor');
+                            localStorage.removeItem('section-playing-respeak');
                             localStorage.removeItem('SECTION_TIMER_ID');
                             setTrackMode('pause');
                             const sentenceIdx = parseInt(inSectionPlayMod.sentenceIdx);
@@ -232,32 +214,29 @@ const Editor = props => {
 
                         localStorage.setItem('SECTION_TIMER_ID', NEW_SECTION_TIMER);
                     } else {
-                        e.emit(mode, startTime);
+                        e.emit('play', startTime);
                     }
-
-                    localStorage.setItem('globalNextPlayMode', 'pause');
                 }
+                localStorage.setItem('globalNextPlayMode_respeak', 'pause');
                 break;
 
             case 'pause':
                 setTrackMode(mode);
-                if (!keyBoardMode) {
-                    if (inSectionPlayMod) {
-                        // clear the SECTION_TIMER Timeout
-                        const SECTION_TIMER = parseInt(localStorage.getItem('SECTION_TIMER_ID'));
 
-                        clearTimeout(SECTION_TIMER);
-                        localStorage.removeItem('SECTION_TIMER_ID');
-                    }
+                if (inSectionPlayMod) {
+                    // clear the SECTION_TIMER Timeout
+                    const SECTION_TIMER = parseInt(localStorage.getItem('SECTION_TIMER_ID'));
 
-                    e.emit(mode);
-                    localStorage.setItem('globalNextPlayMode', 'play');
+                    clearTimeout(SECTION_TIMER);
+                    localStorage.removeItem('SECTION_TIMER_ID');
                 }
+
+                e.emit(mode);
+                localStorage.setItem('globalNextPlayMode_respeak', 'play');
                 break;
 
             case 'stop':
                 e.emit(mode);
-                removeAllSentenceHighlights();
                 setTrackMode('pause');
                 break;
 
@@ -285,39 +264,90 @@ const Editor = props => {
         }
     };
 
+    const isEmpty = allFiles => {
+        let isEmpty = true;
+        for (let each of allFiles) {
+            const { files } = each;
+            if (files.length > 0) {
+                isEmpty = false;
+                break;
+            }
+        }
+
+        return isEmpty;
+    };
+
+    const isComplete = allFiles => {
+        let isComplete = true;
+        for (let each of allFiles) {
+            if (each.status === 'in-edit') {
+                isComplete = false;
+                break;
+            }
+        }
+        return isComplete;
+    };
+
+    const handleSubmit = () => {
+        /*
+            allFiles in localforage indexedDB
+        */
+        localforage.getItem('allFiles', (err, res) => {
+            if (res) {
+                const allFiles = res;
+                const empty = isEmpty(allFiles),
+                    complete = isComplete(allFiles);
+                if (!empty && complete) {
+                    /* 
+                        POST request to the server here!
+                    */
+                    const formData = new FormData();
+                    for (let each of allFiles) {
+                        const { files } = each;
+
+                        for (let idx in files) {
+                            // name -> sentenceId_<increment>
+                            const name = `${files[idx].name.split('_')[0]}_${idx + 1}.mp3`;
+                            formData.append('files', files[idx].blob, name);
+                        }
+                    }
+
+                    dataProvider.speech
+                        .create('respeak', {
+                            id: transcriptionId,
+                            options: {
+                                data: formData,
+                            },
+                        })
+                        .then(res => {
+                            notify('All files submitted successfully!', 'success');
+                        })
+                        .catch(err => {
+                            notify(err.response.data.message, 'error');
+                        });
+                } else {
+                    if (empty) {
+                        notify('No files recorded to submit!', 'error');
+                    } else if (!complete) {
+                        notify('You have files still in EDIT, Make sure to save them before submitting.', 'warning');
+                    }
+                }
+            } else {
+                notify('No files recorded to submit!', 'error');
+            }
+        });
+    };
+
     /*
-        Props passed to Playlist component:
+        Props passed to ReSpeak component:
     */
-    const playlistProps = {
+    const reSpeakProps = {
         fileInfo,
         _id: transcriptionId,
         notes: transcript,
-        autoSave,
         callbacks: {
             changeTrackMode: (mode, args, e) => toggleTrackModes(mode, args, e),
         },
-        actions: [
-            {
-                class: 'fas.fa-unlock',
-                title: 'lock sentence',
-                action: () => {} /* Unlock sentence voluntarily for editing */,
-            },
-            {
-                class: 'fa.fa-times',
-                title: 'Delete sentence',
-                action: () => {} /* delete handled in Playlist.js */,
-            },
-            {
-                class: 'fas.fa-history',
-                title: 'Revert back',
-                action: () => {} /* Revert back to previous version of sentence */,
-            },
-            {
-                class: 'fas.fa-lock',
-                title: 'unlock sentence',
-                action: () => {} /* Notify respeak in progress and unlock in necessary */,
-            },
-        ],
     };
 
     return (
@@ -331,17 +361,12 @@ const Editor = props => {
                             <Label as="a" color="red" ribbon>
                                 {fileInfo.originalname}
                             </Label>
-                            <InfoModal />
                         </div>
                     ) : (
                         <Skeleton width={300} height={35} />
                     )}
-                    <span className="close-editor" onClick={closeEditor}>
-                        {!inSaveMode ? (
-                            <i className="fas fa-times back"></i>
-                        ) : (
-                            <Loader type="TailSpin" color="gray" height={20} width={20} />
-                        )}
+                    <span className="close-editor" onClick={closeReSpeakEditor}>
+                        <i className="fas fa-times back"></i>
                     </span>
                     <div id="top-bar" className="playlist-top-bar">
                         <div className="playlist-toolbar">
@@ -376,33 +401,28 @@ const Editor = props => {
                                         <i className="fa fa-volume-mute"></i>
                                     )}
                                 </span>
-                                <span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
+                                {/*<span title="zoom in" className="btn-zoom-in btn btn-default editor-controls">
                                     <i className="fa fa-search-plus"></i>
                                 </span>
                                 <span title="zoom out" className="btn-zoom-out btn btn-default editor-controls">
                                     <i className="fa fa-search-minus"></i>
-                                </span>
+                                </span>*/}
                                 <span
                                     title="export audio & transcript"
                                     className="btn-download btn btn-default editor-controls"
                                     onClick={() => downloadTranscriptAndAudio(fileInfo)}
                                 >
-                                    {/* Download Transcript */}
                                     <i className="far fa-save"></i>
                                 </span>
                             </div>
                             <div className="btn-group right">
-                                <Checkbox
-                                    className="auto-save"
-                                    checked={autoSave}
-                                    toggle
-                                    label={`Autosave: ${autoSave ? 'ON' : 'OFF'}`}
-                                    onChange={toggleAutoSave}
-                                />
+                                <Button className="submit-btn-respeak" onClick={handleSubmit}>
+                                    Submit
+                                </Button>
                             </div>
                         </div>
-                        <div id="waveform-playlist-container"></div>
-                        {transcript && <Playlist {...playlistProps} />}
+                        <div id="waveform-playlist-container-respeak"></div>
+                        {transcript && <ReSpeak {...reSpeakProps} />}
                     </div>
                 </React.Fragment>
             )}
@@ -410,4 +430,4 @@ const Editor = props => {
     );
 };
 
-export default Editor;
+export default ReSpeakEditor;

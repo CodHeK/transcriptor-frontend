@@ -19,3 +19,10 @@ export const socketDataUpdated = data => {
         payload: data,
     };
 };
+
+export const updateReSpeakData = data => {
+    return {
+        type: 'UPDATE_RESPEAK_DATA',
+        payload: data,
+    };
+};

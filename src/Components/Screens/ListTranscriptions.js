@@ -2,49 +2,75 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, Card, Input } from 'semantic-ui-react';
 import Skeleton from 'react-loading-skeleton'; // (https://github.com/dvtng/react-loading-skeleton#readme)
-import CustomCard from '../Utils/Card';
+import CustomCard from '../Utils/CustomCard';
+import dataProvider from '../dataProvider';
+import { useToasts } from 'react-toast-notifications';
 
 /* import react-redux hook for getting state */
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { setTranscriptionId } from '../../actions/TranscriptionActions';
 
 const ListTranscriptions = () => {
     const [subPage, setSubPage] = useState('Created');
     const [transcriptionList, setTranscriptionList] = useState([]);
     const [cardsLoaded, setCardLoaded] = useState(false);
     const [filteredList, setFilteredList] = useState([]);
+    const { addToast } = useToasts();
 
     /* 
-        Transcription status related operations
+        Transcription related operations
     */
     const { _id, content: status } = useSelector(state => ({ ...state.SOCKET.statusData }));
+    const { transcriptionId } = useSelector(state => ({ ...state.TRANSCRIPTION }));
     const [statusCache, setStatusCache] = useState(null);
+
+    let dispatch = useDispatch();
 
     const handleSubTabClick = (e, { name }) => setSubPage(name);
 
     useEffect(() => {
-        const URL = `${process.env.REACT_APP_API_HOST}/api/speech`;
-        const token = localStorage.getItem('token');
+        if (transcriptionId != null) {
+            dataProvider.speech
+                .delete('', {
+                    id: transcriptionId,
+                })
+                .then(res => {
+                    addToast('Transcription deleted sucessfully!', {
+                        autoDismiss: true,
+                        appearance: 'success',
+                        autoDismissTimeout: 3000,
+                    });
+                })
+                .catch(err => {
+                    addToast(err.response.data.message, {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
+                });
+
+            dispatch(setTranscriptionId(null));
+        }
 
         setTimeout(() => {
-            fetch(URL, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then(res => res.json())
-                .then(data => {
-                    const list = data.speeches;
+            dataProvider.speech
+                .getList('transcriptions', {})
+                .then(res => {
+                    const list = res.data.speeches;
 
                     setTranscriptionList(list);
                     setCardLoaded(true);
+                })
+                .catch(err => {
+                    addToast(err.response.data.message + ' Try, refreshing your page!', {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
                 });
         }, 500);
-    }, []); /* 
-               useEffect(() => {...},[]) -> to make sure infinte loop doesn't occur 
-               https://stackoverflow.com/questions/53715465/can-i-set-state-inside-a-useeffect-hook
-           */
+    }, [transcriptionId]);
 
     useEffect(() => {
         let cache = [];
@@ -84,9 +110,10 @@ const ListTranscriptions = () => {
         props.list.map((each, key) => {
             const data = {
                 _id: each._id,
+                path: each.uploadedFile.path,
                 uploadedFileId: each.uploadedFile._id,
-                header: each.uploadedFile.originalname,
-                meta: each.createdAt,
+                filename: each.uploadedFile.originalname,
+                createdAt: each.createdAt,
                 language: each.language,
                 mimeType: each.uploadedFile.mimetype,
                 status: statusCache[each._id],
@@ -98,7 +125,7 @@ const ListTranscriptions = () => {
     const GhostLoader = () => {
         let elems = [];
         for (let i = 0; i < 6; i++) {
-            const data = null;
+            const data = null; // denoting it is a loader
             elems.push(<CustomCard key={i} data={data} />);
         }
         return elems;

@@ -4,10 +4,10 @@ import InputError from '../Error/FormField';
 import '../styles.css';
 import tick from '../../images/tick.svg';
 
+import dataProvider from '../dataProvider';
+import { useToasts } from 'react-toast-notifications';
+
 const RegisterForm = () => {
-    /*
-    Defining Hooks for input fields
-  */
     const [registered, setRegistered] = useState(false);
     const styles = LoginFormStyles;
 
@@ -24,25 +24,11 @@ const RegisterForm = () => {
             password: null,
         });
 
+        const { addToast } = useToasts();
+
         const handleInputChange = (setFunction, fieldValue) => setFunction(fieldValue);
 
-        const register = async formData => {
-            const URL = `${process.env.REACT_APP_API_HOST}/api/auth/register`;
-
-            const res = await fetch(URL, {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            return await res.json();
-        };
-
         const authenticateUser = () => {
-            // Init authentication
             setErrorState({
                 firstname: null,
                 lastname: null,
@@ -51,7 +37,9 @@ const RegisterForm = () => {
             });
             setLoading(true);
 
-            // Validate Form Data
+            /* 
+                Validate Form Data
+            */
             if (firstname === '') {
                 setErrorState({ ...errorState, firstname: 'error' });
             } else if (lastname === '') {
@@ -63,14 +51,31 @@ const RegisterForm = () => {
             } else {
                 const formData = { firstname, lastname, email, password };
 
-                // Send formData to the backend to authenticate
-                register(formData).then(res => {
-                    if (res.success) {
-                        setRegistered(true);
-                    } else {
-                        alert('Error Registering user!');
-                    }
-                });
+                /* 
+                    Send formData to the backend to authenticate
+                */
+                dataProvider
+                    .auth('register', {
+                        options: {
+                            data: formData,
+                        },
+                    })
+                    .then(res => {
+                        if (res) {
+                            if (res.data.success) {
+                                setRegistered(true);
+                            }
+                        } else {
+                            alert("Couldn't register user, please try again!");
+                        }
+                    })
+                    .catch(err => {
+                        addToast(err.response.data.message, {
+                            autoDismiss: true,
+                            appearance: 'error',
+                            autoDismissTimeout: 3000,
+                        });
+                    });
             }
 
             setLoading(false);
@@ -144,7 +149,7 @@ const RegisterForm = () => {
 
     const Verified = () => {
         return (
-            <React.Fragment style={{ width: '100%' }}>
+            <React.Fragment style={{ width: '100%', height: '550px' }}>
                 <h3 style={styles.title}>User Registered</h3>
                 <img src={tick} alt="tick" className="tick" style={{ width: '128px', height: '128px' }} />
                 <br />

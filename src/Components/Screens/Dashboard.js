@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 import { Dropdown, Menu, Segment, Container } from 'semantic-ui-react';
 import ListTranscriptions from './ListTranscriptions';
+import { ToastProvider } from 'react-toast-notifications';
 import Upload from './Upload';
 import Editor from './Editor';
+import ReSpeakEditor from './ReSpeakEditor';
 import logo from '../../images/ntu-logo.png';
 import PropTypes from 'prop-types';
 import '../styles.css';
@@ -13,8 +15,7 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
 /* import actions */
-
-import { enableEditMode } from '../../actions/TranscriptionActions';
+import { enableEditMode, enableReSpeakMode } from '../../actions/TranscriptionActions';
 import { requestSocketAuthentication } from '../../actions/SocketActions';
 
 const Dashboard = props => {
@@ -22,7 +23,7 @@ const Dashboard = props => {
         localStorage.getItem('subpage') === null ? 'Upload' : localStorage.getItem('subpage')
     );
 
-    const { editId, editMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
+    const { editId, editMode, respeakId, reSpeakMode } = useSelector(state => ({ ...state.TRANSCRIPTION }));
 
     let history = useHistory();
     let dispatch = useDispatch();
@@ -42,18 +43,41 @@ const Dashboard = props => {
 
         const handleTabClick = (_, { name }) => {
             if (name === 'logout') {
-                localStorage.removeItem('token');
-                localStorage.removeItem('subpage');
-                localStorage.removeItem('editorConfig');
+                localStorage.clear();
 
                 history.push('/login');
             } else {
-                localStorage.setItem('subpage', name);
-                setPage(name);
+                if (!localStorage.getItem('upload_in_progress')) {
+                    if (name === 'Editor') {
+                        if (localStorage.getItem('editorConfig')) {
+                            const inEditMode = JSON.parse(localStorage.getItem('editorConfig'));
+                            if (inEditMode.active) {
+                                localStorage.setItem('loadSavedState', 'true');
+                            }
+                        }
+                    } else if (name === 'Re-speak') {
+                        if (localStorage.getItem('reSpeakConfig')) {
+                            const inReSpeakMode = JSON.parse(localStorage.getItem('reSpeakConfig'));
+                            if (inReSpeakMode.active) {
+                                localStorage.setItem('loadSavedState_ReSpeak', 'true');
+                            }
+                        }
+                    }
+                    localStorage.setItem('subpage', name);
+                    setPage(name);
+                }
             }
         };
 
-        if (editId !== null && !editMode) {
+        if (respeakId !== null && !reSpeakMode && !editId) {
+            dispatch(enableReSpeakMode());
+
+            localStorage.setItem('subpage', 'Re-speak');
+            localStorage.setItem('reSpeakConfig', JSON.stringify({ _id: respeakId, active: true }));
+            setPage('Re-speak');
+        }
+
+        if (editId !== null && !editMode && !respeakId) {
             dispatch(enableEditMode());
 
             /* 
@@ -61,6 +85,7 @@ const Dashboard = props => {
                 save the state of the application when refreshed
             */
             localStorage.setItem('subpage', 'Editor');
+            localStorage.setItem('loadSavedState', 'false');
             localStorage.setItem('editorConfig', JSON.stringify({ _id: editId, active: true }));
 
             setPage('Editor');
@@ -78,73 +103,91 @@ const Dashboard = props => {
             case 'Editor':
                 subPage = <Editor _id={editId} subPageCallback={page => setPage(page)} />;
                 break;
+            case 'Re-speak':
+                subPage = <ReSpeakEditor _id={respeakId} subPageCallback={page => setPage(page)} />;
+                break;
             default:
-            // subPage = <ReSpeak />
+                return;
         }
 
         return (
-            <React.Fragment>
-                {localStorage.getItem('token') === null && (
-                    <Redirect
-                        to={{
-                            pathname: '/login',
-                            state: 'token-not-matching',
-                        }}
-                    />
-                )}
+            <ToastProvider placement={'bottom-left'}>
+                <React.Fragment>
+                    {localStorage.getItem('token') === null && (
+                        <Redirect
+                            to={{
+                                pathname: '/login',
+                                state: 'token-not-matching',
+                            }}
+                        />
+                    )}
 
-                <Segment style={{ boxShadow: 'none', border: '0' }}>
-                    <Menu stackable secondary>
-                        <Menu.Item>
-                            <img src={logo} alt="ntu-logo" style={{ width: '123px' }} />
-                        </Menu.Item>
-                        <Menu.Item
-                            name="Upload"
-                            active={page === 'Upload'}
-                            onClick={handleTabClick}
-                            style={{ marginLeft: '2em' }}
-                        >
-                            Upload
-                        </Menu.Item>
+                    <Segment style={{ boxShadow: 'none', border: '0' }}>
+                        <Menu stackable secondary>
+                            <Menu.Item>
+                                <img src={logo} alt="ntu-logo" style={{ width: '123px' }} />
+                            </Menu.Item>
+                            <Menu.Item
+                                name="Upload"
+                                active={page === 'Upload'}
+                                onClick={handleTabClick}
+                                style={{ marginLeft: '2em' }}
+                            >
+                                Upload
+                            </Menu.Item>
 
-                        <Menu.Item
-                            name="My Transcriptions"
-                            active={page === 'My Transcriptions'}
-                            onClick={handleTabClick}
-                        >
-                            My Transcriptions
-                        </Menu.Item>
+                            <Menu.Item
+                                name="My Transcriptions"
+                                active={page === 'My Transcriptions'}
+                                onClick={handleTabClick}
+                            >
+                                My Transcriptions
+                            </Menu.Item>
 
-                        <Menu.Item name="Re-speak" active={page === 'Re-speak'} onClick={handleTabClick}>
-                            Re-speak
-                        </Menu.Item>
+                            <Menu.Item name="Re-speak" active={page === 'Re-speak'} onClick={handleTabClick}>
+                                Re-speak
+                                {localStorage.getItem('reSpeakConfig') !== null &&
+                                    JSON.parse(localStorage.getItem('reSpeakConfig')).active && (
+                                        <sup>
+                                            <span className="dot"></span>
+                                        </sup>
+                                    )}
+                            </Menu.Item>
 
-                        <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
-                            Editor
-                            {localStorage.getItem('editorConfig') !== null &&
-                                JSON.parse(localStorage.getItem('editorConfig')).active && (
-                                    <sup>
-                                        <span className="dot"></span>
-                                    </sup>
-                                )}
-                        </Menu.Item>
+                            <Menu.Item name="Editor" active={page === 'Editor'} onClick={handleTabClick}>
+                                Editor
+                                {localStorage.getItem('editorConfig') !== null &&
+                                    JSON.parse(localStorage.getItem('editorConfig')).active && (
+                                        <sup>
+                                            <span className="dot"></span>
+                                        </sup>
+                                    )}
+                            </Menu.Item>
 
-                        <Menu.Menu position="right">
-                            <Dropdown text={firstname} className="active link item" style={{ marginRight: '2.5vw' }}>
-                                <Dropdown.Menu>
-                                    <Dropdown.Item name="logout" onClick={handleTabClick}>
-                                        LOG OUT
-                                    </Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </Menu.Menu>
-                    </Menu>
-                </Segment>
+                            <Menu.Menu position="right">
+                                <Dropdown
+                                    text={firstname}
+                                    className="active link item"
+                                    style={{ marginRight: '2.5vw' }}
+                                >
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item name="logout" onClick={handleTabClick}>
+                                            LOG OUT
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Menu.Menu>
+                        </Menu>
+                    </Segment>
 
-                <Container id="main-container">{subPage}</Container>
-            </React.Fragment>
+                    <Container id="main-container">{subPage}</Container>
+                </React.Fragment>
+            </ToastProvider>
         );
     } else {
+        /* 
+            if not authenticated
+        */
         return (
             <Redirect
                 to={{

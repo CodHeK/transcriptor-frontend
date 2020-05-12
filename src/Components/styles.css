@@ -1,11 +1,18 @@
+/* 
+    README :
+
+    In order to find the css for a particular component just 
+    CTRL + F (find) the name of the file in the this css file
+
+    All the css rules are first preceded by the file 
+    associated with it.
+*/
+
 /*
     Media queries related to every screen or any pseudo class attachments
     written here make sure to comment the file it belongs to.
 */
 
-/* 
-    Forms/(Login.js & Register.js)
-*/
 @media only screen and (min-width: 1450px) {
     .next-btn {
         right: 1% !important;
@@ -17,16 +24,43 @@
     #register {
         margin: 30px 28px !important;
     }
-    .playlist .annotations {
+    #waveform-playlist-container .playlist .annotations {
         letter-spacing: 0.7px !important;
         font-family: 'Open Sans' !important;
-        height: 720px !important;
-        padding-bottom: 200px !important;
+        height: 100% !important;
+        padding-bottom: 200px;
     }
 }
 
+.container {
+    margin: 0 auto;
+}
+
+#root {
+    height: 100%;
+}
+
+.ui.container {
+    width: 80%;
+    height: 90%;
+}
+
+.playlist-top-bar {
+    height: 100%;
+}
+
+#waveform-playlist-container {
+    height: 80%;
+    width: 100%;
+}
+
+#waveform-playlist-container .playlist {
+    height: 100%;
+    width: 100%;
+}
+
 /* 
-    DropZone styles
+    Upload.js css
 */
 
 .dzu-input {
@@ -39,7 +73,6 @@
     height: auto !important;
     padding-bottom: 30px !important;
     background-color: rgba(220, 220, 220, 0.2);
-    /* box-shadow:0 1px 3px rgba(0,0,0,0.1), inset 0 0 30px rgba(0,0,0,0.1) !important; */
 }
 
 .dzu-inputLabel {
@@ -63,7 +96,10 @@
 }
 
 .dzu-submitButtonContainer {
-    display: none !important;
+    /* margin: 0 0 !important; */
+    position: absolute !important;
+    right: 2%;
+    bottom: 10px;
 }
 
 .dzu-submitButton {
@@ -73,6 +109,7 @@
     color: #000 !important;
     margin-top: 3.5em;
     background-color: #e6e6e6 !important;
+    position: relative;
 }
 
 body ::-webkit-scrollbar-track {
@@ -99,8 +136,17 @@ body ::-webkit-scrollbar-track {
 }
 
 /* 
-    Card.js styles
+    CustomCard.js styles
 */
+
+.ui.dropdown .menu {
+    border-radius: 5px;
+}
+
+.ui.dropdown .menu > .item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0 2px;
+}
 
 .card-header {
     letter-spacing: 0.7px;
@@ -126,7 +172,7 @@ body ::-webkit-scrollbar-track {
     right: 8px !important;
 }
 
-.edit-flag {
+.mode-flag {
     color: red;
     letter-spacing: 0.7px;
     position: absolute !important;
@@ -141,18 +187,19 @@ body ::-webkit-scrollbar-track {
 }
 
 .status-flag {
-    color: red;
+    color: #000;
     letter-spacing: 0.7px;
     position: absolute !important;
     right: 12px !important;
     border-radius: 0.3rem;
     width: auto;
-    background-color: rgba(255, 0, 0, 0.1);
+    background-color: #f4eeff;
     font-size: 13px;
     text-align: center;
     padding-left: 5px;
     padding-right: 5px;
     bottom: 10px !important;
+    /* rgba(255, 0, 0, 0.1) */
 }
 
 .dot {
@@ -201,6 +248,32 @@ body ::-webkit-scrollbar-track {
     height: 20px;
 }
 
+.fa-download {
+    right: 100px;
+    bottom: 12.5px;
+    position: absolute;
+    font-size: 16px;
+    color: #808080;
+    padding-left: 3px;
+    padding-right: 3p;
+}
+
+.fa-download:hover {
+    color: black;
+    cursor: pointer;
+}
+
+.status-loader {
+    height: 5px;
+    width: 0px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-bottom-left-radius: 0.3rem;
+    border-bottom-right-radius: 0.3rem;
+    background-color: #424874;
+}
+
 /* 
     Status bar css (Card.js)
 */
@@ -223,13 +296,21 @@ body ::-webkit-scrollbar-track {
     width: 100%;
 }
 
-.sentence-ghost {
+.list-ghost {
     list-style: none;
     margin-top: 1em;
     left: 0;
     margin-left: -2.8em;
 }
 
+.row-ghost {
+    margin: 0 1em 0 1em;
+}
+
+.autosave-ghost {
+    position: absolute;
+    right: 12px;
+}
 /* 
     Dashboard styles (Dasboard.js)
 */
@@ -238,9 +319,7 @@ body ::-webkit-scrollbar-track {
 }
 
 /* 
-    Playlist css 
-
-    From: https://github.com/naomiaro/waveform-playlist/blob/master/dist/waveform-playlist/css/main.css
+    Playlist.js css 
 */
 
 .editor-title {
@@ -255,6 +334,7 @@ body ::-webkit-scrollbar-track {
     font-weight: 300;
     right: 20px;
     top: 8px;
+    border-radius: 50%;
 }
 
 .close-editor:hover {
@@ -287,6 +367,11 @@ body ::-webkit-scrollbar-track {
 
 .playlist .cursor {
     background: black;
+    cursor: pointer !important;
+}
+
+.playlist .cursor:hover {
+    color: #39ff14 !important;
 }
 
 .playlist .wp-fade {
@@ -295,7 +380,7 @@ body ::-webkit-scrollbar-track {
 
 .playlist .state-cursor,
 .playlist .state-select {
-    cursor: text;
+    cursor: pointer !important;
 }
 
 .playlist .state-fadein {
@@ -421,14 +506,159 @@ body ::-webkit-scrollbar-track {
     background: #ccc;
 }
 
+/* css for the pop-up speaker tagging container */
+.speaker-container {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 250px;
+    position: absolute;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    border-radius: 5px;
+    background-color: white;
+    align-items: center;
+}
+
+/* caret on pop-up */
+.speaker-container:before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    transform: rotate(-45deg);
+    background: #fff;
+    position: absolute;
+    z-index: -1;
+    bottom: -4px;
+    left: 4px;
+}
+
+.sentence-list-container {
+    margin: 0.7em 0.7em 0em 0.7em;
+    width: 100%;
+    height: 80%;
+    border-radius: 5px;
+    overflow-y: scroll;
+}
+
+.sentence-list-container::-webkit-scrollbar {
+    width: 7px;
+}
+
+.sentence-list {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0px 10px;
+}
+
+.sentence-list-item {
+    width: 100%;
+    height: 40px;
+    font-size: 13px;
+    padding: 10px;
+    line-height: 1.5;
+    list-style: none;
+    border-top: 1px solid #c0c0c0;
+    font-family: 'Open Sans' !important;
+    letter-spacing: 0.7px;
+    cursor: pointer;
+}
+
+.tagging-container {
+    margin: 0.7em;
+    width: 90%;
+    height: 20%;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+.tag-input-container {
+    width: 50%;
+    height: 100%;
+}
+
+.tag-input {
+    width: 100%;
+    height: 100%;
+    font-size: 13px;
+    padding: 10px;
+    color: black;
+    border: 1px solid black;
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+    font-family: 'Open Sans' !important;
+}
+
+.tag-input:focus {
+    outline: none;
+}
+
+.tag-btn-container {
+    width: 25%;
+    height: 100%;
+}
+
+.tag-btn {
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+    padding: 10px;
+    font-size: 13px;
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    border-left: 0;
+}
+
+.tag-btn:hover {
+    background-color: #ececec;
+}
+
+.tag-btn:focus {
+    outline: none;
+}
+
+.tag-all-btn-container {
+    width: 25%;
+    height: 100%;
+}
+
+.tag-all-btn {
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+    font-size: 13px;
+    padding: 10px;
+    letter-spacing: 0.6px;
+    background-color: #333;
+    color: #f5f5f5;
+    font-family: 'Open Sans' !important;
+    border-left: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    transition: 0.5s all;
+}
+
+.tag-all-btn:hover {
+    background-color: #fff;
+    color: #333;
+}
+
+.tag-all-btn:focus {
+    outline: none;
+}
+
+.tag-selected {
+    background-color: rgb(224, 239, 241);
+}
+
 .playlist .annotations {
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;
     height: 520px;
-    padding-bottom: 200px !important;
+    padding-bottom: 200px;
 }
-
-/* Add media queries for above style here */
 
 .playlist .annotations .annotations-boxes {
     text-align: center;
@@ -458,7 +688,18 @@ body ::-webkit-scrollbar-track {
     margin-top: 1em;
     height: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
+    cursor: pointer;
+}
+
+.annotation-lines:focus {
+    outline-style: dashed;
+    outline-width: 2.5px;
+    cursor: auto;
+}
+
+.annotation-lines::selection {
+    background-color: rgba(255, 251, 204, 1);
 }
 
 .playlist .annotations .annotations-text .annotation {
@@ -468,6 +709,11 @@ body ::-webkit-scrollbar-track {
     justify-content: flex-start;
     align-items: stretch;
     padding-bottom: 1em;
+    border-radius: 5px;
+    height: auto;
+    min-height: 85px;
+    position: relative;
+    padding-left: 30px;
 }
 
 .playlist .annotations .annotations-text .annotation span {
@@ -481,6 +727,24 @@ body ::-webkit-scrollbar-track {
 .playlist .annotations .annotations-text .annotation .annotation-id {
     font-size: 16px;
     line-height: 27px;
+}
+
+.playlist .annotations .annotations-text .annotation .annotation-speaker {
+    font-size: 14px;
+    line-height: 25px;
+    background-color: rgb(224, 239, 241, 0.5);
+    height: 25px;
+    width: auto;
+    padding: 0;
+    padding: 0px 3px 6px 5px;
+    margin-top: 5px;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.7px;
+}
+
+.annotation-speaker:hover {
+    cursor: pointer;
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-start {
@@ -499,6 +763,14 @@ body ::-webkit-scrollbar-track {
     flex-grow: 10;
     margin-top: 7px;
     font-size: 17px;
+    position: relative;
+    padding: 0px 10px 10px 10px;
+    border: 0;
+    background-color: transparent;
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    resize: none;
+    letter-spacing: 0.5px;
 }
 
 .playlist .annotations .annotations-text .annotation .annotation-actions {
@@ -522,7 +794,37 @@ body ::-webkit-scrollbar-track {
 }
 
 .playlist .annotations .current {
-    background-color: #ebf4f6;
+    border: 1px solid black;
+}
+
+.playlist .annotations .current-editing {
+    animation: editmode-switch 0.3s forwards;
+}
+
+@keyframes editmode-switch {
+    0% {
+        background-color: #ebf4f6;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.playlist .annotations .current-selected {
+    animation: sentence-switch 0.2s forwards;
+}
+
+@keyframes sentence-switch {
+    0% {
+        background-color: white;
+    }
+    100% {
+        background-color: #ebf4f6;
+    }
+}
+
+.playlist .annotations .current-hover {
+    background-color: rgb(245, 245, 245);
 }
 
 .playlist .vocals {
@@ -557,14 +859,563 @@ footer {
     background-color: rgba(255, 251, 204, 1) !important;
 }
 
+/* autosave slider */
+.ui.toggle.checkbox input:checked ~ label:before {
+    background-color: rgba(33, 133, 208, 0.7) !important;
+}
+
+.ui.toggle.checkbox input:checked ~ label:after {
+    left: 2rem !important;
+}
+
+.fa.fa-times {
+    display: none;
+    color: #808080;
+    padding-top: 5px;
+    font-size: 20px;
+}
+
+.fas.fa-history {
+    display: none;
+    color: #808080;
+    padding-top: 18px;
+    padding-right: 0px;
+    font-size: 17px;
+    margin-right: 6px !important;
+}
+
+.fas.fa-lock {
+    color: #808080;
+    font-size: 16px;
+    position: absolute;
+    left: 10px;
+    top: 8px;
+}
+
+.fas.fa-lock:hover {
+    color: rgba(255, 0, 0, 0.5) !important;
+}
+
+.fas.fa-unlock {
+    color: #808080;
+    font-size: 16px;
+    display: none;
+    left: 10px;
+    top: 8px;
+    position: absolute;
+}
+
+.fa.fa-times:hover,
+.fas.fa-history:hover,
+.fas.fa-unlock:hover {
+    color: black !important;
+}
+
+.disable {
+    color: #808080;
+    cursor: not-allowed !important;
+}
+
+.disable:hover {
+    color: #808080;
+}
+
+.flash {
+    background-: white;
+    animation: flash-animation 1.5s;
+}
+
+@keyframes flash-animation {
+    0% {
+        background-color: white;
+    }
+    50% {
+        background-color: rgba(255, 251, 204, 1);
+    }
+    100% {
+        background-color: white;
+    }
+}
+
+#playlist-info > .ui.button {
+    background-color: white !important;
+    font-size: 20px;
+    position: relative;
+    left: 40px;
+    top: 3px;
+    padding: 0 !important;
+}
+
+.editor-controls {
+    margin: 0px 1px !important;
+    border: 1px solid black !important;
+    height: 38px;
+    width: 58px;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.ui.red.ribbon.label {
+    height: 40px;
+    width: 148px;
+    font-size: 15px;
+    font-family: 'Open Sans' !important;
+    font-weight: 400;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: black !important;
+    border: 1px solid black;
+    border-color: rgba(0, 0, 0, 0) !important;
+    left: 0;
+    padding: 10.5px 10px;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+    letter-spacing: 1px;
+}
+
+.ui.red.ribbon.label:hover {
+    background-color: #000 !important;
+    color: white;
+    border-color: rgba(0, 0, 0, 0) !important;
+}
+
+.btn-group.right {
+    position: absolute;
+    right: 20px;
+}
+
+.auto-save {
+    font-size: 15px !important;
+    font-family: 'Open Sans' !important;
+    letter-spacing: 1px;
+    line-height: 12px !important;
+}
+
+.fa-play,
+.fa-pause,
+.fa-stop,
+.fa-search-plus,
+.fa-search-minus {
+    font-size: 16px !important;
+    padding-top: 3px !important;
+    padding-left: 2px !important;
+}
+
+.fa-volume-mute,
+.fa-volume-up,
+.fa-volume-down,
+.fa-save {
+    font-size: 19px !important;
+    padding-top: 1px !important;
+    padding-left: 2px !important;
+}
+
+.controls {
+    display: none;
+}
+
 /* 
     InfoModal styles
 */
-.modal {
+.info-modal {
     margin: 5% auto !important;
     width: 350px !important;
     height: auto !important;
     text-align: center !important;
     letter-spacing: 0.7px !important;
     font-family: 'Open Sans' !important;
+    overflow-y: auto !important;
+}
+
+.confirmation-modal {
+    padding-top: 10% !important;
+}
+
+/* 
+    Toast notif css
+*/
+.react-toast-notifications__toast.react-toast-notifications__toast--info {
+    background-color: black !important;
+    color: white !important;
+}
+
+/* 
+    ReSpeak.js css
+*/
+
+.pop-up-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 58px;
+    width: auto;
+    height: 60px;
+    position: fixed;
+    z-index: 10;
+}
+
+.pop-up-time-display {
+    min-width: 70%;
+    width: auto;
+    height: 33.33%;
+    border: 1px solid black;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.7px;
+    padding: 0 5px;
+    background-color: black;
+    color: white;
+}
+
+.animate {
+    -webkit-animation: pop-up-timer-animation 0.1s ease-in-out forwards;
+    -moz-animation: pop-up-timer-animation 0.1s ease-in-out forwards;
+}
+
+@keyframes pop-up-timer-animation {
+    0% {
+        /* -webkit-transform: translateY(1.25px);
+        -moz-transform: translateY(1.25px);  */
+    }
+    50% {
+        -webkit-transform: translateY(2.5px);
+        -moz-transform: translateY(2.5px);
+    }
+    100% {
+        -webkit-transform: translateY(5px);
+        -moz-transform: translateY(5px);
+    }
+}
+
+.pop-up-pointer {
+    width: 1px;
+    height: 50%;
+    background-color: #000;
+}
+
+/* 
+    ReSpeakEditor.js css
+*/
+.submit-btn-respeak {
+    margin: 0px 1px !important;
+    border: 1px solid black !important;
+    box-sizing: border-box;
+    border-radius: 10px !important;
+    font-size: 15px;
+    background-color: #fff !important;
+    transition: all 0.5s;
+}
+
+.submit-btn-respeak:hover {
+    background-color: rgba(0, 0, 0, 0.1) !importantw;
+}
+
+/* 
+    Recorder.js css
+*/
+
+.respeak-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.sentence-container-respeak {
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    height: auto;
+    /* overflow-y: scroll; */
+}
+
+.sentence-title {
+    font-size: 20px;
+    color: #000;
+    margin: 1em;
+}
+
+.sentence-respeak {
+    font-size: 15px;
+    margin: 0.5em 1.3em;
+    color: #000;
+}
+
+.ui.grid {
+    margin-top: -2.5rem;
+}
+
+.ui.grid .three.wide.column {
+    max-height: 380px;
+    overflow-y: scroll;
+    font-family: 'Open Sans' !important;
+    margin-top: 15px;
+}
+
+.ui.grid .three.wide.column::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+.ui.grid .three.wide.column .item.done::after {
+    /* Denoting sentence is saved */
+    content: '✅';
+    position: absolute;
+    right: 15px;
+}
+
+.ui.grid .three.wide.column .item.in-edit::after {
+    /* Denoting sentence is in edit */
+    content: '🖍';
+    position: absolute;
+    right: 15px;
+}
+
+.ui.grid .three.wide.column .item.respeak-in-progress::after {
+    /* Denoting respeak for this sentence is in progress */
+    content: '⚠️';
+    position: absolute;
+    right: 15px;
+}
+
+.ui.grid .three.wide.column .item.respeak-done::after {
+    /* Denoting respeak for this sentence is in done */
+    content: '✅';
+    position: absolute;
+    right: 15px;
+}
+
+.ui.grid .three.wide.column .item.respeak-failed::after {
+    /* Denoting respeak for this sentence failed */
+    content: '❗️';
+    position: absolute;
+    right: 15px;
+}
+
+.recorder-container-respeak {
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    height: auto;
+    margin: 1em 1.3em;
+    position: relative;
+}
+
+.sortable-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-bottom: 60px;
+}
+
+.footer-respeak {
+    width: 100%;
+    font-family: 'Open Sans' !important;
+    height: auto;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+/* 
+    SortableCard.js css
+*/
+.sortable-list {
+    width: 390px;
+    height: 60px;
+    margin: 1em 0.5em;
+    border: 2px dashed #888;
+    padding: 10px;
+    border-radius: 2px;
+    line-height: 1;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+}
+
+.sortable-list:hover {
+    cursor: pointer;
+}
+
+.sortable-display-name {
+    padding: 5px;
+    line-height: 1;
+    cursor: text;
+    outline-width: 0px;
+}
+
+.sortable-filename {
+    width: 70%;
+    height: 100%;
+    letter-spacing: 0.7px;
+    padding: 11px 8px 11px 6px;
+    font-size: 14px;
+}
+
+.sortable-listen-icon {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    padding-top: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 50%;
+    color: #888;
+}
+
+.sortable-listen-icon .fa-play {
+    font-size: 18px;
+    padding-top: 1px;
+    padding-left: 2px;
+}
+
+.sortable-listen-icon .fa-stop {
+    font-size: 18px;
+    padding-top: 1px;
+    padding-left: 2px;
+    color: rgba(255, 0, 0, 0.5);
+}
+
+.sortable-record-icon {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    padding-top: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s;
+    color: #888;
+}
+
+.sortable-delete-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding-top: 7px;
+    background-color: #fff;
+    text-align: center;
+    cursor: pointer;
+    color: #888;
+}
+
+.sortable-record-icon:hover,
+.sortable-listen-icon:hover,
+.sortable-delete-icon:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #000;
+}
+
+.fa-microphone {
+    font-size: 19px;
+    padding-left: 1px;
+}
+
+.fa-microphone.recording {
+    color: rgba(255, 0, 0, 0.5);
+}
+
+.sortable-delete-icon .fa-times {
+    font-size: 20px;
+    padding-top: 2.7px;
+    padding-left: 0.5px;
+}
+
+.sentence-times {
+    font-size: 15px;
+    color: #888;
+    margin-left: 5%;
+    letter-spacing: 1px;
+    font-family: 'Open Sans' !important;
+    font-weight: 400;
+}
+
+.respeak-status {
+    font-size: 13px;
+    color: #333;
+    margin-left: 5%;
+    letter-spacing: 1px;
+    font-family: 'Open Sans' !important;
+    font-weight: 400;
+    padding: 0 5px;
+}
+
+.respeak-in-progress {
+    border: 1px solid rgba(253, 255, 50, 0.7);
+    background-color: rgba(253, 255, 50, 0.1);
+    border-radius: 5px;
+}
+
+.respeak-done {
+    border: 1px solid rgba(57, 255, 20, 0.6);
+    background-color: rgba(57, 255, 20, 0.1);
+    border-radius: 5px;
+}
+
+.respeak-failed {
+    border: 1px solid rgba(255, 0, 0, 0.5);
+    background-color: rgba(255, 204, 203, 0.3);
+    border-radius: 5px;
+}
+
+.time-label {
+    position: absolute;
+    min-width: 50px;
+    text-align: center;
+    width: auto;
+    height: 20px;
+    font-size: 12px;
+    left: -2px;
+    top: -25px;
+    border: 2px solid white;
+    padding: 3.5px 12px;
+    border-radius: 2px;
+    font-weight: normal;
+    letter-spacing: 0.7px;
+    font-family: 'Open Sans' !important;
+    z-index: 20;
+    border-top: 2px dashed #888;
+    border-left: 2px dashed #888;
+    border-right: 2px dashed #888;
+    animation: timeDrop 0.3s forwards;
+}
+
+@keyframes timeDrop {
+    0% {
+        display: none;
+    }
+    50% {
+        transform: translateY(0px);
+    }
+    100% {
+        display: block;
+        transform: translateY(5px);
+    }
+}
+
+/* 
+    Re-speak ghost css
+*/
+.recorder-ghost {
+    display: flex;
+    flex-direction: row;
+}
+
+.menu-ghost {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    margin-left: -40px;
+    margin-top: 20px;
+    height: 500px;
+}
+
+.menu-item-ghost {
+    list-style: none;
+    margin-top: 10px;
+}
+
+.side-segment-ghost {
+    width: 80%;
+    margin: 30px 40px;
 }
