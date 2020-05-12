@@ -4,7 +4,6 @@ import Dropzone from 'react-dropzone-uploader';
 import dataProvider from '../dataProvider';
 import { useToasts } from 'react-toast-notifications';
 import { bandwidth } from '../network';
-import { timeFormat } from '../timeFormat';
 import '../styles.css';
 
 /*
@@ -73,8 +72,8 @@ const Upload = () => {
                 $e.disabled = false;
                 $e.style.cursor = 'pointer';
 
-                if ('error' in err.response.data) {
-                    uploadStatus(err.response.data.error, 'error');
+                if ('message' in err.response.data) {
+                    uploadStatus(err.response.data.message, 'error');
                 } else {
                     uploadStatus('Error Uploading file', 'error');
                 }

@@ -191,7 +191,8 @@ const Playlist = props => {
                         speakerPopUpInDisplay = false;
                     let popUpOpenForSentenceId = -1;
                     let currentHighlightedSentence = -1;
-                    let speakerMap = new Map();
+                    let speakerMap = new Map(); // speakerName -> [ list of sentence _id's ]
+                    let sentenceMap = new Map(); // sentence _id -> sentenceIdx
 
                     for (let i = 1; i < annotationBoxHeights.length; i++) {
                         annotationBoxHeights[i] += annotationBoxHeights[i - 1];
@@ -332,6 +333,8 @@ const Playlist = props => {
                         let idx = 0;
                         for (let $annotation of $annotations) {
                             const { sentenceId } = props.notes[idx];
+
+                            sentenceMap.set(sentenceId, idx + 1);
 
                             $annotation.id = `annotation_${sentenceId}`;
                             $annotation.classList.remove('respeak-failed');
@@ -941,7 +944,7 @@ const Playlist = props => {
                                 .catch(err => {
                                     dispatch(
                                         releaseToast({
-                                            content: err.response.data.error + ' Try, refreshing your page!',
+                                            content: err.response.data.message + ' Try, refreshing your page!',
                                             appearance: 'error',
                                             autoDismissTimeout: 3000,
                                         })
@@ -1394,7 +1397,7 @@ const Playlist = props => {
                                     .catch(err => {
                                         dispatch(
                                             releaseToast({
-                                                content: err.response.data.error + ' Try, refreshing your page!',
+                                                content: err.response.data.message + ' Try, refreshing your page!',
                                                 appearance: 'error',
                                                 autoDismissTimeout: 3000,
                                             })
@@ -1447,7 +1450,7 @@ const Playlist = props => {
                                     .catch(err => {
                                         dispatch(
                                             releaseToast({
-                                                content: err.response.data.error + ' Try, refreshing your page!',
+                                                content: err.response.data.message + ' Try, refreshing your page!',
                                                 appearance: 'error',
                                                 autoDismissTimeout: 3000,
                                             })
@@ -1516,7 +1519,6 @@ const Playlist = props => {
                     };
 
                     const updateSpeakerMap = (oldSpeakerName, newSpeakerName, sentences, all = false) => {
-                        console.log('before ', speakerMap);
                         let oldSpeakerSentences = speakerMap.get(oldSpeakerName);
                         let newSpeakerSentences = speakerMap.get(newSpeakerName);
 
@@ -1533,7 +1535,7 @@ const Playlist = props => {
                             speakerMap.delete(oldSpeakerName);
                             speakerMap.set(newSpeakerName, newSpeakerSentences);
                         } else {
-                            sentences = sentences.map(({ _id, _ }) => _id);
+                            sentences = sentences.map(({ _id }) => _id);
 
                             /* 
                                 Remove _id's from `oldSpeakerSentences` belonging in `sentences`
@@ -1551,16 +1553,19 @@ const Playlist = props => {
                             /* 
                                 Add those _id's in `sentences` to `newSpeakerSentences`
                             */
+
+                            sentences = sentences.map(_id => ({ _id, sentenceIdx: sentenceMap.get(_id) }));
+
                             if (newSpeakerSentences) {
                                 newSpeakerSentences = [...newSpeakerSentences, ...sentences];
+
+                                newSpeakerSentences.sort((a, b) => parseInt(a.sentenceIdx) - parseInt(b.sentenceIdx));
                             } else {
                                 newSpeakerSentences = sentences;
                             }
 
                             speakerMap.set(newSpeakerName, newSpeakerSentences);
                         }
-
-                        console.log('after ', speakerMap);
                     };
 
                     const removeTaggingOptions = () => {
@@ -1729,7 +1734,7 @@ const Playlist = props => {
                                 .catch(err => {
                                     dispatch(
                                         releaseToast({
-                                            content: err.response.data.error + ' Try, refreshing your page!',
+                                            content: err.response.data.message + ' Try, refreshing your page!',
                                             appearance: 'error',
                                             autoDismissTimeout: 3000,
                                         })
@@ -1796,7 +1801,7 @@ const Playlist = props => {
                                 .catch(err => {
                                     dispatch(
                                         releaseToast({
-                                            content: err.response.data.error + ' Try, refreshing your page!',
+                                            content: err.response.data.message + ' Try, refreshing your page!',
                                             appearance: 'error',
                                             autoDismissTimeout: 3000,
                                         })
@@ -1909,7 +1914,7 @@ const Playlist = props => {
                                     .catch(err => {
                                         dispatch(
                                             releaseToast({
-                                                content: err.response.data.error + ' Try, refreshing your page!',
+                                                content: err.response.data.message + ' Try, refreshing your page!',
                                                 appearance: 'error',
                                                 autoDismissTimeout: 3000,
                                             })
@@ -2052,7 +2057,7 @@ const Playlist = props => {
                             .catch(err => {
                                 dispatch(
                                     releaseToast({
-                                        content: err.response.data.error + ' Try, refreshing your page!',
+                                        content: err.response.data.message + ' Try, refreshing your page!',
                                         appearance: 'error',
                                         autoDismissTimeout: 3000,
                                     })
@@ -2080,7 +2085,7 @@ const Playlist = props => {
                             .catch(err => {
                                 dispatch(
                                     releaseToast({
-                                        content: err.response.data.error + ' Try, refreshing your page!',
+                                        content: err.response.data.message + ' Try, refreshing your page!',
                                         appearance: 'error',
                                         autoDismissTimeout: 3000,
                                     })

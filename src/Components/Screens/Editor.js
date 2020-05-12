@@ -104,7 +104,7 @@ const Editor = props => {
                     setTranscript(notes);
                 })
                 .catch(err => {
-                    addToast(err.response.data.error, {
+                    addToast(err.response.data.message, {
                         autoDismiss: true,
                         appearance: 'error',
                         autoDismissTimeout: 3000,
@@ -163,11 +163,19 @@ const Editor = props => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
             })
             .catch(err => {
-                addToast(err.response.data.error, {
-                    autoDismiss: true,
-                    appearance: 'error',
-                    autoDismissTimeout: 3000,
-                });
+                if (err.response) {
+                    addToast(err.response.data.message, {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
+                } else {
+                    addToast('Network error, please try again!', {
+                        autoDismiss: true,
+                        appearance: 'error',
+                        autoDismissTimeout: 3000,
+                    });
+                }
             });
     };
 

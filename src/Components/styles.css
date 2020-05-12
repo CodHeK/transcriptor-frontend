@@ -1,3 +1,13 @@
+/* 
+    README :
+
+    In order to find the css for a particular component just 
+    CTRL + F (find) the name of the file in the this css file
+
+    All the css rules are first preceded by the file 
+    associated with it.
+*/
+
 /*
     Media queries related to every screen or any pseudo class attachments
     written here make sure to comment the file it belongs to.
@@ -36,7 +46,6 @@
     height: auto !important;
     padding-bottom: 30px !important;
     background-color: rgba(220, 220, 220, 0.2);
-    /* box-shadow:0 1px 3px rgba(0,0,0,0.1), inset 0 0 30px rgba(0,0,0,0.1) !important; */
 }
 
 .dzu-inputLabel {
@@ -100,8 +109,17 @@ body ::-webkit-scrollbar-track {
 }
 
 /* 
-    Card.js styles
+    CustomCard.js styles
 */
+
+.ui.dropdown .menu {
+    border-radius: 5px;
+}
+
+.ui.dropdown .menu > .item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0 2px;
+}
 
 .card-header {
     letter-spacing: 0.7px;

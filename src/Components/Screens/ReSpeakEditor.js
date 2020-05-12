@@ -102,7 +102,7 @@ const ReSpeakEditor = props => {
                     setTranscript(notes);
                 })
                 .catch(err => {
-                    notify(err.response.data.error, 'error');
+                    notify(err.response.data.message, 'error');
                 });
         }
     }, [transcriptionId]);
@@ -164,7 +164,7 @@ const ReSpeakEditor = props => {
                 createLinkForDownload(window.URL.createObjectURL(new Blob([res.data])), 'zip');
             })
             .catch(err => {
-                notify(err.response.data.error, 'error');
+                notify(err.response.data.message, 'error');
             });
     };
 
@@ -320,11 +320,10 @@ const ReSpeakEditor = props => {
                             },
                         })
                         .then(res => {
-                            console.log(res);
                             notify('All files submitted successfully!', 'success');
                         })
                         .catch(err => {
-                            notify(err.response.data.error, 'error');
+                            notify(err.response.data.message, 'error');
                         });
                 } else {
                     if (empty) {

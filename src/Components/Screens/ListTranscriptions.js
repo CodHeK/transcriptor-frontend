@@ -43,7 +43,7 @@ const ListTranscriptions = () => {
                     });
                 })
                 .catch(err => {
-                    addToast(err.response.data.error, {
+                    addToast(err.response.data.message, {
                         autoDismiss: true,
                         appearance: 'error',
                         autoDismissTimeout: 3000,
@@ -63,7 +63,7 @@ const ListTranscriptions = () => {
                     setCardLoaded(true);
                 })
                 .catch(err => {
-                    addToast(err.response.data.error + ' Try, refreshing your page!', {
+                    addToast(err.response.data.message + ' Try, refreshing your page!', {
                         autoDismiss: true,
                         appearance: 'error',
                         autoDismissTimeout: 3000,
